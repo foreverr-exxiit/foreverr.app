@@ -1,0 +1,30 @@
+[project]
+id = "foreverr"
+
+[api]
+port = 54321
+schemas = ["public", "storage"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+port = 54323
+
+[auth]
+site_url = "foreverr://auth-callback"
+additional_redirect_urls = ["foreverr://auth-callback"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.external.apple]
+enabled = true
+
+[auth.external.google]
+enabled = true
+
+[storage]
+file_size_limit = "50MiB"
