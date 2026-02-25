@@ -29,15 +29,17 @@ interface TributeComposerProps {
     ribbonType: string;
     ribbonCount: number;
   }) => Promise<void>;
+  onAISuggest?: () => Promise<string | null>;
   userAvatarUrl?: string | null;
   ribbonBalance?: number;
 }
 
-export function TributeComposer({ visible, onClose, onSubmit, userAvatarUrl, ribbonBalance = 0 }: TributeComposerProps) {
+export function TributeComposer({ visible, onClose, onSubmit, onAISuggest, userAvatarUrl, ribbonBalance = 0 }: TributeComposerProps) {
   const [content, setContent] = useState("");
   const [selectedType, setSelectedType] = useState("text");
   const [selectedRibbon, setSelectedRibbon] = useState("silver");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAISuggesting, setIsAISuggesting] = useState(false);
 
   const ribbonCost = RIBBON_TYPES.find((r) => r.key === selectedRibbon)?.cost ?? 1;
   const canAfford = ribbonBalance >= ribbonCost;
@@ -110,6 +112,32 @@ export function TributeComposer({ visible, onClose, onSubmit, userAvatarUrl, rib
               ))}
             </View>
           </View>
+
+          {/* AI Suggest */}
+          {onAISuggest && (
+            <View className="px-4 mb-2">
+              <Pressable
+                className="flex-row items-center justify-center gap-2 rounded-full bg-brand-50 py-2.5 px-4"
+                onPress={async () => {
+                  setIsAISuggesting(true);
+                  try {
+                    const suggestion = await onAISuggest();
+                    if (suggestion) setContent(suggestion);
+                  } catch {
+                    // silently fail
+                  } finally {
+                    setIsAISuggesting(false);
+                  }
+                }}
+                disabled={isAISuggesting}
+              >
+                <Ionicons name="sparkles" size={14} color="#4A2D7A" />
+                <Text className="text-xs font-sans-semibold text-brand-700">
+                  {isAISuggesting ? "Generating..." : "AI Suggest"}
+                </Text>
+              </Pressable>
+            </View>
+          )}
 
           {/* Content */}
           <View className="px-4">
