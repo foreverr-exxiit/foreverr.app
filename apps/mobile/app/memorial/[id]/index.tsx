@@ -1,9 +1,9 @@
 import { View, FlatList, Pressable, ActivityIndicator } from "react-native";
 import { useState } from "react";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
-import { useTributes, useMemorial, useCreateTribute, useToggleReaction, useAuth } from "@foreverr/core";
+import { useTributes, useMemorial, useCreateTribute, useToggleReaction, useAuth, useGenerateTribute } from "@foreverr/core";
 import { Text, TributeComposer, ReactionBar } from "@foreverr/ui";
 
 function timeAgo(dateStr: string): string {
@@ -19,11 +19,13 @@ function timeAgo(dateStr: string): string {
 
 export default function MemorialFeedScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const { user, profile } = useAuth();
   const { data: memorial } = useMemorial(id);
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useTributes(id);
   const createTribute = useCreateTribute();
   const toggleReaction = useToggleReaction();
+  const generateTribute = useGenerateTribute();
   const [composerVisible, setComposerVisible] = useState(false);
 
   const tributes = data?.pages.flatMap((p) => p.data) ?? [];
@@ -55,6 +57,21 @@ export default function MemorialFeedScreen() {
             {memorial.biography}
           </Text>
         </View>
+      )}
+
+      {/* AI Biography button for authenticated users */}
+      {user && (
+        <Pressable
+          className="mx-4 mt-3 flex-row items-center rounded-xl bg-brand-50 dark:bg-brand-900/20 p-3"
+          onPress={() => router.push(`/memorial/${id}/ai-biography`)}
+        >
+          <Ionicons name="sparkles" size={16} color="#4A2D7A" />
+          <Text className="ml-2 text-xs font-sans-semibold text-brand-700">
+            {memorial?.biography ? "Regenerate Biography with AI" : "Generate Biography with AI"}
+          </Text>
+          <View className="flex-1" />
+          <Ionicons name="chevron-forward" size={14} color="#4A2D7A" />
+        </Pressable>
       )}
 
       {isLoading ? (
@@ -152,6 +169,14 @@ export default function MemorialFeedScreen() {
         visible={composerVisible}
         onClose={() => setComposerVisible(false)}
         onSubmit={handleCreateTribute}
+        onAISuggest={async () => {
+          if (!id) return null;
+          const result = await generateTribute.mutateAsync({
+            memorialId: id,
+            attributes: `A tribute for ${memorial?.first_name} ${memorial?.last_name}`,
+          });
+          return result.text;
+        }}
         userAvatarUrl={profile?.avatar_url}
         ribbonBalance={profile?.ribbon_balance ?? 0}
       />

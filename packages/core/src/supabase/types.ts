@@ -371,6 +371,576 @@ export interface Database {
         };
         Relationships: [];
       };
+      ai_generations: {
+        Row: {
+          id: string;
+          memorial_id: string;
+          requested_by: string;
+          type: string;
+          provider: string;
+          model: string;
+          prompt_data: Json;
+          output_text: string | null;
+          tokens_used: number;
+          cost_cents: number;
+          status: string;
+          style: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          memorial_id: string;
+          requested_by: string;
+          type: string;
+          provider?: string;
+          model?: string;
+          prompt_data?: Json;
+          output_text?: string | null;
+          tokens_used?: number;
+          cost_cents?: number;
+          status?: string;
+          style?: string | null;
+        };
+        Update: {
+          memorial_id?: string;
+          requested_by?: string;
+          type?: string;
+          provider?: string;
+          model?: string;
+          prompt_data?: Json;
+          output_text?: string | null;
+          tokens_used?: number;
+          cost_cents?: number;
+          status?: string;
+          style?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "ai_generations_memorial_id_fkey";
+            columns: ["memorial_id"];
+            isOneToOne: false;
+            referencedRelation: "memorials";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "ai_generations_requested_by_fkey";
+            columns: ["requested_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      chat_rooms: {
+        Row: {
+          id: string;
+          memorial_id: string | null;
+          type: string;
+          name: string | null;
+          last_message_text: string | null;
+          last_message_at: string | null;
+          last_message_by: string | null;
+          is_archived: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          memorial_id?: string | null;
+          type?: string;
+          name?: string | null;
+          last_message_text?: string | null;
+          last_message_at?: string | null;
+          last_message_by?: string | null;
+          is_archived?: boolean;
+        };
+        Update: {
+          memorial_id?: string | null;
+          type?: string;
+          name?: string | null;
+          last_message_text?: string | null;
+          last_message_at?: string | null;
+          last_message_by?: string | null;
+          is_archived?: boolean;
+        };
+        Relationships: [];
+      };
+      chat_members: {
+        Row: {
+          id: string;
+          room_id: string;
+          user_id: string;
+          role: string;
+          last_read_at: string;
+          is_muted: boolean;
+          joined_at: string;
+        };
+        Insert: {
+          room_id: string;
+          user_id: string;
+          role?: string;
+          last_read_at?: string;
+          is_muted?: boolean;
+        };
+        Update: {
+          room_id?: string;
+          user_id?: string;
+          role?: string;
+          last_read_at?: string;
+          is_muted?: boolean;
+        };
+        Relationships: [];
+      };
+      messages: {
+        Row: {
+          id: string;
+          room_id: string;
+          sender_id: string;
+          content: string | null;
+          type: string;
+          media_url: string | null;
+          reply_to_id: string | null;
+          poll_data: Json | null;
+          is_edited: boolean;
+          is_deleted: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          room_id: string;
+          sender_id: string;
+          content?: string | null;
+          type?: string;
+          media_url?: string | null;
+          reply_to_id?: string | null;
+          poll_data?: Json | null;
+        };
+        Update: {
+          room_id?: string;
+          sender_id?: string;
+          content?: string | null;
+          type?: string;
+          media_url?: string | null;
+          reply_to_id?: string | null;
+          poll_data?: Json | null;
+          is_edited?: boolean;
+          is_deleted?: boolean;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "messages_room_id_fkey";
+            columns: ["room_id"];
+            isOneToOne: false;
+            referencedRelation: "chat_rooms";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey";
+            columns: ["sender_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      events: {
+        Row: {
+          id: string;
+          memorial_id: string;
+          created_by: string;
+          title: string;
+          description: string | null;
+          type: string;
+          location: string | null;
+          location_url: string | null;
+          is_virtual: boolean;
+          virtual_link: string | null;
+          start_date: string;
+          end_date: string | null;
+          cover_image_url: string | null;
+          rsvp_count: number;
+          max_attendees: number | null;
+          is_public: boolean;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          memorial_id: string;
+          created_by: string;
+          title: string;
+          description?: string | null;
+          type?: string;
+          location?: string | null;
+          location_url?: string | null;
+          is_virtual?: boolean;
+          virtual_link?: string | null;
+          start_date: string;
+          end_date?: string | null;
+          cover_image_url?: string | null;
+          max_attendees?: number | null;
+          is_public?: boolean;
+          status?: string;
+        };
+        Update: {
+          title?: string;
+          description?: string | null;
+          type?: string;
+          location?: string | null;
+          location_url?: string | null;
+          is_virtual?: boolean;
+          virtual_link?: string | null;
+          start_date?: string;
+          end_date?: string | null;
+          cover_image_url?: string | null;
+          max_attendees?: number | null;
+          is_public?: boolean;
+          status?: string;
+        };
+        Relationships: [];
+      };
+      event_rsvps: {
+        Row: {
+          id: string;
+          event_id: string;
+          user_id: string;
+          status: string;
+          message: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          event_id: string;
+          user_id: string;
+          status?: string;
+          message?: string | null;
+        };
+        Update: {
+          status?: string;
+          message?: string | null;
+        };
+        Relationships: [];
+      };
+      important_dates: {
+        Row: {
+          id: string;
+          memorial_id: string;
+          type: string;
+          title: string;
+          date: string;
+          recurs_annually: boolean;
+          notify_followers: boolean;
+          created_at: string;
+        };
+        Insert: {
+          memorial_id: string;
+          type: string;
+          title: string;
+          date: string;
+          recurs_annually?: boolean;
+          notify_followers?: boolean;
+        };
+        Update: {
+          type?: string;
+          title?: string;
+          date?: string;
+          recurs_annually?: boolean;
+          notify_followers?: boolean;
+        };
+        Relationships: [];
+      };
+      fundraising_campaigns: {
+        Row: {
+          id: string;
+          memorial_id: string;
+          created_by: string;
+          title: string;
+          description: string | null;
+          goal_cents: number;
+          raised_cents: number;
+          currency: string;
+          beneficiary_name: string | null;
+          beneficiary_type: string | null;
+          cover_image_url: string | null;
+          is_active: boolean;
+          donor_count: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          memorial_id: string;
+          created_by: string;
+          title: string;
+          description?: string | null;
+          goal_cents?: number;
+          currency?: string;
+          beneficiary_name?: string | null;
+          beneficiary_type?: string | null;
+          cover_image_url?: string | null;
+        };
+        Update: {
+          title?: string;
+          description?: string | null;
+          goal_cents?: number;
+          beneficiary_name?: string | null;
+          beneficiary_type?: string | null;
+          cover_image_url?: string | null;
+          is_active?: boolean;
+        };
+        Relationships: [];
+      };
+      donations: {
+        Row: {
+          id: string;
+          campaign_id: string;
+          donor_id: string | null;
+          amount_cents: number;
+          currency: string;
+          stripe_payment_intent_id: string | null;
+          message: string | null;
+          is_anonymous: boolean;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          campaign_id: string;
+          donor_id?: string | null;
+          amount_cents: number;
+          currency?: string;
+          stripe_payment_intent_id?: string | null;
+          message?: string | null;
+          is_anonymous?: boolean;
+          status?: string;
+        };
+        Update: {
+          status?: string;
+          stripe_payment_intent_id?: string | null;
+        };
+        Relationships: [];
+      };
+      ribbon_packages: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          ribbon_amount: number;
+          price_cents: number;
+          currency: string;
+          store_product_id: string | null;
+          is_active: boolean;
+          is_popular: boolean;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: {
+          name: string;
+          ribbon_amount: number;
+          price_cents: number;
+          description?: string | null;
+          currency?: string;
+          store_product_id?: string | null;
+          is_popular?: boolean;
+          sort_order?: number;
+        };
+        Update: {
+          name?: string;
+          ribbon_amount?: number;
+          price_cents?: number;
+          description?: string | null;
+          store_product_id?: string | null;
+          is_active?: boolean;
+          is_popular?: boolean;
+          sort_order?: number;
+        };
+        Relationships: [];
+      };
+      daily_rewards: {
+        Row: {
+          id: string;
+          user_id: string;
+          reward_date: string;
+          ribbons_earned: number;
+          streak_day: number;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          reward_date?: string;
+          ribbons_earned?: number;
+          streak_day?: number;
+        };
+        Update: {
+          ribbons_earned?: number;
+          streak_day?: number;
+        };
+        Relationships: [];
+      };
+      gift_catalog: {
+        Row: {
+          id: string;
+          category: string;
+          name: string;
+          description: string | null;
+          image_url: string;
+          ribbon_cost: number;
+          is_active: boolean;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: {
+          category: string;
+          name: string;
+          image_url: string;
+          ribbon_cost: number;
+          description?: string | null;
+          is_active?: boolean;
+          sort_order?: number;
+        };
+        Update: {
+          category?: string;
+          name?: string;
+          description?: string | null;
+          image_url?: string;
+          ribbon_cost?: number;
+          is_active?: boolean;
+          sort_order?: number;
+        };
+        Relationships: [];
+      };
+      memorial_gifts: {
+        Row: {
+          id: string;
+          memorial_id: string;
+          sender_id: string;
+          gift_id: string;
+          message: string | null;
+          ribbon_cost: number;
+          is_anonymous: boolean;
+          created_at: string;
+        };
+        Insert: {
+          memorial_id: string;
+          sender_id: string;
+          gift_id: string;
+          ribbon_cost: number;
+          message?: string | null;
+          is_anonymous?: boolean;
+        };
+        Update: {
+          message?: string | null;
+          is_anonymous?: boolean;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "memorial_gifts_gift_id_fkey";
+            columns: ["gift_id"];
+            isOneToOne: false;
+            referencedRelation: "gift_catalog";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "memorial_gifts_memorial_id_fkey";
+            columns: ["memorial_id"];
+            isOneToOne: false;
+            referencedRelation: "memorials";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "memorial_gifts_sender_id_fkey";
+            columns: ["sender_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      ribbon_transactions: {
+        Row: {
+          id: string;
+          user_id: string;
+          amount: number;
+          type: string;
+          reference_id: string | null;
+          description: string | null;
+          balance_after: number;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          amount: number;
+          type: string;
+          balance_after: number;
+          reference_id?: string | null;
+          description?: string | null;
+        };
+        Update: {
+          amount?: number;
+          type?: string;
+          reference_id?: string | null;
+          description?: string | null;
+          balance_after?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "ribbon_transactions_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      memorial_invitations: {
+        Row: {
+          id: string;
+          memorial_id: string;
+          invited_by: string;
+          invited_email: string | null;
+          invited_user_id: string | null;
+          invite_code: string;
+          accepted_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          memorial_id: string;
+          invited_by: string;
+          invited_email?: string | null;
+          invited_user_id?: string | null;
+          invite_code?: string;
+        };
+        Update: {
+          invited_email?: string | null;
+          invited_user_id?: string | null;
+          accepted_at?: string | null;
+        };
+        Relationships: [];
+      };
+      reports: {
+        Row: {
+          id: string;
+          reporter_id: string;
+          target_type: string;
+          target_id: string;
+          reason: string;
+          details: string | null;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          reporter_id: string;
+          target_type: string;
+          target_id: string;
+          reason: string;
+          details?: string | null;
+          status?: string;
+        };
+        Update: {
+          reason?: string;
+          details?: string | null;
+          status?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

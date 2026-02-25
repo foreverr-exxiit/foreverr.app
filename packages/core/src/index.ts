@@ -27,6 +27,55 @@ export {
   useToggleReaction,
 } from "./hooks/useTributes";
 
+// Hooks — AI
+export {
+  useAIGenerations,
+  useGenerateObituary,
+  useGenerateBiography,
+  useGenerateTribute,
+  useModerateContent,
+} from "./hooks/useAI";
+
+// Hooks — Chat
+export {
+  useChatRooms,
+  useMessages,
+  useSendMessage,
+  useCreateDM,
+  useMarkChatRead,
+  useArchiveChat,
+  useChatRealtime,
+} from "./hooks/useChat";
+
+// Hooks — Events
+export {
+  useMemorialEvents,
+  useMyUpcomingEvents,
+  useEvent,
+  useCreateEvent,
+  useRsvp,
+  useEventRsvps,
+  useMyRsvp,
+  useImportantDates,
+} from "./hooks/useEvents";
+
+// Hooks — Donations
+export {
+  useMemorialCampaigns,
+  useCreateCampaign,
+  useCampaignDonations,
+  useCreateDonation,
+} from "./hooks/useDonations";
+
+// Hooks — Ribbons
+export {
+  useRibbonPackages,
+  useGiftCatalog,
+  useRibbonHistory,
+  useClaimDailyReward,
+  useSendGift,
+} from "./hooks/useRibbons";
+
 // Hooks — Notifications
 export {
   useNotifications,
@@ -39,6 +88,7 @@ export {
 export { useAuthStore } from "./stores/authStore";
 export { useUIStore } from "./stores/uiStore";
 export { useWizardStore } from "./stores/wizardStore";
+export { useChatStore } from "./stores/chatStore";
 
 // Schemas
 export { loginSchema, registerSchema, forgotPasswordSchema } from "./schemas/auth";
