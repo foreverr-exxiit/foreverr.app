@@ -84,6 +84,66 @@ export {
   useMarkAllRead,
 } from "./hooks/useNotifications";
 
+// Hooks — Marketplace
+export {
+  useMarketplaceCategories,
+  useListings,
+  useListing,
+  useMyListings,
+  useCreateListing,
+  useUpdateListing,
+  useToggleSavedListing,
+  useSavedListings,
+  useCreateInquiry,
+  useInquiries,
+  useSellerProfile,
+  useUpsertSellerProfile,
+  useSellerReviews,
+  useCreateReview,
+} from "./hooks/useMarketplace";
+
+// Hooks — Directory
+export {
+  useDirectoryListings,
+  useDirectoryListing,
+  useCreateDirectoryListing,
+  useDirectoryReviews,
+  useCreateDirectoryReview,
+  useCreateDirectoryLead,
+  useDirectoryLeads,
+} from "./hooks/useDirectory";
+
+// Hooks — NFT
+export {
+  useNFTGallery,
+  useNFT,
+  useMyNFTs,
+  useMintNFT,
+  useListNFT,
+  usePurchaseNFT,
+  useNFTTransactions,
+} from "./hooks/useNFT";
+
+// Hooks — Live Rooms
+export {
+  useLiveRooms,
+  useLiveRoom,
+  useLiveRoomParticipants,
+  useCreateLiveRoom,
+  useJoinLiveRoom,
+  useLeaveLiveRoom,
+  useToggleHand,
+  useEndLiveRoom,
+  useLiveRoomRealtime,
+} from "./hooks/useLiveRooms";
+
+// Hooks — Advanced AI
+export {
+  useGenerateVoice,
+  usePhotoRestore,
+  useGenerateMemorialVideo,
+} from "./hooks/useAdvancedAI";
+
 // Stores
 export { useAuthStore } from "./stores/authStore";
 export { useUIStore } from "./stores/uiStore";

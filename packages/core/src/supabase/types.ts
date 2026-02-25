@@ -941,6 +941,576 @@ export interface Database {
         };
         Relationships: [];
       };
+      marketplace_categories: {
+        Row: {
+          id: string;
+          slug: string;
+          name: string;
+          description: string | null;
+          icon_name: string | null;
+          sort_order: number;
+          is_active: boolean;
+        };
+        Insert: {
+          slug: string;
+          name: string;
+          description?: string | null;
+          icon_name?: string | null;
+          sort_order?: number;
+          is_active?: boolean;
+        };
+        Update: {
+          slug?: string;
+          name?: string;
+          description?: string | null;
+          icon_name?: string | null;
+          sort_order?: number;
+          is_active?: boolean;
+        };
+        Relationships: [];
+      };
+      marketplace_listings: {
+        Row: {
+          id: string;
+          seller_id: string;
+          category_id: string;
+          title: string;
+          description: string | null;
+          price_cents: number;
+          currency: string;
+          listing_type: string;
+          condition: string | null;
+          images: string[];
+          location: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          shipping_available: boolean;
+          shipping_price_cents: number | null;
+          is_featured: boolean;
+          is_promoted: boolean;
+          promoted_until: string | null;
+          status: string;
+          view_count: number;
+          inquiry_count: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          seller_id: string;
+          category_id: string;
+          title: string;
+          price_cents: number;
+          description?: string | null;
+          currency?: string;
+          listing_type?: string;
+          condition?: string | null;
+          images?: string[];
+          location?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          shipping_available?: boolean;
+          shipping_price_cents?: number | null;
+          status?: string;
+        };
+        Update: {
+          title?: string;
+          description?: string | null;
+          price_cents?: number;
+          category_id?: string;
+          listing_type?: string;
+          condition?: string | null;
+          images?: string[];
+          location?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          shipping_available?: boolean;
+          shipping_price_cents?: number | null;
+          is_featured?: boolean;
+          is_promoted?: boolean;
+          promoted_until?: string | null;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_listings_seller_id_fkey";
+            columns: ["seller_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "marketplace_listings_category_id_fkey";
+            columns: ["category_id"];
+            isOneToOne: false;
+            referencedRelation: "marketplace_categories";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      listing_inquiries: {
+        Row: {
+          id: string;
+          listing_id: string;
+          buyer_id: string;
+          message: string;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          listing_id: string;
+          buyer_id: string;
+          message: string;
+          status?: string;
+        };
+        Update: {
+          message?: string;
+          status?: string;
+        };
+        Relationships: [];
+      };
+      inquiry_messages: {
+        Row: {
+          id: string;
+          inquiry_id: string;
+          sender_id: string;
+          content: string;
+          created_at: string;
+        };
+        Insert: {
+          inquiry_id: string;
+          sender_id: string;
+          content: string;
+        };
+        Update: {
+          content?: string;
+        };
+        Relationships: [];
+      };
+      saved_listings: {
+        Row: {
+          id: string;
+          user_id: string;
+          listing_id: string;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          listing_id: string;
+        };
+        Update: {};
+        Relationships: [];
+      };
+      seller_profiles: {
+        Row: {
+          id: string;
+          user_id: string;
+          business_name: string | null;
+          business_description: string | null;
+          business_type: string | null;
+          website_url: string | null;
+          phone: string | null;
+          address: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          is_verified: boolean;
+          rating_avg: number;
+          rating_count: number;
+          total_sales: number;
+          response_time_hours: number | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          business_name?: string | null;
+          business_description?: string | null;
+          business_type?: string | null;
+          website_url?: string | null;
+          phone?: string | null;
+          address?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+        };
+        Update: {
+          business_name?: string | null;
+          business_description?: string | null;
+          business_type?: string | null;
+          website_url?: string | null;
+          phone?: string | null;
+          address?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          is_verified?: boolean;
+          rating_avg?: number;
+          rating_count?: number;
+          total_sales?: number;
+          response_time_hours?: number | null;
+        };
+        Relationships: [];
+      };
+      seller_reviews: {
+        Row: {
+          id: string;
+          seller_id: string;
+          reviewer_id: string;
+          listing_id: string | null;
+          rating: number;
+          review_text: string | null;
+          created_at: string;
+        };
+        Insert: {
+          seller_id: string;
+          reviewer_id: string;
+          rating: number;
+          listing_id?: string | null;
+          review_text?: string | null;
+        };
+        Update: {
+          rating?: number;
+          review_text?: string | null;
+        };
+        Relationships: [];
+      };
+      directory_listings: {
+        Row: {
+          id: string;
+          owner_id: string;
+          business_name: string;
+          business_type: string;
+          description: string | null;
+          services: string[];
+          price_range: string | null;
+          phone: string | null;
+          email: string | null;
+          website_url: string | null;
+          address: string;
+          city: string;
+          state: string | null;
+          zip_code: string | null;
+          country: string;
+          latitude: number | null;
+          longitude: number | null;
+          cover_image_url: string | null;
+          gallery_images: string[];
+          hours_of_operation: Json | null;
+          is_verified: boolean;
+          is_featured: boolean;
+          rating_avg: number;
+          rating_count: number;
+          review_count: number;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          owner_id: string;
+          business_name: string;
+          business_type: string;
+          address: string;
+          city: string;
+          country?: string;
+          description?: string | null;
+          services?: string[];
+          price_range?: string | null;
+          phone?: string | null;
+          email?: string | null;
+          website_url?: string | null;
+          state?: string | null;
+          zip_code?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          cover_image_url?: string | null;
+          gallery_images?: string[];
+          hours_of_operation?: Json | null;
+          status?: string;
+        };
+        Update: {
+          business_name?: string;
+          business_type?: string;
+          description?: string | null;
+          services?: string[];
+          price_range?: string | null;
+          phone?: string | null;
+          email?: string | null;
+          website_url?: string | null;
+          address?: string;
+          city?: string;
+          state?: string | null;
+          zip_code?: string | null;
+          country?: string;
+          latitude?: number | null;
+          longitude?: number | null;
+          cover_image_url?: string | null;
+          gallery_images?: string[];
+          hours_of_operation?: Json | null;
+          is_verified?: boolean;
+          is_featured?: boolean;
+          status?: string;
+        };
+        Relationships: [];
+      };
+      directory_reviews: {
+        Row: {
+          id: string;
+          listing_id: string;
+          reviewer_id: string;
+          rating: number;
+          title: string | null;
+          review_text: string | null;
+          visit_date: string | null;
+          is_verified_visit: boolean;
+          helpful_count: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          listing_id: string;
+          reviewer_id: string;
+          rating: number;
+          title?: string | null;
+          review_text?: string | null;
+          visit_date?: string | null;
+        };
+        Update: {
+          rating?: number;
+          title?: string | null;
+          review_text?: string | null;
+          visit_date?: string | null;
+        };
+        Relationships: [];
+      };
+      directory_leads: {
+        Row: {
+          id: string;
+          listing_id: string;
+          user_id: string | null;
+          name: string;
+          email: string;
+          phone: string | null;
+          message: string;
+          service_type: string | null;
+          preferred_date: string | null;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          listing_id: string;
+          name: string;
+          email: string;
+          message: string;
+          user_id?: string | null;
+          phone?: string | null;
+          service_type?: string | null;
+          preferred_date?: string | null;
+          status?: string;
+        };
+        Update: {
+          status?: string;
+          phone?: string | null;
+        };
+        Relationships: [];
+      };
+      nfts: {
+        Row: {
+          id: string;
+          memorial_id: string;
+          creator_id: string;
+          owner_id: string;
+          title: string;
+          description: string | null;
+          media_url: string;
+          thumbnail_url: string | null;
+          token_id: string | null;
+          contract_address: string | null;
+          chain: string;
+          price_cents: number;
+          royalty_percentage: number;
+          edition_number: number;
+          total_editions: number;
+          status: string;
+          metadata: Json | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          memorial_id: string;
+          creator_id: string;
+          owner_id: string;
+          title: string;
+          media_url: string;
+          description?: string | null;
+          thumbnail_url?: string | null;
+          token_id?: string | null;
+          contract_address?: string | null;
+          chain?: string;
+          price_cents?: number;
+          royalty_percentage?: number;
+          edition_number?: number;
+          total_editions?: number;
+          status?: string;
+          metadata?: Json | null;
+        };
+        Update: {
+          title?: string;
+          description?: string | null;
+          media_url?: string;
+          thumbnail_url?: string | null;
+          token_id?: string | null;
+          contract_address?: string | null;
+          price_cents?: number;
+          royalty_percentage?: number;
+          owner_id?: string;
+          status?: string;
+          metadata?: Json | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "nfts_memorial_id_fkey";
+            columns: ["memorial_id"];
+            isOneToOne: false;
+            referencedRelation: "memorials";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "nfts_creator_id_fkey";
+            columns: ["creator_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "nfts_owner_id_fkey";
+            columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      nft_transactions: {
+        Row: {
+          id: string;
+          nft_id: string;
+          from_user_id: string | null;
+          to_user_id: string | null;
+          transaction_type: string;
+          price_cents: number | null;
+          transaction_hash: string | null;
+          created_at: string;
+        };
+        Insert: {
+          nft_id: string;
+          transaction_type: string;
+          from_user_id?: string | null;
+          to_user_id?: string | null;
+          price_cents?: number | null;
+          transaction_hash?: string | null;
+        };
+        Update: {
+          transaction_hash?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "nft_transactions_nft_id_fkey";
+            columns: ["nft_id"];
+            isOneToOne: false;
+            referencedRelation: "nfts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "nft_transactions_from_user_id_fkey";
+            columns: ["from_user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "nft_transactions_to_user_id_fkey";
+            columns: ["to_user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      live_rooms: {
+        Row: {
+          id: string;
+          host_id: string;
+          memorial_id: string;
+          title: string;
+          description: string | null;
+          room_type: string;
+          status: string;
+          scheduled_at: string;
+          started_at: string | null;
+          ended_at: string | null;
+          max_participants: number | null;
+          participant_count: number;
+          recording_url: string | null;
+          is_recorded: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          host_id: string;
+          memorial_id: string;
+          title: string;
+          description?: string | null;
+          room_type?: string;
+          status?: string;
+          scheduled_at?: string;
+          max_participants?: number | null;
+          is_recorded?: boolean;
+        };
+        Update: {
+          title?: string;
+          description?: string | null;
+          room_type?: string;
+          status?: string;
+          started_at?: string | null;
+          ended_at?: string | null;
+          participant_count?: number;
+          recording_url?: string | null;
+          is_recorded?: boolean;
+        };
+        Relationships: [];
+      };
+      live_room_participants: {
+        Row: {
+          id: string;
+          room_id: string;
+          user_id: string;
+          role: string;
+          is_speaking: boolean;
+          is_muted: boolean;
+          hand_raised: boolean;
+          is_active: boolean;
+          joined_at: string;
+          left_at: string | null;
+        };
+        Insert: {
+          room_id: string;
+          user_id: string;
+          role?: string;
+          is_speaking?: boolean;
+          is_muted?: boolean;
+          hand_raised?: boolean;
+          is_active?: boolean;
+          joined_at?: string;
+        };
+        Update: {
+          role?: string;
+          is_speaking?: boolean;
+          is_muted?: boolean;
+          hand_raised?: boolean;
+          is_active?: boolean;
+          left_at?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

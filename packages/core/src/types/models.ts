@@ -81,3 +81,45 @@ export type DailyReward = Database["public"]["Tables"]["daily_rewards"]["Row"];
 export type GiftCatalogItem = Database["public"]["Tables"]["gift_catalog"]["Row"];
 
 export type BeneficiaryType = "charity" | "family" | "funeral_costs" | "scholarship" | "other";
+
+// Marketplace types
+export type MarketplaceCategory = Database["public"]["Tables"]["marketplace_categories"]["Row"];
+export type MarketplaceListing = Database["public"]["Tables"]["marketplace_listings"]["Row"];
+export type MarketplaceListingInsert = Database["public"]["Tables"]["marketplace_listings"]["Insert"];
+export type ListingInquiry = Database["public"]["Tables"]["listing_inquiries"]["Row"];
+export type ListingInquiryInsert = Database["public"]["Tables"]["listing_inquiries"]["Insert"];
+export type InquiryMessage = Database["public"]["Tables"]["inquiry_messages"]["Row"];
+export type SavedListing = Database["public"]["Tables"]["saved_listings"]["Row"];
+export type SellerProfile = Database["public"]["Tables"]["seller_profiles"]["Row"];
+export type SellerProfileInsert = Database["public"]["Tables"]["seller_profiles"]["Insert"];
+export type SellerReview = Database["public"]["Tables"]["seller_reviews"]["Row"];
+
+export type ListingType = "product" | "service";
+export type ListingCondition = "new" | "like_new" | "good" | "fair";
+export type ListingStatus = "draft" | "active" | "sold" | "paused" | "removed";
+export type BusinessType = "individual" | "business" | "nonprofit";
+
+export type ListingWithSeller = MarketplaceListing & {
+  seller: Pick<Profile, "id" | "username" | "display_name" | "avatar_url">;
+  category: Pick<MarketplaceCategory, "id" | "name" | "slug" | "icon_name">;
+};
+
+export type SellerProfileWithUser = SellerProfile & {
+  user: Pick<Profile, "id" | "username" | "display_name" | "avatar_url">;
+};
+
+// Directory types
+export type DirectoryListing = Database["public"]["Tables"]["directory_listings"]["Row"];
+export type DirectoryListingInsert = Database["public"]["Tables"]["directory_listings"]["Insert"];
+export type DirectoryReview = Database["public"]["Tables"]["directory_reviews"]["Row"];
+export type DirectoryReviewInsert = Database["public"]["Tables"]["directory_reviews"]["Insert"];
+export type DirectoryLead = Database["public"]["Tables"]["directory_leads"]["Row"];
+export type DirectoryLeadInsert = Database["public"]["Tables"]["directory_leads"]["Insert"];
+
+export type DirectoryBusinessType =
+  | "funeral_home" | "cemetery" | "crematorium" | "florist" | "catering"
+  | "monument_maker" | "grief_counselor" | "estate_planner" | "transport"
+  | "cleaning_service" | "photographer" | "musician" | "celebrant" | "other";
+
+export type PriceRange = "$" | "$$" | "$$$" | "$$$$";
+export type LeadStatus = "new" | "contacted" | "quoted" | "booked" | "completed" | "cancelled";
