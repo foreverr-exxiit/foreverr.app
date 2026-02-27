@@ -32,7 +32,7 @@ export function CategoryChip({ name, iconName, isSelected, onPress }: CategoryCh
       className={`flex-row items-center gap-1.5 px-4 py-2 rounded-full border ${
         isSelected
           ? "bg-purple-600 border-purple-600"
-          : "bg-white border-gray-200"
+          : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600"
       }`}
     >
       <Feather
@@ -42,7 +42,7 @@ export function CategoryChip({ name, iconName, isSelected, onPress }: CategoryCh
       />
       <Text
         className={`text-sm font-medium ${
-          isSelected ? "text-white" : "text-gray-600"
+          isSelected ? "text-white" : "text-gray-600 dark:text-gray-400"
         }`}
       >
         {name}

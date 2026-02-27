@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from "react";
 import { supabase } from "../supabase/client";
 import { useAuthStore } from "../stores/authStore";
+import { getPendingAction, clearPendingAction } from "./useRequireAuth";
 
 export function useAuth() {
   const { session, user, profile, isLoading, isInitialized, setSession, setProfile, setLoading, setInitialized, reset } =
@@ -23,6 +24,14 @@ export function useAuth() {
         setSession(session);
         if (session?.user) {
           fetchProfile(session.user.id);
+          // Resume pending action after successful auth (e.g. from guest → signed in)
+          const pending = getPendingAction();
+          if (pending) {
+            setTimeout(() => {
+              pending();
+              clearPendingAction();
+            }, 300);
+          }
         } else {
           setProfile(null);
         }
@@ -93,6 +102,27 @@ export function useAuth() {
     return { data, error };
   }, []);
 
+  const signInWithFacebook = useCallback(async (accessToken: string) => {
+    setLoading(true);
+    const { data, error } = await supabase.auth.signInWithIdToken({
+      provider: "facebook",
+      token: accessToken,
+    });
+    setLoading(false);
+    return { data, error };
+  }, []);
+
+  const signInWithTwitter = useCallback(async (accessToken: string, accessTokenSecret?: string) => {
+    setLoading(true);
+    // X/Twitter uses OAuth 1.0a; Supabase supports the "twitter" provider
+    const { data, error } = await supabase.auth.signInWithIdToken({
+      provider: "twitter" as any,
+      token: accessToken,
+    });
+    setLoading(false);
+    return { data, error };
+  }, []);
+
   const resetPassword = useCallback(async (email: string) => {
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: "foreverr://reset-password",
@@ -134,6 +164,8 @@ export function useAuth() {
     signUpWithEmail,
     signInWithApple,
     signInWithGoogle,
+    signInWithFacebook,
+    signInWithTwitter,
     resetPassword,
     signOut,
     updateProfile,

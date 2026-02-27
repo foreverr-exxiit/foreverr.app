@@ -35,7 +35,7 @@ export function NFTCard({
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.8}
-      className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 mb-3"
+      className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 mb-3"
     >
       {/* Image */}
       <View className="relative">
@@ -56,7 +56,7 @@ export function NFTCard({
       </View>
 
       <View className="p-3">
-        <Text className="text-sm font-semibold text-gray-900" numberOfLines={1}>{title}</Text>
+        <Text className="text-sm font-semibold text-gray-900 dark:text-white" numberOfLines={1}>{title}</Text>
 
         <View className="flex-row items-center justify-between mt-2">
           {/* Creator */}
@@ -78,7 +78,7 @@ export function NFTCard({
         </View>
 
         {/* Price */}
-        <View className="flex-row items-center justify-between mt-2 pt-2 border-t border-gray-100">
+        <View className="flex-row items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
           <Text className="text-xs text-gray-500">Price</Text>
           <Text className="text-sm font-bold text-purple-600">{formattedPrice}</Text>
         </View>

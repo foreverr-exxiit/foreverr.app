@@ -1,6 +1,7 @@
 import { View, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Text } from "../primitives/Text";
+import { selectionTick } from "@foreverr/core";
 
 interface RsvpButtonProps {
   currentStatus: string | null;
@@ -23,13 +24,13 @@ export function RsvpButton({ currentStatus, onRsvp, disabled }: RsvpButtonProps)
           <Pressable
             key={opt.key}
             className={`flex-1 flex-row items-center justify-center gap-1.5 rounded-full py-2.5 border ${
-              isActive ? "border-brand-700 bg-brand-50" : "border-gray-200 bg-white"
+              isActive ? "border-brand-700 bg-brand-50" : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800"
             }`}
-            onPress={() => onRsvp(opt.key)}
+            onPress={() => { selectionTick(); onRsvp(opt.key); }}
             disabled={disabled}
           >
             <Ionicons name={opt.icon} size={16} color={isActive ? "#4A2D7A" : opt.color} />
-            <Text className={`text-xs font-sans-semibold ${isActive ? "text-brand-700" : "text-gray-600"}`}>
+            <Text className={`text-xs font-sans-semibold ${isActive ? "text-brand-700" : "text-gray-600 dark:text-gray-400"}`}>
               {opt.label}
             </Text>
           </Pressable>

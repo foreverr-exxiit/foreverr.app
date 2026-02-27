@@ -4,7 +4,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { useMemorials } from "@foreverr/core";
-import { Text } from "@foreverr/ui";
+import { Text, ForeverrLogo } from "@foreverr/ui";
 
 export default function SearchScreen() {
   const router = useRouter();
@@ -24,16 +24,16 @@ export default function SearchScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-gray-900">
-      <View className="border-b border-gray-100 px-4 pb-3 pt-14">
-        <Text className="text-xl font-sans-bold text-gray-900 dark:text-white mb-3">
-          Memorials
-        </Text>
-        <View className="flex-row items-center rounded-full bg-gray-100 px-4 py-2.5 dark:bg-gray-800">
-          <Ionicons name="search" size={18} color="#9ca3af" />
+      <View className="bg-brand-900 px-4 pb-3 pt-14">
+        <Pressable onPress={() => router.push("/(tabs)")} className="items-center mb-3">
+          <ForeverrLogo width={550} variant="full" />
+        </Pressable>
+        <View className="flex-row items-center rounded-full bg-white/15 px-4 py-2.5">
+          <Ionicons name="search" size={18} color="rgba(255,255,255,0.6)" />
           <TextInput
-            className="ml-2 flex-1 text-sm font-sans text-gray-900 dark:text-white"
+            className="ml-2 flex-1 text-sm font-sans text-white"
             placeholder="Search memorials by name..."
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="rgba(255,255,255,0.5)"
             value={query}
             onChangeText={setQuery}
             onSubmitEditing={handleSearch}
@@ -41,7 +41,7 @@ export default function SearchScreen() {
           />
           {query.length > 0 && (
             <Pressable onPress={() => { setQuery(""); setSearchTerm(""); }}>
-              <Ionicons name="close-circle" size={18} color="#9ca3af" />
+              <Ionicons name="close-circle" size={18} color="rgba(255,255,255,0.6)" />
             </Pressable>
           )}
         </View>
@@ -68,7 +68,7 @@ export default function SearchScreen() {
                   <Image source={{ uri: item.profile_photo_url }} style={{ width: "100%", height: 112 }} contentFit="cover" />
                 ) : (
                   <View className="flex-1 items-center justify-center">
-                    <Ionicons name="person" size={36} color="#b89def" />
+                    <Ionicons name="person" size={36} color="#e9d5ff" />
                   </View>
                 )}
               </View>

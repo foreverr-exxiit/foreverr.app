@@ -35,7 +35,7 @@ export function EventCard({ title, type, location, startDate, isVirtual, rsvpCou
 
   return (
     <Pressable
-      className={`mx-4 mb-3 rounded-xl border border-gray-100 bg-white p-4 ${isPast ? "opacity-60" : ""}`}
+      className={`mx-4 mb-3 rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 ${isPast ? "opacity-60" : ""}`}
       onPress={onPress}
     >
       <View className="flex-row items-start">

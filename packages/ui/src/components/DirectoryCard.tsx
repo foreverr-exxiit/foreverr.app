@@ -56,7 +56,7 @@ export function DirectoryCard({
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.8}
-      className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 mb-3"
+      className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 mb-3"
     >
       {/* Cover image */}
       {coverImageUrl ? (
@@ -78,7 +78,7 @@ export function DirectoryCard({
       <View className="p-3">
         {/* Name & verified */}
         <View className="flex-row items-center gap-1.5">
-          <Text className="text-base font-semibold text-gray-900 flex-1" numberOfLines={1}>
+          <Text className="text-base font-semibold text-gray-900 dark:text-white flex-1" numberOfLines={1}>
             {businessName}
           </Text>
           {isVerified && <Feather name="check-circle" size={16} color="#7C3AED" />}
@@ -93,7 +93,7 @@ export function DirectoryCard({
         {/* Rating */}
         <View className="flex-row items-center gap-1 mt-1.5">
           <Feather name="star" size={12} color="#F59E0B" />
-          <Text className="text-xs font-medium text-gray-700">
+          <Text className="text-xs font-medium text-gray-700 dark:text-gray-300">
             {ratingAvg.toFixed(1)}
           </Text>
           <Text className="text-xs text-gray-400">({reviewCount} reviews)</Text>
@@ -111,8 +111,8 @@ export function DirectoryCard({
         {services.length > 0 && (
           <View className="flex-row flex-wrap gap-1 mt-2">
             {services.slice(0, 3).map((s, i) => (
-              <View key={i} className="bg-gray-100 rounded-full px-2 py-0.5">
-                <Text className="text-xs text-gray-600">{s}</Text>
+              <View key={i} className="bg-gray-100 dark:bg-gray-700 rounded-full px-2 py-0.5">
+                <Text className="text-xs text-gray-600 dark:text-gray-400">{s}</Text>
               </View>
             ))}
             {services.length > 3 && (

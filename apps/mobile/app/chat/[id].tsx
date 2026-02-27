@@ -1,4 +1,4 @@
-import { View, FlatList, TextInput, Pressable, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
+import { View, FlatList, TextInput, Pressable, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from "react-native";
 import { useState, useCallback } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -48,7 +48,7 @@ export default function ChatConversationScreen() {
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-white"
+      className="flex-1 bg-white dark:bg-gray-800"
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       keyboardVerticalOffset={90}
     >
@@ -87,7 +87,7 @@ export default function ChatConversationScreen() {
 
       {/* Reply preview */}
       {replyTo && (
-        <View className="flex-row items-center px-4 py-2 bg-gray-50 border-t border-gray-100">
+        <View className="flex-row items-center px-4 py-2 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-700">
           <View className="flex-1 border-l-2 border-brand-700 pl-2">
             <Text className="text-[10px] font-sans-semibold text-brand-700">
               Replying to {replyTo.senderName}
@@ -103,12 +103,25 @@ export default function ChatConversationScreen() {
       )}
 
       {/* Input bar */}
-      <View className="flex-row items-end px-3 py-2 border-t border-gray-100 bg-white">
-        <Pressable className="p-2">
+      <View className="flex-row items-end px-3 py-2 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <Pressable
+          className="p-2"
+          onPress={() =>
+            Alert.alert("Attach", "Choose what to send", [
+              { text: "Cancel", style: "cancel" },
+              { text: "Photo", onPress: () => Alert.alert("Coming Soon", "Photo sharing will be available soon!") },
+              { text: "Candle 🕯️", onPress: () => {
+                if (user?.id && id) {
+                  sendMessage.mutate({ roomId: id, senderId: user.id, content: "🕯️", type: "candle" } as any);
+                }
+              }},
+            ])
+          }
+        >
           <Ionicons name="add-circle-outline" size={24} color="#4A2D7A" />
         </Pressable>
         <TextInput
-          className="flex-1 bg-gray-100 rounded-2xl px-4 py-2.5 text-sm font-sans text-gray-900 max-h-[100px]"
+          className="flex-1 bg-gray-100 dark:bg-gray-700 rounded-2xl px-4 py-2.5 text-sm font-sans text-gray-900 dark:text-white max-h-[100px]"
           placeholder="Message..."
           placeholderTextColor="#9ca3af"
           value={text}

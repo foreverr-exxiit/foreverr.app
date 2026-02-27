@@ -14,7 +14,7 @@ export default function SellerProfileScreen() {
 
   if (sellerLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
+      <View className="flex-1 items-center justify-center bg-white dark:bg-gray-800">
         <ActivityIndicator size="large" color="#4A2D7A" />
       </View>
     );
@@ -24,7 +24,7 @@ export default function SellerProfileScreen() {
 
   return (
     <FlatList
-      className="flex-1 bg-gray-50"
+      className="flex-1 bg-gray-50 dark:bg-gray-900"
       contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
       ListHeaderComponent={
         <View className="mb-4">
@@ -41,19 +41,19 @@ export default function SellerProfileScreen() {
 
           {/* Description */}
           {seller?.business_description && (
-            <View className="mt-4 p-4 bg-white rounded-xl border border-gray-100">
-              <Text className="text-sm text-gray-600 leading-5">{seller.business_description}</Text>
+            <View className="mt-4 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+              <Text className="text-sm text-gray-600 dark:text-gray-400 leading-5">{seller.business_description}</Text>
             </View>
           )}
 
           {/* Reviews section */}
           {reviews && reviews.length > 0 && (
             <View className="mt-4">
-              <Text className="text-base font-semibold text-gray-900 mb-3">
+              <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">
                 Reviews ({reviews.length})
               </Text>
               {reviews.slice(0, 3).map((review: any) => (
-                <View key={review.id} className="bg-white rounded-xl p-3 border border-gray-100 mb-2">
+                <View key={review.id} className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-100 dark:border-gray-700 mb-2">
                   <View className="flex-row items-center gap-2">
                     <View className="flex-row">
                       {Array.from({ length: 5 }, (_, i) => (
@@ -70,7 +70,7 @@ export default function SellerProfileScreen() {
                     </Text>
                   </View>
                   {review.review_text && (
-                    <Text className="text-sm text-gray-600 mt-1">{review.review_text}</Text>
+                    <Text className="text-sm text-gray-600 dark:text-gray-400 mt-1">{review.review_text}</Text>
                   )}
                 </View>
               ))}
@@ -78,7 +78,7 @@ export default function SellerProfileScreen() {
           )}
 
           {/* Listings header */}
-          <Text className="text-base font-semibold text-gray-900 mt-4 mb-3">
+          <Text className="text-base font-semibold text-gray-900 dark:text-white mt-4 mb-3">
             Listings ({activeListings.length})
           </Text>
         </View>

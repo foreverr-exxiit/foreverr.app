@@ -6,7 +6,7 @@ import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth, supabase, useWizardStore } from "@foreverr/core";
 import type { Memorial } from "@foreverr/core";
-import { Text, Button } from "@foreverr/ui";
+import { Text, Button, ForeverrLogo } from "@foreverr/ui";
 
 const PRIVACY_OPTIONS = [
   { value: "public" as const, label: "Public", description: "Anyone can find and view this memorial" },
@@ -91,11 +91,18 @@ export default function MediaScreen() {
   };
 
   return (
+    <View className="flex-1 bg-white dark:bg-gray-900">
+      {/* Branded header */}
+      <View className="bg-brand-900 px-4 pb-4 pt-14 items-center">
+        <Pressable onPress={() => router.push("/(tabs)")}>
+          <ForeverrLogo width={550} variant="full" />
+        </Pressable>
+      </View>
     <ScrollView
-      className="flex-1 bg-white dark:bg-gray-900"
+      className="flex-1"
       contentContainerStyle={{ paddingBottom: 40 }}
     >
-      <View className="px-6 pt-14">
+      <View className="px-6 pt-4">
         <Pressable onPress={() => router.back()}>
           <Text className="text-base font-sans-medium text-brand-700 mb-4">← Back</Text>
         </Pressable>
@@ -179,5 +186,6 @@ export default function MediaScreen() {
         />
       </View>
     </ScrollView>
+    </View>
   );
 }

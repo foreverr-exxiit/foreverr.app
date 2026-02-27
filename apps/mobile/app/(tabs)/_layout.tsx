@@ -1,17 +1,21 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Platform, View } from "react-native";
+import { Platform, View, useColorScheme } from "react-native";
+import { lightTap } from "@foreverr/core";
 
 export default function TabLayout() {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: "#4A2D7A",
-        tabBarInactiveTintColor: "#9ca3af",
+        tabBarInactiveTintColor: isDark ? "#6b7280" : "#9ca3af",
         tabBarStyle: {
-          backgroundColor: "#ffffff",
-          borderTopColor: "#f3f4f6",
+          backgroundColor: isDark ? "#111827" : "#ffffff",
+          borderTopColor: isDark ? "#1f2937" : "#f3f4f6",
           borderTopWidth: 1,
           height: Platform.OS === "ios" ? 88 : 64,
           paddingBottom: Platform.OS === "ios" ? 28 : 8,
@@ -20,6 +24,11 @@ export default function TabLayout() {
         tabBarLabelStyle: {
           fontFamily: "Inter_500Medium",
           fontSize: 11,
+        },
+      }}
+      screenListeners={{
+        tabPress: () => {
+          lightTap();
         },
       }}
     >

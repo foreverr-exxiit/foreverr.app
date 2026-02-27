@@ -27,7 +27,7 @@ export function DonationProgress({ raisedCents, goalCents, donorCount, currency 
           raised of {formatCurrency(goalCents, currency)} goal
         </Text>
       </View>
-      <View className="h-2.5 bg-gray-100 rounded-full overflow-hidden mb-2">
+      <View className="h-2.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden mb-2">
         <View className="h-full bg-brand-700 rounded-full" style={{ width: `${percent}%` }} />
       </View>
       <View className="flex-row items-center justify-between">

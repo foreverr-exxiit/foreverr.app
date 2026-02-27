@@ -1,4 +1,4 @@
-import { View, Alert } from "react-native";
+import { View, Alert, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,7 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAuth, forgotPasswordSchema } from "@foreverr/core";
 import type { z } from "zod";
 type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
-import { Text, Input, Button, ScreenWrapper } from "@foreverr/ui";
+import { Text, Input, Button, ScreenWrapper, ForeverrLogo } from "@foreverr/ui";
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
@@ -31,46 +31,55 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <ScreenWrapper className="justify-center px-6">
-      <Button
-        title="← Back"
-        variant="ghost"
-        size="sm"
-        onPress={() => router.back()}
-        className="self-start mb-6"
-      />
-
-      <Text variant="h2" className="mb-2">Reset Password</Text>
-      <Text variant="body" className="mb-8 text-gray-500">
-        Enter your email and we'll send you a link to reset your password.
-      </Text>
-
-      <View className="gap-4">
-        <Controller
-          control={control}
-          name="email"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              label="Email"
-              placeholder="your@email.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              error={errors.email?.message}
-            />
-          )}
-        />
-
-        <Button
-          title="Send Reset Link"
-          size="lg"
-          fullWidth
-          loading={isLoading}
-          onPress={handleSubmit(onSubmit)}
-        />
+    <View className="flex-1 bg-white dark:bg-gray-900">
+      {/* Branded header */}
+      <View className="bg-brand-900 px-4 pb-4 pt-14 items-center">
+        <Pressable onPress={() => router.push("/(tabs)")}>
+          <ForeverrLogo width={550} variant="full" />
+        </Pressable>
       </View>
-    </ScreenWrapper>
+
+      <View className="flex-1 justify-center px-6">
+        <Button
+          title="← Back"
+          variant="ghost"
+          size="sm"
+          onPress={() => router.back()}
+          className="self-start mb-6"
+        />
+
+        <Text variant="h2" className="mb-2">Reset Password</Text>
+        <Text variant="body" className="mb-8 text-gray-500">
+          Enter your email and we'll send you a link to reset your password.
+        </Text>
+
+        <View className="gap-4">
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                label="Email"
+                placeholder="your@email.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.email?.message}
+              />
+            )}
+          />
+
+          <Button
+            title="Send Reset Link"
+            size="lg"
+            fullWidth
+            loading={isLoading}
+            onPress={handleSubmit(onSubmit)}
+          />
+        </View>
+      </View>
+    </View>
   );
 }

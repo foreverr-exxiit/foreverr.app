@@ -7,9 +7,13 @@
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "@foreverr/core": "workspace:*"
+  },
   "peerDependencies": {
     "react": ">=18",
     "react-native": ">=0.76",
+    "react-native-svg": ">=13",
     "nativewind": ">=4"
   },
   "devDependencies": {

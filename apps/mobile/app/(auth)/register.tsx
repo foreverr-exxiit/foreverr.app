@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth, registerSchema } from "@foreverr/core";
 import type { z } from "zod";
 type RegisterInput = z.infer<typeof registerSchema>;
-import { Text, Input, Button } from "@foreverr/ui";
+import { Text, Input, Button, ForeverrLogo } from "@foreverr/ui";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -41,12 +41,19 @@ export default function RegisterScreen() {
   };
 
   return (
+    <View className="flex-1 bg-white dark:bg-gray-900">
+      {/* Branded header */}
+      <View className="bg-brand-900 px-4 pb-4 pt-14 items-center">
+        <Pressable onPress={() => router.push("/(tabs)")}>
+          <ForeverrLogo width={550} variant="full" />
+        </Pressable>
+      </View>
     <ScrollView
-      className="flex-1 bg-white dark:bg-gray-900"
+      className="flex-1"
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
     >
-      <View className="flex-1 justify-center px-6 py-12">
+      <View className="flex-1 justify-center px-6 py-8">
         <View className="mb-8">
           <Text variant="h1" className="text-brand-800">Create Account</Text>
           <Text variant="body" className="mt-2 text-gray-500">
@@ -142,7 +149,14 @@ export default function RegisterScreen() {
             size="lg"
             fullWidth
             loading={isLoading}
-            onPress={handleSubmit(onSubmit)}
+            onPress={() => {
+              handleSubmit(onSubmit, (validationErrors) => {
+                const firstError = Object.values(validationErrors)[0]?.message;
+                if (firstError) {
+                  Alert.alert("Please fix", String(firstError));
+                }
+              })();
+            }}
           />
         </View>
 
@@ -154,5 +168,6 @@ export default function RegisterScreen() {
         </View>
       </View>
     </ScrollView>
+    </View>
   );
 }

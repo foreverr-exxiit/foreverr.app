@@ -15,7 +15,7 @@ export function RibbonPackageCard({ name, description, ribbonAmount, priceCents,
   return (
     <Pressable
       className={`rounded-xl border p-4 mb-3 ${
-        isPopular ? "border-brand-700 bg-brand-50" : "border-gray-200 bg-white"
+        isPopular ? "border-brand-700 bg-brand-50" : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800"
       }`}
       onPress={onPress}
     >
@@ -30,7 +30,7 @@ export function RibbonPackageCard({ name, description, ribbonAmount, priceCents,
             <Ionicons name="ribbon" size={20} color="#4A2D7A" />
           </View>
           <View>
-            <Text className="text-sm font-sans-bold text-gray-900">{name}</Text>
+            <Text className="text-sm font-sans-bold text-gray-900 dark:text-white">{name}</Text>
             <Text className="text-xs font-sans text-gray-500">{ribbonAmount} ribbons</Text>
           </View>
         </View>

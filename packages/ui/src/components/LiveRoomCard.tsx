@@ -45,7 +45,7 @@ export function LiveRoomCard({
       onPress={onPress}
       activeOpacity={0.8}
       className={`rounded-2xl p-4 mb-3 border ${
-        isLive ? "bg-purple-50 border-purple-200" : "bg-white border-gray-100"
+        isLive ? "bg-purple-50 border-purple-200" : "bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700"
       }`}
     >
       {/* Header */}
@@ -61,7 +61,7 @@ export function LiveRoomCard({
 
         <View className="flex-1">
           <View className="flex-row items-center gap-2">
-            <Text className="text-base font-semibold text-gray-900 flex-1" numberOfLines={1}>
+            <Text className="text-base font-semibold text-gray-900 dark:text-white flex-1" numberOfLines={1}>
               {title}
             </Text>
             {/* Status indicator */}
@@ -92,7 +92,7 @@ export function LiveRoomCard({
       </View>
 
       {/* Footer */}
-      <View className="flex-row items-center justify-between mt-3 pt-3 border-t border-gray-100">
+      <View className="flex-row items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
         <View className="flex-row items-center gap-3">
           {/* Room type */}
           <View className="flex-row items-center gap-1">

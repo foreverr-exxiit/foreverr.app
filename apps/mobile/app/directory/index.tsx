@@ -3,7 +3,7 @@ import { View, Text, FlatList, TextInput, ScrollView, TouchableOpacity, Activity
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { useDirectoryListings } from "@foreverr/core";
-import { DirectoryCard } from "@foreverr/ui";
+import { DirectoryCard, ListSkeleton, QueryError } from "@foreverr/ui";
 
 const BUSINESS_TYPES = [
   { key: undefined, label: "All" },
@@ -30,6 +30,9 @@ export default function DirectoryScreen() {
     hasNextPage,
     isFetchingNextPage,
     isLoading,
+    isError,
+    error,
+    refetch,
   } = useDirectoryListings({
     search: search || undefined,
     city: city || undefined,
@@ -39,14 +42,14 @@ export default function DirectoryScreen() {
   const allListings = listings?.pages.flatMap((p) => p.data) ?? [];
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
       {/* Search area */}
-      <View className="bg-white px-4 pt-2 pb-3 border-b border-gray-100">
+      <View className="bg-white dark:bg-gray-800 px-4 pt-2 pb-3 border-b border-gray-100 dark:border-gray-700">
         {/* Search by name */}
-        <View className="flex-row items-center bg-gray-100 rounded-xl px-3 py-2 gap-2">
+        <View className="flex-row items-center bg-gray-100 dark:bg-gray-700 rounded-xl px-3 py-2 gap-2">
           <Feather name="search" size={18} color="#9CA3AF" />
           <TextInput
-            className="flex-1 text-base text-gray-900"
+            className="flex-1 text-base text-gray-900 dark:text-white"
             placeholder="Search businesses..."
             placeholderTextColor="#9CA3AF"
             value={search}
@@ -55,10 +58,10 @@ export default function DirectoryScreen() {
         </View>
 
         {/* Search by city */}
-        <View className="flex-row items-center bg-gray-100 rounded-xl px-3 py-2 gap-2 mt-2">
+        <View className="flex-row items-center bg-gray-100 dark:bg-gray-700 rounded-xl px-3 py-2 gap-2 mt-2">
           <Feather name="map-pin" size={18} color="#9CA3AF" />
           <TextInput
-            className="flex-1 text-base text-gray-900"
+            className="flex-1 text-base text-gray-900 dark:text-white"
             placeholder="City or location..."
             placeholderTextColor="#9CA3AF"
             value={city}
@@ -80,12 +83,12 @@ export default function DirectoryScreen() {
               className={`px-4 py-2 rounded-full border ${
                 selectedType === type.key
                   ? "bg-purple-600 border-purple-600"
-                  : "bg-white border-gray-200"
+                  : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600"
               }`}
             >
               <Text
                 className={`text-sm font-medium ${
-                  selectedType === type.key ? "text-white" : "text-gray-600"
+                  selectedType === type.key ? "text-white" : "text-gray-600 dark:text-gray-400"
                 }`}
               >
                 {type.label}
@@ -101,9 +104,9 @@ export default function DirectoryScreen() {
       </Text>
 
       {isLoading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#4A2D7A" />
-        </View>
+        <ListSkeleton />
+      ) : isError ? (
+        <QueryError message={error?.message} onRetry={refetch} />
       ) : (
         <FlatList
           data={allListings}
@@ -135,7 +138,19 @@ export default function DirectoryScreen() {
             <View className="items-center py-20">
               <Feather name="map" size={48} color="#D1D5DB" />
               <Text className="text-lg font-semibold text-gray-400 mt-4">No businesses found</Text>
-              <Text className="text-sm text-gray-400 mt-1">Try a different location or search</Text>
+              <Text className="text-sm text-gray-400 mt-1 text-center px-8">
+                Try a different location or search term
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setSearch("");
+                  setCity("");
+                  setSelectedType(undefined);
+                }}
+                className="mt-4 bg-brand-100 dark:bg-brand-900/20 rounded-xl px-6 py-2.5"
+              >
+                <Text className="text-sm font-medium text-brand-700">Clear Filters</Text>
+              </TouchableOpacity>
             </View>
           }
         />

@@ -51,22 +51,22 @@ export default function CreateEventScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-white" contentContainerStyle={{ padding: 16 }} keyboardShouldPersistTaps="handled">
-      <Text className="text-sm font-sans-semibold text-gray-700 mb-2">Event Title *</Text>
+    <ScrollView className="flex-1 bg-white dark:bg-gray-800" contentContainerStyle={{ padding: 16 }} keyboardShouldPersistTaps="handled">
+      <Text className="text-sm font-sans-semibold text-gray-700 dark:text-gray-300 mb-2">Event Title *</Text>
       <TextInput
-        className="border border-gray-200 rounded-xl px-4 py-3 text-sm font-sans text-gray-900 mb-4"
+        className="border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm font-sans text-gray-900 dark:text-white mb-4"
         placeholder="e.g. Memorial Service for John"
         value={title}
         onChangeText={setTitle}
       />
 
-      <Text className="text-sm font-sans-semibold text-gray-700 mb-2">Type</Text>
+      <Text className="text-sm font-sans-semibold text-gray-700 dark:text-gray-300 mb-2">Type</Text>
       <View className="flex-row flex-wrap gap-2 mb-4">
         {EVENT_TYPES.map((t) => (
           <Pressable
             key={t.key}
             className={`flex-row items-center gap-1.5 rounded-full px-3 py-2 border ${
-              type === t.key ? "border-brand-700 bg-brand-50" : "border-gray-200"
+              type === t.key ? "border-brand-700 bg-brand-50" : "border-gray-200 dark:border-gray-600"
             }`}
             onPress={() => setType(t.key)}
           >
@@ -78,9 +78,9 @@ export default function CreateEventScreen() {
         ))}
       </View>
 
-      <Text className="text-sm font-sans-semibold text-gray-700 mb-2">Description</Text>
+      <Text className="text-sm font-sans-semibold text-gray-700 dark:text-gray-300 mb-2">Description</Text>
       <TextInput
-        className="border border-gray-200 rounded-xl px-4 py-3 text-sm font-sans text-gray-900 mb-4 min-h-[80px]"
+        className="border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm font-sans text-gray-900 dark:text-white mb-4 min-h-[80px]"
         placeholder="Tell people about this event..."
         value={description}
         onChangeText={setDescription}
@@ -93,14 +93,14 @@ export default function CreateEventScreen() {
         onPress={() => setIsVirtual(!isVirtual)}
       >
         <Ionicons name={isVirtual ? "checkbox" : "square-outline"} size={20} color="#4A2D7A" />
-        <Text className="text-sm font-sans text-gray-700">This is a virtual event</Text>
+        <Text className="text-sm font-sans text-gray-700 dark:text-gray-300">This is a virtual event</Text>
       </Pressable>
 
       {isVirtual ? (
         <>
-          <Text className="text-sm font-sans-semibold text-gray-700 mb-2">Virtual Link</Text>
+          <Text className="text-sm font-sans-semibold text-gray-700 dark:text-gray-300 mb-2">Virtual Link</Text>
           <TextInput
-            className="border border-gray-200 rounded-xl px-4 py-3 text-sm font-sans text-gray-900 mb-4"
+            className="border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm font-sans text-gray-900 dark:text-white mb-4"
             placeholder="https://zoom.us/j/..."
             value={virtualLink}
             onChangeText={setVirtualLink}
@@ -110,9 +110,9 @@ export default function CreateEventScreen() {
         </>
       ) : (
         <>
-          <Text className="text-sm font-sans-semibold text-gray-700 mb-2">Location</Text>
+          <Text className="text-sm font-sans-semibold text-gray-700 dark:text-gray-300 mb-2">Location</Text>
           <TextInput
-            className="border border-gray-200 rounded-xl px-4 py-3 text-sm font-sans text-gray-900 mb-4"
+            className="border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm font-sans text-gray-900 dark:text-white mb-4"
             placeholder="e.g. St. Mary's Church, 123 Main St"
             value={location}
             onChangeText={setLocation}

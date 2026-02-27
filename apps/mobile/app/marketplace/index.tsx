@@ -3,7 +3,7 @@ import { View, Text, FlatList, TextInput, ScrollView, TouchableOpacity, Activity
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { useListings, useMarketplaceCategories } from "@foreverr/core";
-import { ListingCard, CategoryChip } from "@foreverr/ui";
+import { ListingCard, CategoryChip, CardGridSkeleton, QueryError } from "@foreverr/ui";
 
 type SortOption = "newest" | "price_low" | "price_high" | "popular";
 
@@ -21,6 +21,9 @@ export default function MarketplaceScreen() {
     hasNextPage,
     isFetchingNextPage,
     isLoading,
+    isError,
+    error,
+    refetch,
   } = useListings({
     search: search || undefined,
     categorySlug: selectedCategory,
@@ -37,13 +40,13 @@ export default function MarketplaceScreen() {
   ];
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
       {/* Search bar */}
-      <View className="bg-white px-4 pt-2 pb-3 border-b border-gray-100">
-        <View className="flex-row items-center bg-gray-100 rounded-xl px-3 py-2 gap-2">
+      <View className="bg-white dark:bg-gray-800 px-4 pt-2 pb-3 border-b border-gray-100 dark:border-gray-700">
+        <View className="flex-row items-center bg-gray-100 dark:bg-gray-700 rounded-xl px-3 py-2 gap-2">
           <Feather name="search" size={18} color="#9CA3AF" />
           <TextInput
-            className="flex-1 text-base text-gray-900"
+            className="flex-1 text-base text-gray-900 dark:text-white"
             placeholder="Search products & services..."
             placeholderTextColor="#9CA3AF"
             value={search}
@@ -90,7 +93,7 @@ export default function MarketplaceScreen() {
           className="flex-row items-center gap-1"
         >
           <Feather name="sliders" size={14} color="#6B7280" />
-          <Text className="text-sm text-gray-600">
+          <Text className="text-sm text-gray-600 dark:text-gray-400">
             {sortOptions.find((s) => s.key === sortBy)?.label}
           </Text>
         </TouchableOpacity>
@@ -98,7 +101,7 @@ export default function MarketplaceScreen() {
 
       {/* Sort dropdown */}
       {showSort && (
-        <View className="absolute top-0 right-4 z-50 mt-36 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+        <View className="absolute top-0 right-4 z-50 mt-36 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
           {sortOptions.map((opt) => (
             <TouchableOpacity
               key={opt.key}
@@ -108,7 +111,7 @@ export default function MarketplaceScreen() {
               }}
               className={`px-4 py-3 border-b border-gray-50 ${sortBy === opt.key ? "bg-purple-50" : ""}`}
             >
-              <Text className={`text-sm ${sortBy === opt.key ? "text-purple-600 font-medium" : "text-gray-700"}`}>
+              <Text className={`text-sm ${sortBy === opt.key ? "text-purple-600 font-medium" : "text-gray-700 dark:text-gray-300"}`}>
                 {opt.label}
               </Text>
             </TouchableOpacity>
@@ -118,9 +121,9 @@ export default function MarketplaceScreen() {
 
       {/* Listings */}
       {isLoading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#4A2D7A" />
-        </View>
+        <CardGridSkeleton />
+      ) : isError ? (
+        <QueryError message={error?.message} onRetry={refetch} />
       ) : (
         <FlatList
           data={allListings}
@@ -158,6 +161,23 @@ export default function MarketplaceScreen() {
               <Text className="text-sm text-gray-400 text-center mt-1">
                 Try adjusting your filters or search term
               </Text>
+              <View className="flex-row gap-3 mt-4">
+                <TouchableOpacity
+                  onPress={() => {
+                    setSearch("");
+                    setSelectedCategory(undefined);
+                  }}
+                  className="bg-gray-100 dark:bg-gray-800 rounded-xl px-5 py-2.5"
+                >
+                  <Text className="text-sm font-medium text-gray-600 dark:text-gray-300">Clear Filters</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => router.push("/marketplace/create")}
+                  className="bg-purple-600 rounded-xl px-5 py-2.5"
+                >
+                  <Text className="text-sm font-medium text-white">Create Listing</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           }
         />

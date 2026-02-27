@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { View, ScrollView, Alert, Platform, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
@@ -7,11 +8,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAuth, loginSchema } from "@foreverr/core";
 import type { z } from "zod";
 type LoginInput = z.infer<typeof loginSchema>;
-import { Text, Input, Button } from "@foreverr/ui";
+import { Text, Input, Button, GoogleIcon, FacebookIcon, XIcon, AppleIcon, ForeverrLogo } from "@foreverr/ui";
 
 export default function LoginScreen() {
   const router = useRouter();
   const { signInWithEmail, signInWithApple, isLoading } = useAuth();
+  const [rememberMe, setRememberMe] = useState(false);
 
   const { control, handleSubmit, formState: { errors } } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -45,24 +47,19 @@ export default function LoginScreen() {
   };
 
   return (
+    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
+      {/* Branded header */}
+      <View className="bg-brand-900 px-4 pb-4 pt-14 items-center">
+        <Pressable onPress={() => router.push("/(tabs)")}>
+          <ForeverrLogo width={550} variant="full" />
+        </Pressable>
+      </View>
     <ScrollView
-      className="flex-1 bg-gray-50 dark:bg-gray-900"
+      className="flex-1"
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
     >
-      <View className="flex-1 justify-center px-6 py-12">
-        {/* Logo */}
-        <View className="mb-8 items-center">
-          <Text className="text-3xl font-sans-bold">
-            <Text className="text-brand-900">FOR</Text>
-            <Text className="text-brand-500">EVE</Text>
-            <Text className="text-brand-900">RR</Text>
-          </Text>
-          <Text className="text-xs font-sans-medium tracking-widest text-gray-400 mt-1">
-            EXXiiT
-          </Text>
-        </View>
-
+      <View className="flex-1 justify-center px-6 py-8">
         <Text className="text-2xl font-sans-bold text-center text-gray-900 dark:text-white mb-8">
           Welcome Back!
         </Text>
@@ -118,10 +115,12 @@ export default function LoginScreen() {
 
           {/* Remember me + Forgot */}
           <View className="flex-row items-center justify-between">
-            <View className="flex-row items-center">
-              <View className="h-5 w-5 rounded border border-gray-300 mr-2" />
-              <Text className="text-sm font-sans text-gray-600">Remember me</Text>
-            </View>
+            <Pressable className="flex-row items-center" onPress={() => setRememberMe(!rememberMe)}>
+              <View className={`h-5 w-5 rounded border-2 mr-2 items-center justify-center ${rememberMe ? "bg-brand-700 border-brand-700" : "border-gray-300 dark:border-gray-600"}`}>
+                {rememberMe && <Ionicons name="checkmark" size={14} color="white" />}
+              </View>
+              <Text className="text-sm font-sans text-gray-600 dark:text-gray-400">Remember me</Text>
+            </Pressable>
             <Pressable onPress={() => router.push("/(auth)/forgot-password")}>
               <Text className="text-sm font-sans-medium text-brand-700">
                 Forgot Password?
@@ -132,7 +131,14 @@ export default function LoginScreen() {
           {/* Sign In Button */}
           <Pressable
             className="w-full rounded-full bg-brand-700 py-4 items-center mt-2"
-            onPress={handleSubmit(onSubmit)}
+            onPress={() => {
+              handleSubmit(onSubmit, (validationErrors) => {
+                const firstError = Object.values(validationErrors)[0]?.message;
+                if (firstError) {
+                  Alert.alert("Please fix", String(firstError));
+                }
+              })();
+            }}
             disabled={isLoading}
           >
             <Text className="text-base font-sans-semibold text-white">
@@ -143,37 +149,52 @@ export default function LoginScreen() {
 
         {/* OR divider */}
         <View className="my-6 items-center">
-          <Text className="text-sm font-sans text-gray-400">OR</Text>
-          <Text className="text-xs font-sans text-gray-400 mt-1">Login with social Networks</Text>
+          <View className="flex-row items-center w-full px-4">
+            <View className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+            <Text className="text-sm font-sans-semibold text-gray-500 dark:text-gray-400 mx-4">OR</Text>
+            <View className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+          </View>
+          <Text className="text-xs font-sans text-gray-500 dark:text-gray-400 mt-2">Login with social Networks</Text>
         </View>
 
-        {/* Social login icons */}
+        {/* Social login icons — all 4 providers */}
         <View className="flex-row justify-center gap-4">
+          {/* Google */}
           <Pressable
             className="h-12 w-12 items-center justify-center rounded-full bg-white border border-gray-200"
             onPress={() => Alert.alert("Coming Soon", "Google Sign In will be available soon.")}
+            accessibilityLabel="Sign in with Google"
+            accessibilityRole="button"
           >
-            <Text className="text-lg font-sans-bold text-red-500">G</Text>
+            <GoogleIcon size={22} />
           </Pressable>
+          {/* Facebook */}
           <Pressable
-            className="h-12 w-12 items-center justify-center rounded-full bg-blue-600"
+            className="h-12 w-12 items-center justify-center rounded-full bg-[#1877F2]"
             onPress={() => Alert.alert("Coming Soon", "Facebook Sign In will be available soon.")}
+            accessibilityLabel="Sign in with Facebook"
+            accessibilityRole="button"
           >
-            <Ionicons name="logo-facebook" size={24} color="white" />
+            <FacebookIcon size={22} />
           </Pressable>
-          {Platform.OS === "ios" ? (
+          {/* X (formerly Twitter) */}
+          <Pressable
+            className="h-12 w-12 items-center justify-center rounded-full bg-black"
+            onPress={() => Alert.alert("Coming Soon", "X Sign In will be available soon.")}
+            accessibilityLabel="Sign in with X"
+            accessibilityRole="button"
+          >
+            <XIcon size={18} color="#FFFFFF" />
+          </Pressable>
+          {/* Apple */}
+          {Platform.OS === "ios" && (
             <Pressable
               className="h-12 w-12 items-center justify-center rounded-full bg-black"
               onPress={handleAppleSignIn}
+              accessibilityLabel="Sign in with Apple"
+              accessibilityRole="button"
             >
-              <Ionicons name="logo-apple" size={24} color="white" />
-            </Pressable>
-          ) : (
-            <Pressable
-              className="h-12 w-12 items-center justify-center rounded-full bg-blue-400"
-              onPress={() => Alert.alert("Coming Soon", "Twitter Sign In will be available soon.")}
-            >
-              <Ionicons name="logo-twitter" size={24} color="white" />
+              <AppleIcon size={22} />
             </Pressable>
           )}
         </View>
@@ -185,7 +206,18 @@ export default function LoginScreen() {
             <Text className="text-sm font-sans-bold text-brand-700">Sign up</Text>
           </Pressable>
         </View>
+
+        {/* Browse as Guest */}
+        <Pressable
+          onPress={() => router.replace("/(tabs)")}
+          className="mt-4 items-center py-3"
+        >
+          <Text className="text-sm font-sans-medium text-gray-500">
+            Browse as Guest
+          </Text>
+        </Pressable>
       </View>
     </ScrollView>
+    </View>
   );
 }

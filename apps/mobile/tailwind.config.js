@@ -34,12 +34,12 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ["Inter_400Regular"],
-        "sans-medium": ["Inter_500Medium"],
-        "sans-semibold": ["Inter_600SemiBold"],
-        "sans-bold": ["Inter_700Bold"],
-        serif: ["PlayfairDisplay_400Regular"],
-        "serif-bold": ["PlayfairDisplay_700Bold"],
+        sans: ["Inter_400Regular", "system-ui", "-apple-system", "sans-serif"],
+        "sans-medium": ["Inter_500Medium", "system-ui", "-apple-system", "sans-serif"],
+        "sans-semibold": ["Inter_600SemiBold", "system-ui", "-apple-system", "sans-serif"],
+        "sans-bold": ["Inter_700Bold", "system-ui", "-apple-system", "sans-serif"],
+        serif: ["PlayfairDisplay_400Regular", "Georgia", "serif"],
+        "serif-bold": ["PlayfairDisplay_700Bold", "Georgia", "serif"],
       },
       borderRadius: {
         "4xl": "2rem",

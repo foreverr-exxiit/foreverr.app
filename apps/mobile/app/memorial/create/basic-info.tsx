@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useWizardStore, memorialStep1Schema } from "@foreverr/core";
 import type { z } from "zod";
 type MemorialStep1Input = z.infer<typeof memorialStep1Schema>;
-import { Text, Input, Button } from "@foreverr/ui";
+import { Text, Input, Button, ForeverrLogo } from "@foreverr/ui";
 
 const RELATIONSHIPS = [
   { value: "immediate_family", label: "Immediate Family" },
@@ -51,12 +51,19 @@ export default function BasicInfoScreen() {
   };
 
   return (
+    <View className="flex-1 bg-white dark:bg-gray-900">
+      {/* Branded header */}
+      <View className="bg-brand-900 px-4 pb-4 pt-14 items-center">
+        <Pressable onPress={() => router.push("/(tabs)")}>
+          <ForeverrLogo width={550} variant="full" />
+        </Pressable>
+      </View>
     <ScrollView
-      className="flex-1 bg-white dark:bg-gray-900"
+      className="flex-1"
       contentContainerStyle={{ paddingBottom: 40 }}
       keyboardShouldPersistTaps="handled"
     >
-      <View className="px-6 pt-14">
+      <View className="px-6 pt-4">
         <Pressable onPress={() => router.back()}>
           <Text className="text-base font-sans-medium text-brand-700 mb-4">← Cancel</Text>
         </Pressable>
@@ -160,5 +167,6 @@ export default function BasicInfoScreen() {
         </View>
       </View>
     </ScrollView>
+    </View>
   );
 }

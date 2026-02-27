@@ -40,7 +40,7 @@ export function ListingCard({
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.8}
-      className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 mb-3"
+      className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 mb-3"
     >
       {/* Image */}
       <View className="relative">
@@ -51,7 +51,7 @@ export function ListingCard({
             resizeMode="cover"
           />
         ) : (
-          <View className="w-full h-48 bg-gray-100 items-center justify-center">
+          <View className="w-full h-48 bg-gray-100 dark:bg-gray-700 items-center justify-center">
             <Feather name={isService ? "tool" : "package"} size={40} color="#9CA3AF" />
           </View>
         )}
@@ -90,10 +90,10 @@ export function ListingCard({
 
       {/* Content */}
       <View className="p-3">
-        <Text className="text-lg font-bold text-gray-900" numberOfLines={1}>
+        <Text className="text-lg font-bold text-gray-900 dark:text-white" numberOfLines={1}>
           {formattedPrice}
         </Text>
-        <Text className="text-sm text-gray-700 mt-0.5" numberOfLines={2}>
+        <Text className="text-sm text-gray-700 dark:text-gray-300 mt-0.5" numberOfLines={2}>
           {title}
         </Text>
 

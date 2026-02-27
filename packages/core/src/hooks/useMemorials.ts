@@ -1,54 +1,80 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
 import type { Memorial, MemorialInsert } from "../types/models";
+import { STATIC_MEMORIALS } from "../data/sampleMemorials";
 
 const MEMORIALS_KEY = "memorials";
 
-/** Fetch paginated public memorials (home feed / discover) */
+/** Fetch paginated public memorials (home feed / discover) — falls back to static data */
 export function useMemorials(options?: { search?: string; limit?: number }) {
   const limit = options?.limit ?? 20;
 
   return useInfiniteQuery({
     queryKey: [MEMORIALS_KEY, "list", options?.search],
     queryFn: async ({ pageParam = 0 }) => {
-      let query = supabase
-        .from("memorials")
-        .select("*")
-        .eq("status", "active")
-        .eq("privacy", "public")
-        .order("last_interaction_at", { ascending: false })
-        .range(pageParam, pageParam + limit - 1);
+      try {
+        let query = supabase
+          .from("memorials")
+          .select("*")
+          .eq("status", "active")
+          .eq("privacy", "public")
+          .order("last_interaction_at", { ascending: false })
+          .range(pageParam, pageParam + limit - 1);
 
-      if (options?.search) {
-        query = query.or(
-          `first_name.ilike.%${options.search}%,last_name.ilike.%${options.search}%`
-        );
+        if (options?.search) {
+          query = query.or(
+            `first_name.ilike.%${options.search}%,last_name.ilike.%${options.search}%`
+          );
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+        if (data && data.length > 0) {
+          return { data: data as Memorial[], nextCursor: data.length === limit ? pageParam + limit : undefined };
+        }
+      } catch {
+        // DB might not be reachable — fall back to static
       }
 
-      const { data, error } = await query;
-      if (error) throw error;
-      return { data: (data ?? []) as Memorial[], nextCursor: data && data.length === limit ? pageParam + limit : undefined };
+      // Static fallback — filter by search if provided
+      let staticData = STATIC_MEMORIALS as unknown as Memorial[];
+      if (options?.search) {
+        const term = options.search.toLowerCase();
+        staticData = staticData.filter(
+          (m) =>
+            m.first_name.toLowerCase().includes(term) ||
+            m.last_name.toLowerCase().includes(term)
+        );
+      }
+      const page = staticData.slice(pageParam, pageParam + limit);
+      return { data: page, nextCursor: page.length === limit ? pageParam + limit : undefined };
     },
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     initialPageParam: 0,
   });
 }
 
-/** Fetch top/trending memorials */
+/** Fetch top/trending memorials — falls back to static sample data when DB is empty */
 export function useTopMemorials(limit = 10) {
   return useQuery({
     queryKey: [MEMORIALS_KEY, "top", limit],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("memorials")
-        .select("*")
-        .eq("status", "active")
-        .eq("privacy", "public")
-        .order("follower_count", { ascending: false })
-        .limit(limit);
+      try {
+        const { data, error } = await supabase
+          .from("memorials")
+          .select("*")
+          .eq("status", "active")
+          .eq("privacy", "public")
+          .order("follower_count", { ascending: false })
+          .limit(limit);
 
-      if (error) throw error;
-      return (data ?? []) as Memorial[];
+        if (error) throw error;
+        if (data && data.length > 0) return data as Memorial[];
+      } catch {
+        // DB might not be reachable — fall back to static
+      }
+      // Return sample data so the app always has content
+      return STATIC_MEMORIALS.slice(0, limit) as unknown as Memorial[];
     },
   });
 }

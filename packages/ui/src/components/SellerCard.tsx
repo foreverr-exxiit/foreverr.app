@@ -46,7 +46,7 @@ export function SellerCard({
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.8}
-      className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm"
+      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm"
     >
       <View className="flex-row items-center gap-3">
         {avatarUrl ? (
@@ -59,7 +59,7 @@ export function SellerCard({
 
         <View className="flex-1">
           <View className="flex-row items-center gap-1">
-            <Text className="text-base font-semibold text-gray-900" numberOfLines={1}>
+            <Text className="text-base font-semibold text-gray-900 dark:text-white" numberOfLines={1}>
               {displayName}
             </Text>
             {isVerified && (
@@ -78,19 +78,19 @@ export function SellerCard({
       </View>
 
       {/* Stats */}
-      <View className="flex-row mt-3 pt-3 border-t border-gray-100 gap-4">
+      <View className="flex-row mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 gap-4">
         <View className="items-center flex-1">
-          <Text className="text-sm font-semibold text-gray-900">{totalSales}</Text>
+          <Text className="text-sm font-semibold text-gray-900 dark:text-white">{totalSales}</Text>
           <Text className="text-xs text-gray-500">Sales</Text>
         </View>
         <View className="items-center flex-1">
-          <Text className="text-sm font-semibold text-gray-900">
+          <Text className="text-sm font-semibold text-gray-900 dark:text-white">
             {responseTimeHours ? `${responseTimeHours}h` : "N/A"}
           </Text>
           <Text className="text-xs text-gray-500">Response</Text>
         </View>
         <View className="items-center flex-1">
-          <Text className="text-sm font-semibold text-gray-900">{ratingCount}</Text>
+          <Text className="text-sm font-semibold text-gray-900 dark:text-white">{ratingCount}</Text>
           <Text className="text-xs text-gray-500">Reviews</Text>
         </View>
       </View>

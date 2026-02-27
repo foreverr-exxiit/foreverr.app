@@ -8,11 +8,11 @@ import {
   TextInput,
   Linking,
   Alert,
-  ActivityIndicator,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { useDirectoryListing, useDirectoryReviews, useCreateDirectoryLead, useAuth } from "@foreverr/core";
+import { DetailScreenSkeleton } from "@foreverr/ui";
 
 export default function DirectoryDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -27,16 +27,12 @@ export default function DirectoryDetailScreen() {
   const [contactMessage, setContactMessage] = useState("");
 
   if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#4A2D7A" />
-      </View>
-    );
+    return <DetailScreenSkeleton />;
   }
 
   if (!listing) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
+      <View className="flex-1 items-center justify-center bg-white dark:bg-gray-800">
         <Feather name="alert-circle" size={48} color="#D1D5DB" />
         <Text className="text-lg text-gray-400 mt-4">Business not found</Text>
       </View>
@@ -66,7 +62,7 @@ export default function DirectoryDetailScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-white dark:bg-gray-800">
       <ScrollView>
         {/* Cover image */}
         {listing.cover_image_url ? (
@@ -80,7 +76,7 @@ export default function DirectoryDetailScreen() {
         <View className="px-4 pt-4 pb-8">
           {/* Name & verified */}
           <View className="flex-row items-center gap-2">
-            <Text className="text-xl font-bold text-gray-900 flex-1">{listing.business_name}</Text>
+            <Text className="text-xl font-bold text-gray-900 dark:text-white flex-1">{listing.business_name}</Text>
             {listing.is_verified && (
               <View className="flex-row items-center gap-1 bg-purple-100 rounded-full px-2 py-1">
                 <Feather name="check-circle" size={12} color="#7C3AED" />
@@ -101,7 +97,7 @@ export default function DirectoryDetailScreen() {
                 />
               ))}
             </View>
-            <Text className="text-sm text-gray-600">
+            <Text className="text-sm text-gray-600 dark:text-gray-400">
               {listing.rating_avg.toFixed(1)} ({listing.review_count} reviews)
             </Text>
             {listing.price_range && (
@@ -111,13 +107,13 @@ export default function DirectoryDetailScreen() {
 
           {/* Description */}
           {listing.description && (
-            <Text className="text-sm text-gray-600 leading-5 mt-4">{listing.description}</Text>
+            <Text className="text-sm text-gray-600 dark:text-gray-400 leading-5 mt-4">{listing.description}</Text>
           )}
 
           {/* Services */}
           {listing.services.length > 0 && (
             <View className="mt-4">
-              <Text className="text-sm font-semibold text-gray-700 mb-2">Services</Text>
+              <Text className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Services</Text>
               <View className="flex-row flex-wrap gap-2">
                 {listing.services.map((s, i) => (
                   <View key={i} className="bg-purple-50 rounded-full px-3 py-1">
@@ -129,12 +125,12 @@ export default function DirectoryDetailScreen() {
           )}
 
           {/* Contact info */}
-          <View className="mt-4 bg-gray-50 rounded-xl p-4 gap-3">
-            <Text className="text-sm font-semibold text-gray-700">Contact Information</Text>
+          <View className="mt-4 bg-gray-50 dark:bg-gray-900 rounded-xl p-4 gap-3">
+            <Text className="text-sm font-semibold text-gray-700 dark:text-gray-300">Contact Information</Text>
 
             <View className="flex-row items-center gap-2">
               <Feather name="map-pin" size={16} color="#6B7280" />
-              <Text className="text-sm text-gray-600 flex-1">
+              <Text className="text-sm text-gray-600 dark:text-gray-400 flex-1">
                 {listing.address}, {listing.city}{listing.state ? `, ${listing.state}` : ""} {listing.zip_code}
               </Text>
             </View>
@@ -173,11 +169,11 @@ export default function DirectoryDetailScreen() {
           {/* Reviews */}
           {reviews && reviews.length > 0 && (
             <View className="mt-6">
-              <Text className="text-base font-semibold text-gray-900 mb-3">
+              <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">
                 Reviews ({reviews.length})
               </Text>
               {reviews.map((review: any) => (
-                <View key={review.id} className="bg-gray-50 rounded-xl p-3 mb-2">
+                <View key={review.id} className="bg-gray-50 dark:bg-gray-900 rounded-xl p-3 mb-2">
                   <View className="flex-row items-center gap-2">
                     <View className="flex-row">
                       {Array.from({ length: 5 }, (_, i) => (
@@ -194,10 +190,10 @@ export default function DirectoryDetailScreen() {
                     </Text>
                   </View>
                   {review.title && (
-                    <Text className="text-sm font-medium text-gray-800 mt-1">{review.title}</Text>
+                    <Text className="text-sm font-medium text-gray-800 dark:text-gray-100 mt-1">{review.title}</Text>
                   )}
                   {review.review_text && (
-                    <Text className="text-sm text-gray-600 mt-0.5">{review.review_text}</Text>
+                    <Text className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">{review.review_text}</Text>
                   )}
                 </View>
               ))}
@@ -207,7 +203,7 @@ export default function DirectoryDetailScreen() {
       </ScrollView>
 
       {/* Bottom action */}
-      <View className="px-4 py-3 bg-white border-t border-gray-100 flex-row gap-3">
+      <View className="px-4 py-3 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex-row gap-3">
         <TouchableOpacity
           onPress={() => setShowContactForm(!showContactForm)}
           className="flex-1 bg-purple-600 rounded-xl py-3.5 items-center"
@@ -217,7 +213,7 @@ export default function DirectoryDetailScreen() {
         {listing.phone && (
           <TouchableOpacity
             onPress={() => Linking.openURL(`tel:${listing.phone}`)}
-            className="w-14 bg-gray-100 rounded-xl items-center justify-center"
+            className="w-14 bg-gray-100 dark:bg-gray-700 rounded-xl items-center justify-center"
           >
             <Feather name="phone" size={20} color="#4A2D7A" />
           </TouchableOpacity>
@@ -226,16 +222,16 @@ export default function DirectoryDetailScreen() {
 
       {/* Contact form */}
       {showContactForm && (
-        <View className="px-4 py-4 bg-gray-50 border-t border-gray-200">
+        <View className="px-4 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-600">
           <TextInput
-            className="bg-white rounded-xl px-4 py-3 text-sm border border-gray-200 mb-2"
+            className="bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-sm border border-gray-200 dark:border-gray-600 mb-2"
             placeholder="Your name *"
             placeholderTextColor="#9CA3AF"
             value={contactName}
             onChangeText={setContactName}
           />
           <TextInput
-            className="bg-white rounded-xl px-4 py-3 text-sm border border-gray-200 mb-2"
+            className="bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-sm border border-gray-200 dark:border-gray-600 mb-2"
             placeholder="Email address *"
             placeholderTextColor="#9CA3AF"
             value={contactEmail}
@@ -243,7 +239,7 @@ export default function DirectoryDetailScreen() {
             keyboardType="email-address"
           />
           <TextInput
-            className="bg-white rounded-xl px-4 py-3 text-sm border border-gray-200 mb-3"
+            className="bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-sm border border-gray-200 dark:border-gray-600 mb-3"
             placeholder="How can they help you? *"
             placeholderTextColor="#9CA3AF"
             multiline

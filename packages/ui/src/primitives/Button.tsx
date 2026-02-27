@@ -1,4 +1,5 @@
 import { Pressable, Text, ActivityIndicator, type PressableProps } from "react-native";
+import { lightTap } from "@foreverr/core";
 
 interface Props extends PressableProps {
   title: string;
@@ -51,6 +52,10 @@ export function Button({
       } ${disabled || loading ? "opacity-50" : ""} ${className}`}
       disabled={disabled || loading}
       {...props}
+      onPress={(e) => {
+        lightTap();
+        props.onPress?.(e);
+      }}
     >
       {loading ? (
         <ActivityIndicator

@@ -123,3 +123,64 @@ export type DirectoryBusinessType =
 
 export type PriceRange = "$" | "$$" | "$$$" | "$$$$";
 export type LeadStatus = "new" | "contacted" | "quoted" | "booked" | "completed" | "cancelled";
+
+// Memory Vault types
+export type MemoryVaultItem = Database["public"]["Tables"]["memory_vault_items"]["Row"];
+export type MemoryVaultItemInsert = Database["public"]["Tables"]["memory_vault_items"]["Insert"];
+export type TimeCapsule = Database["public"]["Tables"]["time_capsules"]["Row"];
+export type TimeCapsuleInsert = Database["public"]["Tables"]["time_capsules"]["Insert"];
+export type LegacyLetter = Database["public"]["Tables"]["legacy_letters"]["Row"];
+export type LegacyLetterInsert = Database["public"]["Tables"]["legacy_letters"]["Insert"];
+export type ScrapbookPage = Database["public"]["Tables"]["scrapbook_pages"]["Row"];
+export type ScrapbookPageInsert = Database["public"]["Tables"]["scrapbook_pages"]["Insert"];
+export type MemorialQRCode = Database["public"]["Tables"]["memorial_qr_codes"]["Row"];
+export type MemorialQRCodeInsert = Database["public"]["Tables"]["memorial_qr_codes"]["Insert"];
+
+export type VaultItemType = "document" | "recipe" | "letter" | "audio_playlist" | "quote" | "photo_album" | "video" | "other";
+export type TimeCapsuleStatus = "locked" | "unlocked";
+
+// Family Tree types
+export type FamilyTree = Database["public"]["Tables"]["family_trees"]["Row"];
+export type FamilyTreeInsert = Database["public"]["Tables"]["family_trees"]["Insert"];
+export type FamilyTreeMember = Database["public"]["Tables"]["family_tree_members"]["Row"];
+export type FamilyTreeMemberInsert = Database["public"]["Tables"]["family_tree_members"]["Insert"];
+export type FamilyTreeConnection = Database["public"]["Tables"]["family_tree_connections"]["Row"];
+export type FamilyTreeConnectionInsert = Database["public"]["Tables"]["family_tree_connections"]["Insert"];
+export type MemoryPrompt = Database["public"]["Tables"]["memory_prompts"]["Row"];
+export type MemoryPromptInsert = Database["public"]["Tables"]["memory_prompts"]["Insert"];
+export type MemoryPromptResponse = Database["public"]["Tables"]["memory_prompt_responses"]["Row"];
+
+export type RelationshipType =
+  | "parent" | "child" | "spouse" | "sibling" | "grandparent" | "grandchild"
+  | "aunt_uncle" | "niece_nephew" | "cousin" | "in_law" | "step_parent"
+  | "step_child" | "step_sibling" | "adopted" | "guardian" | "other";
+
+export type PromptType = "remember_when" | "on_this_day" | "seasonal" | "milestone" | "random" | "custom";
+
+// Virtual Space types
+export type VirtualSpace = Database["public"]["Tables"]["virtual_spaces"]["Row"];
+export type VirtualSpaceInsert = Database["public"]["Tables"]["virtual_spaces"]["Insert"];
+export type VirtualSpaceItem = Database["public"]["Tables"]["virtual_space_items"]["Row"];
+export type VirtualSpaceItemInsert = Database["public"]["Tables"]["virtual_space_items"]["Insert"];
+export type MemoryStreak = Database["public"]["Tables"]["memory_streaks"]["Row"];
+export type SeasonalDecoration = Database["public"]["Tables"]["seasonal_decorations"]["Row"];
+export type AppliedDecoration = Database["public"]["Tables"]["applied_decorations"]["Row"];
+
+export type SpaceType = "memorial_room" | "garden" | "chapel" | "gravesite" | "beach" | "forest" | "custom";
+export type VirtualItemType =
+  | "candle" | "flower" | "photo" | "wreath" | "plant" | "teddy_bear"
+  | "cross" | "star_of_david" | "crescent" | "dove" | "butterfly"
+  | "custom_3d" | "text_plaque" | "audio_clip" | "video_frame";
+export type DecorationType =
+  | "christmas" | "easter" | "valentines" | "mothers_day" | "fathers_day"
+  | "memorial_day" | "veterans_day" | "halloween" | "thanksgiving"
+  | "new_year" | "birthday" | "anniversary" | "custom";
+
+// Celebrity Content types
+export type CelebrityMemorial = Database["public"]["Tables"]["celebrity_memorials"]["Row"];
+export type CelebrityMemorialInsert = Database["public"]["Tables"]["celebrity_memorials"]["Insert"];
+export type NewsItem = Database["public"]["Tables"]["news_items"]["Row"];
+export type NewsItemInsert = Database["public"]["Tables"]["news_items"]["Insert"];
+
+export type CelebrityCategory = "recent_death" | "anniversary" | "historical" | "featured";
+export type NewsCategory = "obituary" | "anniversary" | "memorial_news" | "platform_update" | "general";

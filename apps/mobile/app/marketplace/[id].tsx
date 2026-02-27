@@ -7,12 +7,12 @@ import {
   TouchableOpacity,
   TextInput,
   Dimensions,
-  ActivityIndicator,
   Alert,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { useListing, useCreateInquiry, useAuth } from "@foreverr/core";
+import { DetailScreenSkeleton, QueryError } from "@foreverr/ui";
 
 const { width } = Dimensions.get("window");
 
@@ -20,7 +20,7 @@ export default function ListingDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { session } = useAuth();
-  const { data: listing, isLoading } = useListing(id);
+  const { data: listing, isLoading, isError, error, refetch } = useListing(id);
   const createInquiry = useCreateInquiry();
 
   const [currentImage, setCurrentImage] = useState(0);
@@ -28,16 +28,16 @@ export default function ListingDetailScreen() {
   const [inquiryMessage, setInquiryMessage] = useState("");
 
   if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#4A2D7A" />
-      </View>
-    );
+    return <DetailScreenSkeleton />;
+  }
+
+  if (isError) {
+    return <QueryError message={error?.message} onRetry={refetch} />;
   }
 
   if (!listing) {
     return (
-      <View className="flex-1 items-center justify-center bg-white px-8">
+      <View className="flex-1 items-center justify-center bg-white dark:bg-gray-800 px-8">
         <Feather name="alert-circle" size={48} color="#D1D5DB" />
         <Text className="text-lg font-semibold text-gray-400 mt-4">Listing not found</Text>
       </View>
@@ -70,7 +70,7 @@ export default function ListingDetailScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-white dark:bg-gray-800">
       <ScrollView>
         {/* Image carousel */}
         <View className="relative">
@@ -94,7 +94,7 @@ export default function ListingDetailScreen() {
               ))}
             </ScrollView>
           ) : (
-            <View style={{ width, height: 300 }} className="bg-gray-100 items-center justify-center">
+            <View style={{ width, height: 300 }} className="bg-gray-100 dark:bg-gray-700 items-center justify-center">
               <Feather name="image" size={48} color="#D1D5DB" />
             </View>
           )}
@@ -105,7 +105,7 @@ export default function ListingDetailScreen() {
               {images.map((_: string, idx: number) => (
                 <View
                   key={idx}
-                  className={`w-2 h-2 rounded-full ${idx === currentImage ? "bg-white" : "bg-white/50"}`}
+                  className={`w-2 h-2 rounded-full ${idx === currentImage ? "bg-white dark:bg-gray-800" : "bg-white dark:bg-gray-800/50"}`}
                 />
               ))}
             </View>
@@ -116,7 +116,7 @@ export default function ListingDetailScreen() {
         <View className="px-4 pt-4 pb-6">
           {/* Price & category */}
           <View className="flex-row items-center justify-between">
-            <Text className="text-2xl font-bold text-gray-900">{formattedPrice}</Text>
+            <Text className="text-2xl font-bold text-gray-900 dark:text-white">{formattedPrice}</Text>
             {category && (
               <View className="bg-purple-100 rounded-full px-3 py-1">
                 <Text className="text-xs font-medium text-purple-700">{category.name}</Text>
@@ -124,7 +124,7 @@ export default function ListingDetailScreen() {
             )}
           </View>
 
-          <Text className="text-lg text-gray-800 mt-2">{listing.title}</Text>
+          <Text className="text-lg text-gray-800 dark:text-gray-100 mt-2">{listing.title}</Text>
 
           {/* Badges */}
           <View className="flex-row gap-2 mt-3">
@@ -135,8 +135,8 @@ export default function ListingDetailScreen() {
               </View>
             )}
             {listing.condition && (
-              <View className="flex-row items-center gap-1 bg-gray-100 rounded-full px-2.5 py-1">
-                <Text className="text-xs font-medium text-gray-600 capitalize">
+              <View className="flex-row items-center gap-1 bg-gray-100 dark:bg-gray-700 rounded-full px-2.5 py-1">
+                <Text className="text-xs font-medium text-gray-600 dark:text-gray-400 capitalize">
                   {listing.condition.replace("_", " ")}
                 </Text>
               </View>
@@ -152,16 +152,16 @@ export default function ListingDetailScreen() {
           {/* Description */}
           {listing.description && (
             <View className="mt-4">
-              <Text className="text-sm font-semibold text-gray-700 mb-1">Description</Text>
-              <Text className="text-sm text-gray-600 leading-5">{listing.description}</Text>
+              <Text className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Description</Text>
+              <Text className="text-sm text-gray-600 dark:text-gray-400 leading-5">{listing.description}</Text>
             </View>
           )}
 
           {/* Location */}
           {listing.location && (
-            <View className="flex-row items-center gap-2 mt-4 p-3 bg-gray-50 rounded-xl">
+            <View className="flex-row items-center gap-2 mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-xl">
               <Feather name="map-pin" size={16} color="#6B7280" />
-              <Text className="text-sm text-gray-600">{listing.location}</Text>
+              <Text className="text-sm text-gray-600 dark:text-gray-400">{listing.location}</Text>
             </View>
           )}
 
@@ -169,7 +169,7 @@ export default function ListingDetailScreen() {
           {seller && (
             <TouchableOpacity
               onPress={() => router.push(`/marketplace/seller/${seller.id}`)}
-              className="flex-row items-center gap-3 mt-4 p-3 bg-gray-50 rounded-xl"
+              className="flex-row items-center gap-3 mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-xl"
             >
               {seller.avatar_url ? (
                 <Image source={{ uri: seller.avatar_url }} className="w-10 h-10 rounded-full" />
@@ -179,7 +179,7 @@ export default function ListingDetailScreen() {
                 </View>
               )}
               <View className="flex-1">
-                <Text className="text-sm font-semibold text-gray-900">{seller.display_name}</Text>
+                <Text className="text-sm font-semibold text-gray-900 dark:text-white">{seller.display_name}</Text>
                 <Text className="text-xs text-gray-500">@{seller.username}</Text>
               </View>
               <Feather name="chevron-right" size={18} color="#9CA3AF" />
@@ -201,7 +201,7 @@ export default function ListingDetailScreen() {
       </ScrollView>
 
       {/* Bottom action bar */}
-      <View className="px-4 py-3 bg-white border-t border-gray-100 flex-row gap-3">
+      <View className="px-4 py-3 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex-row gap-3">
         <TouchableOpacity
           onPress={() => setShowInquiry(!showInquiry)}
           className="flex-1 bg-purple-600 rounded-xl py-3.5 items-center"
@@ -212,9 +212,9 @@ export default function ListingDetailScreen() {
 
       {/* Inquiry input */}
       {showInquiry && (
-        <View className="px-4 py-3 bg-gray-50 border-t border-gray-200">
+        <View className="px-4 py-3 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-600">
           <TextInput
-            className="bg-white rounded-xl px-4 py-3 text-sm text-gray-900 border border-gray-200"
+            className="bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600"
             placeholder="Write your message to the seller..."
             placeholderTextColor="#9CA3AF"
             multiline

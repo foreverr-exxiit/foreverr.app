@@ -1,9 +1,9 @@
-import { View, FlatList, Pressable, TextInput, KeyboardAvoidingView, Platform, Alert } from "react-native";
+import { View, FlatList, Pressable, TextInput, KeyboardAvoidingView, Platform, Alert, Share } from "react-native";
 import { useState } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
-import { useTributes, useCreateTribute, useAuth } from "@foreverr/core";
+import { useTributes, useCreateTribute, useToggleReaction, useAuth, useRequireAuth } from "@foreverr/core";
 import { Text } from "@foreverr/ui";
 
 const SUB_TABS = ["Condolences", "Tribute", "Social Tags"] as const;
@@ -22,13 +22,42 @@ function timeAgo(dateStr: string): string {
 export default function WallScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user, profile } = useAuth();
+  const { requireAuth } = useRequireAuth();
   const [activeSubTab, setActiveSubTab] = useState<string>("Condolences");
   const [message, setMessage] = useState("");
 
   const { data, isLoading } = useTributes(id);
   const createTribute = useCreateTribute();
+  const toggleReaction = useToggleReaction();
+  const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
 
   const tributes = data?.pages.flatMap((p) => p.data) ?? [];
+
+  const handleLike = (tributeId: string) => {
+    requireAuth(() => {
+      if (!user?.id) return;
+      const alreadyLiked = likedIds.has(tributeId);
+      setLikedIds((prev) => {
+        const next = new Set(prev);
+        alreadyLiked ? next.delete(tributeId) : next.add(tributeId);
+        return next;
+      });
+      toggleReaction.mutate({
+        userId: user.id,
+        targetType: "tribute",
+        targetId: tributeId,
+        reactionType: "heart",
+      });
+    });
+  };
+
+  const handleShare = async (item: any) => {
+    try {
+      await Share.share({
+        message: `${item.author?.display_name ?? "Someone"} shared a tribute: "${(item.content ?? "").slice(0, 120)}..." — Foreverr`,
+      });
+    } catch {}
+  };
 
   // Filter tributes by sub-tab type
   const filteredTributes = tributes.filter((t: any) => {
@@ -37,38 +66,41 @@ export default function WallScreen() {
     return true; // Social Tags shows all
   });
 
-  const handleSend = async () => {
-    if (!message.trim() || !user?.id || !id) return;
-    try {
-      await createTribute.mutateAsync({
-        memorial_id: id,
-        author_id: user.id,
-        type: "text",
-        content: message.trim(),
-        ribbon_type: "silver",
-        ribbon_count: 1,
-      });
-      setMessage("");
-    } catch {
-      Alert.alert("Error", "Failed to post. Please try again.");
-    }
+  const handleSend = () => {
+    if (!message.trim()) return;
+    requireAuth(async () => {
+      if (!user?.id || !id) return;
+      try {
+        await createTribute.mutateAsync({
+          memorial_id: id,
+          author_id: user.id,
+          type: "text",
+          content: message.trim(),
+          ribbon_type: "silver",
+          ribbon_count: 1,
+        });
+        setMessage("");
+      } catch {
+        Alert.alert("Error", "Failed to post. Please try again.");
+      }
+    });
   };
 
   return (
     <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === "ios" ? "padding" : undefined} keyboardVerticalOffset={180}>
       {/* Sub-tabs */}
-      <View className="flex-row border-b border-gray-100 px-4">
+      <View className="flex-row border-b border-gray-200 dark:border-gray-700 px-4">
         {SUB_TABS.map((tab) => (
           <Pressable
             key={tab}
-            className={`mr-6 py-2.5 ${
-              activeSubTab === tab ? "border-b-2 border-gray-900" : ""
+            className={`mr-6 py-3 ${
+              activeSubTab === tab ? "border-b-2 border-brand-700" : ""
             }`}
             onPress={() => setActiveSubTab(tab)}
           >
             <Text
               className={`text-sm font-sans-medium ${
-                activeSubTab === tab ? "text-gray-900 dark:text-white" : "text-gray-400"
+                activeSubTab === tab ? "text-brand-700" : "text-gray-500"
               }`}
             >
               {tab}
@@ -106,14 +138,26 @@ export default function WallScreen() {
                     <Image source={{ uri: item.media_url }} style={{ width: "100%", height: 160 }} contentFit="cover" />
                   </View>
                 )}
-                <View className="flex-row items-center gap-4 mt-2">
-                  <Pressable className="flex-row items-center gap-1">
-                    <Ionicons name="heart-outline" size={16} color="#9ca3af" />
-                    <Text className="text-xs font-sans text-gray-500">{item.like_count ?? 0}</Text>
+                <View className="flex-row items-center gap-5 mt-2.5">
+                  <Pressable className="flex-row items-center gap-1.5" onPress={() => handleLike(item.id)}>
+                    <Ionicons
+                      name={likedIds.has(item.id) ? "heart" : "heart-outline"}
+                      size={18}
+                      color={likedIds.has(item.id) ? "#ef4444" : "#6b7280"}
+                    />
+                    <Text className="text-xs font-sans-medium text-gray-600 dark:text-gray-400">
+                      {(item.like_count ?? 0) + (likedIds.has(item.id) ? 1 : 0)}
+                    </Text>
                   </Pressable>
-                  <Pressable className="flex-row items-center gap-1">
-                    <Ionicons name="chatbubble-outline" size={14} color="#9ca3af" />
-                    <Text className="text-xs font-sans text-gray-500">{item.comment_count ?? 0}</Text>
+                  <Pressable
+                    className="flex-row items-center gap-1.5"
+                    onPress={() => Alert.alert("Comments", "Comments coming soon!")}
+                  >
+                    <Ionicons name="chatbubble-outline" size={16} color="#6b7280" />
+                    <Text className="text-xs font-sans-medium text-gray-600 dark:text-gray-400">{item.comment_count ?? 0}</Text>
+                  </Pressable>
+                  <Pressable className="flex-row items-center gap-1.5" onPress={() => handleShare(item)}>
+                    <Ionicons name="share-outline" size={16} color="#6b7280" />
                   </Pressable>
                 </View>
               </View>
@@ -151,7 +195,7 @@ export default function WallScreen() {
           />
         </View>
         <Pressable
-          className={`rounded-full px-4 py-2 ${message.trim() ? "bg-red-500" : "bg-gray-300"}`}
+          className={`rounded-full px-5 py-2.5 ${message.trim() ? "bg-brand-700" : "bg-gray-300 dark:bg-gray-600"}`}
           onPress={handleSend}
           disabled={!message.trim() || createTribute.isPending}
         >

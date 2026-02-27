@@ -1,8 +1,8 @@
-import { View, ScrollView, ActivityIndicator, Pressable, Linking } from "react-native";
+import { View, ScrollView, Pressable, Linking } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useEvent, useEventRsvps, useMyRsvp, useRsvp, useAuth } from "@foreverr/core";
-import { Text, RsvpButton } from "@foreverr/ui";
+import { Text, RsvpButton, DetailScreenSkeleton } from "@foreverr/ui";
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -25,17 +25,13 @@ export default function EventDetailScreen() {
   const rsvpMutation = useRsvp();
 
   if (isLoading || !event) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="small" color="#4A2D7A" />
-      </View>
-    );
+    return <DetailScreenSkeleton />;
   }
 
   const goingCount = rsvps?.filter((r: any) => r.status === "going").length ?? 0;
 
   return (
-    <ScrollView className="flex-1 bg-white" contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView className="flex-1 bg-white dark:bg-gray-800" contentContainerStyle={{ paddingBottom: 40 }}>
       {/* Header */}
       <View className="px-4 pt-6 pb-4">
         <Text className="text-2xl font-sans-bold text-gray-900 dark:text-white">{event.title}</Text>
@@ -56,7 +52,7 @@ export default function EventDetailScreen() {
         <View className="flex-row items-start gap-3">
           <Ionicons name="calendar" size={20} color="#4A2D7A" />
           <View>
-            <Text className="text-sm font-sans-semibold text-gray-900">{formatDate(event.start_date)}</Text>
+            <Text className="text-sm font-sans-semibold text-gray-900 dark:text-white">{formatDate(event.start_date)}</Text>
             {event.end_date && (
               <Text className="text-xs font-sans text-gray-500 mt-0.5">until {formatDate(event.end_date)}</Text>
             )}
@@ -73,7 +69,7 @@ export default function EventDetailScreen() {
           >
             <Ionicons name={event.is_virtual ? "videocam" : "location"} size={20} color="#4A2D7A" />
             <View>
-              <Text className="text-sm font-sans-semibold text-gray-900">
+              <Text className="text-sm font-sans-semibold text-gray-900 dark:text-white">
                 {event.is_virtual ? "Virtual Event" : event.location}
               </Text>
               {event.is_virtual && event.virtual_link && (
@@ -85,7 +81,7 @@ export default function EventDetailScreen() {
 
         <View className="flex-row items-center gap-3">
           <Ionicons name="people" size={20} color="#4A2D7A" />
-          <Text className="text-sm font-sans text-gray-700">
+          <Text className="text-sm font-sans text-gray-700 dark:text-gray-300">
             {goingCount} going{event.max_attendees ? ` · ${event.max_attendees} max` : ""}
           </Text>
         </View>
@@ -94,15 +90,15 @@ export default function EventDetailScreen() {
       {/* Description */}
       {event.description && (
         <View className="px-4 mt-6">
-          <Text className="text-sm font-sans-semibold text-gray-900 mb-2">About</Text>
-          <Text className="text-sm font-sans text-gray-600 leading-5">{event.description}</Text>
+          <Text className="text-sm font-sans-semibold text-gray-900 dark:text-white mb-2">About</Text>
+          <Text className="text-sm font-sans text-gray-600 dark:text-gray-400 leading-5">{event.description}</Text>
         </View>
       )}
 
       {/* RSVP */}
       {user && event.status !== "cancelled" && event.status !== "completed" && (
         <View className="px-4 mt-6">
-          <Text className="text-sm font-sans-semibold text-gray-900 mb-3">Your RSVP</Text>
+          <Text className="text-sm font-sans-semibold text-gray-900 dark:text-white mb-3">Your RSVP</Text>
           <RsvpButton
             currentStatus={myRsvp?.status ?? null}
             onRsvp={(status) => rsvpMutation.mutate({ eventId: event.id, userId: user.id, status })}
