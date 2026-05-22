@@ -7,6 +7,7 @@ import { useCallback, useMemo } from "react";
 import { supabase } from "../supabase/client";
 import { useAuth } from "./useAuth";
 import { analytics } from "../services/analytics";
+import { captureException } from "../services/errorReporting";
 
 const PREMIUM_KEY = "premium";
 
@@ -355,6 +356,17 @@ export function useActivateSubscription() {
       queryClient.invalidateQueries({ queryKey: [PREMIUM_KEY] });
       queryClient.invalidateQueries({ queryKey: ["auth"] }); // Refresh profile with new premium_tier
     },
+    onError: (err, variables) => {
+      // If this fails, the user paid via RevenueCat but didn't get the
+      // entitlement on our side. Highest-priority Sentry signal.
+      captureException(err, {
+        where: "usePremium.useActivateSubscription",
+        plan_id: variables.plan_id,
+        billing_period: variables.billing_period,
+        provider: variables.provider,
+        provider_subscription_id: variables.provider_subscription_id,
+      });
+    },
   });
 }
 
@@ -391,6 +403,9 @@ export function useCancelSubscription() {
       });
       queryClient.invalidateQueries({ queryKey: [PREMIUM_KEY] });
     },
+    onError: (err) => {
+      captureException(err, { where: "usePremium.useCancelSubscription" });
+    },
   });
 }
 
@@ -423,6 +438,9 @@ export function useRestoreSubscription() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [PREMIUM_KEY] });
+    },
+    onError: (err) => {
+      captureException(err, { where: "usePremium.useRestoreSubscription" });
     },
   });
 }

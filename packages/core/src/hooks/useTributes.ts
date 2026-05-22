@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tansta
 import { supabase } from "../supabase/client";
 import { awardEngagementPoints } from "../services/engagement";
 import { analytics } from "../services/analytics";
+import { captureException } from "../services/errorReporting";
 import type { Tribute, TributeInsert, TributeComment } from "../types/models";
 
 const TRIBUTES_KEY = "tributes";
@@ -189,6 +190,12 @@ export function useCreateTribute() {
       if (data.author_id) {
         awardEngagementPoints(data.author_id, "create_tribute", { referenceId: data.id });
       }
+    },
+    onError: (err, variables) => {
+      captureException(err, {
+        where: "useTributes.useCreateTribute",
+        memorial_id: (variables as any)?.memorial_id,
+      });
     },
   });
 }

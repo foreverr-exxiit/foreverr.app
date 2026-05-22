@@ -57,6 +57,21 @@ BEGIN
     updated_at    = now()
   WHERE id = v_uid;
 
+  -- Mark any active subscriptions to cancel at period end. We can't
+  -- actually cancel IAP subscriptions server-side (Apple/Google require
+  -- the user to cancel via their store account settings), but at least
+  -- our records won't try to auto-renew, and the points multiplier /
+  -- entitlements naturally lapse at current_period_end.
+  BEGIN
+    UPDATE public.user_subscriptions
+    SET
+      cancel_at_period_end = true,
+      cancelled_at         = COALESCE(cancelled_at, now()),
+      updated_at           = now()
+    WHERE user_id = v_uid
+      AND status IN ('active', 'trialing', 'past_due');
+  EXCEPTION WHEN undefined_table THEN NULL; END;
+
   -- Lock the auth row so the user can't sign back in (email/password).
   -- For anonymous demo users this also prevents re-use of the session.
   UPDATE auth.users

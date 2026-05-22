@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuth, supabase, useWizardStore, analytics } from "@foreverr/core";
+import { useAuth, supabase, useWizardStore, analytics, captureException } from "@foreverr/core";
 import type { Memorial } from "@foreverr/core";
 import { Text, EternLogo } from "@foreverr/ui";
 
@@ -118,6 +118,10 @@ export default function MediaScreen() {
       reset();
       setSuccess(true);
     } catch (err: any) {
+      captureException(err, {
+        where: "lifecycle.create.media.handleCreate",
+        privacy: data.privacy,
+      });
       setError(err?.message || "Failed to create memorial. Please try again.");
     } finally {
       setIsSubmitting(false);

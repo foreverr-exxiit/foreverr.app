@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tansta
 import { supabase } from "../supabase/client";
 import { awardEngagementPoints } from "../services/engagement";
 import { analytics } from "../services/analytics";
+import { captureException } from "../services/errorReporting";
 
 const GIFT_KEY = "gifts";
 
@@ -360,6 +361,14 @@ export function useSendGiftTransaction() {
       if (variables.senderId) {
         awardEngagementPoints(variables.senderId, "send_gift", { referenceId: (data as any)?.id });
       }
+    },
+    onError: (err, variables) => {
+      captureException(err, {
+        where: "useGiftEconomy.useSendGiftTransaction",
+        gift_id: variables.giftId,
+        recipient_type: variables.recipientType,
+        amount_cents: variables.amountCents ?? 0,
+      });
     },
   });
 }

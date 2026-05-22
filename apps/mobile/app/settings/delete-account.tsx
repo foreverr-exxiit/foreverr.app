@@ -1,15 +1,38 @@
-import { View, ScrollView, Pressable, TextInput, Alert, ActivityIndicator } from "react-native";
+import { View, ScrollView, Pressable, TextInput, Alert, ActivityIndicator, Linking, Platform } from "react-native";
 import { useState, useCallback } from "react";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuth } from "@foreverr/core";
+import { useAuth, useMySubscription } from "@foreverr/core";
 import { Text } from "@foreverr/ui";
 
 export default function DeleteAccountScreen() {
   const router = useRouter();
   const { profile, deleteAccount } = useAuth();
+  const { data: subscription } = useMySubscription();
   const [confirmText, setConfirmText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Only show the warning for billing statuses that imply real money is
+  // still flowing. cancelled/expired subs don't need a re-warning.
+  const hasActiveSubscription =
+    !!subscription &&
+    ["active", "trialing", "past_due"].includes(subscription.status) &&
+    !subscription.cancel_at_period_end;
+
+  const openStoreSubscriptions = useCallback(() => {
+    const url =
+      Platform.OS === "ios"
+        ? "itms-apps://apps.apple.com/account/subscriptions"
+        : "https://play.google.com/store/account/subscriptions";
+    Linking.openURL(url).catch(() => {
+      Alert.alert(
+        "Can't open store",
+        Platform.OS === "ios"
+          ? "Go to Settings → [Your Apple ID] → Subscriptions to cancel."
+          : "Open Google Play → Profile → Payments & subscriptions → Subscriptions to cancel.",
+      );
+    });
+  }, []);
 
   const expectedConfirmation = "DELETE";
   const canDelete =
@@ -74,6 +97,36 @@ export default function DeleteAccountScreen() {
           </Text>
         </View>
       </View>
+
+      {/* Active subscription warning — Apple won't let us cancel IAP
+          server-side; surface this clearly so the user knows to cancel
+          in their store before deleting (or they keep getting billed). */}
+      {hasActiveSubscription ? (
+        <View className="px-4 mt-4">
+          <View className="rounded-2xl border border-amber-200 dark:border-amber-900/40 bg-amber-50 dark:bg-amber-900/10 p-4">
+            <View className="flex-row items-center mb-2">
+              <Ionicons name="card-outline" size={22} color="#D97706" />
+              <Text className="ml-2 text-base font-sans-bold text-amber-800 dark:text-amber-200">
+                Active subscription
+              </Text>
+            </View>
+            <Text className="text-sm font-sans text-amber-800/90 dark:text-amber-100/80 leading-5 mb-3">
+              You have an active subscription. Cancel it in {Platform.OS === "ios" ? "the App Store" : "Google Play"} first
+              — deleting your account here won't stop the next billing
+              cycle on your own store account.
+            </Text>
+            <Pressable
+              className="flex-row items-center justify-center py-3 rounded-xl bg-amber-600"
+              onPress={openStoreSubscriptions}
+            >
+              <Ionicons name="open-outline" size={18} color="#ffffff" />
+              <Text className="ml-2 text-sm font-sans-bold text-white">
+                {Platform.OS === "ios" ? "Manage Apple subscriptions" : "Manage Google subscriptions"}
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      ) : null}
 
       {/* What gets removed / what stays */}
       <View className="px-4 mt-5">
