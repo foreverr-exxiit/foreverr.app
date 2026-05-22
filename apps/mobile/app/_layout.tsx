@@ -15,11 +15,19 @@ import {
   savePushToken,
   setupNotificationListeners,
   clearBadgeCount,
+  initErrorReporting,
 } from "@foreverr/core";
 import { ErrorBoundary } from "@foreverr/ui";
 import { features } from "@foreverr/config";
 
 import "../global.css";
+
+// Initialize error reporting before anything else can throw.
+// No-op if @sentry/react-native isn't installed or DSN isn't set —
+// see packages/core/src/services/errorReporting.ts for activation steps.
+initErrorReporting({
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+});
 
 SplashScreen.preventAutoHideAsync();
 

@@ -635,6 +635,15 @@ export type { EngagementCategory } from "./services/engagement";
 // Services — Analytics
 export { analytics } from "./services/analytics";
 
+// Services — Error reporting (Sentry wrapper, no-op until DSN provided)
+export {
+  errorReporting,
+  initErrorReporting,
+  setUser as setErrorReportingUser,
+  captureException,
+  captureMessage,
+} from "./services/errorReporting";
+
 // Services — Deep Links
 export { handleDeepLink, generateDeepLink } from "./services/deepLinks";
 

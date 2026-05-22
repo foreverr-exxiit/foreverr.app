@@ -4,6 +4,7 @@ import { supabase } from "../supabase/client";
 import { useAuthStore } from "../stores/authStore";
 import { getPendingAction, clearPendingAction } from "./useRequireAuth";
 import { analytics } from "../services/analytics";
+import { setUser as setErrorReportingUser, captureException } from "../services/errorReporting";
 
 /* ------------------------------------------------------------------ */
 /*  Module-level singleton — auth listeners registered ONCE globally.  */
@@ -63,6 +64,7 @@ function initAuth() {
       });
       if (session?.user) {
         analytics.identify(session.user.id);
+        setErrorReportingUser(session.user.id);
         fetchProfile(session.user.id);
         const pending = getPendingAction();
         if (pending) {
@@ -73,6 +75,7 @@ function initAuth() {
         }
       } else {
         analytics.reset();
+        setErrorReportingUser(null);
         useAuthStore.setState({ profile: null });
       }
     }
@@ -94,6 +97,7 @@ function initAuth() {
 
     if (session?.user) {
       analytics.identify(session.user.id);
+      setErrorReportingUser(session.user.id);
       fetchProfile(session.user.id);
     }
   });
@@ -200,8 +204,11 @@ export function useAuth() {
     analytics.track("sign_out");
     analytics.flush();
     const { error } = await supabase.auth.signOut();
-    if (!error) {
+    if (error) {
+      captureException(error, { where: "useAuth.signOut" });
+    } else {
       analytics.reset();
+      setErrorReportingUser(null);
       useAuthStore.getState().reset();
     }
     return { error };
@@ -209,8 +216,12 @@ export function useAuth() {
 
   const deleteAccount = useCallback(async () => {
     const { error } = await (supabase as any).rpc("delete_my_account");
-    if (error) return { error };
+    if (error) {
+      captureException(error, { where: "useAuth.deleteAccount.rpc" });
+      return { error };
+    }
     await supabase.auth.signOut();
+    setErrorReportingUser(null);
     useAuthStore.getState().reset();
     return { error: null };
   }, []);

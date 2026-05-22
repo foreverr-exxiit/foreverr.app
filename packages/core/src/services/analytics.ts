@@ -13,6 +13,7 @@
 import { Platform } from "react-native";
 import Constants from "expo-constants";
 import { supabase } from "../supabase/client";
+import { captureException } from "./errorReporting";
 
 const APP_VERSION =
   Constants.expoConfig?.version ??
@@ -129,18 +130,26 @@ async function flush() {
   eventBatch.length = 0;
 
   try {
-    // Insert into analytics_events table (will be created in migration)
-    await (supabase as any).from("analytics_events").insert(
-      batch.map((e) => ({
-        event_name: e.event,
-        properties: e.properties,
-        user_id: userId,
-        platform: Platform.OS,
-        created_at: e.timestamp,
-      }))
-    );
-  } catch {
-    // If table doesn't exist or insert fails, log to console
+    // Insert into analytics_events table (created in migration 00049)
+    const { error } = await (supabase as any)
+      .from("analytics_events")
+      .insert(
+        batch.map((e) => ({
+          event_name: e.event,
+          properties: e.properties,
+          user_id: userId,
+          platform: Platform.OS,
+          created_at: e.timestamp,
+        })),
+      );
+    if (error) throw error;
+  } catch (err) {
+    // Report dropped batches to Sentry so silent analytics loss is visible.
+    captureException(err, {
+      where: "analytics.flush",
+      batch_size: batch.length,
+      first_event: batch[0]?.event,
+    });
     if (__DEV__) {
       for (const e of batch) {
         console.log(`[Analytics] ${e.event}`, e.properties);
