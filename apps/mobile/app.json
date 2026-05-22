@@ -55,7 +55,8 @@
       "expo-secure-store",
       "expo-notifications",
       "expo-apple-authentication",
-      "expo-image-picker"
+      "expo-image-picker",
+      "@sentry/react-native/expo"
     ],
     "experiments": {
       "typedRoutes": true
