@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuth, supabase, useWizardStore } from "@foreverr/core";
+import { useAuth, supabase, useWizardStore, analytics } from "@foreverr/core";
 import type { Memorial } from "@foreverr/core";
 import { Text, EternLogo } from "@foreverr/ui";
 
@@ -101,6 +101,16 @@ export default function MediaScreen() {
       await supabase.from("followers").insert({
         memorial_id: memorial.id,
         user_id: user!.id,
+      });
+
+      analytics.track("memorial_created", {
+        memorial_id: memorial.id,
+        privacy: data.privacy,
+        has_profile_photo: !!data.profilePhotoUri,
+        has_cover_photo: !!data.coverPhotoUri,
+        has_date_of_birth: !!data.dateOfBirth,
+        has_date_of_death: !!data.dateOfDeath,
+        relationship: data.relationship || "unknown",
       });
 
       setResultId(memorial.id);

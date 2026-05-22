@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
 import { awardEngagementPoints } from "../services/engagement";
+import { analytics } from "../services/analytics";
 
 const GIFT_KEY = "gifts";
 
@@ -346,6 +347,15 @@ export function useSendGiftTransaction() {
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: [GIFT_KEY] });
+      analytics.track("gift_sent", {
+        gift_id: variables.giftId,
+        recipient_type: variables.recipientType,
+        recipient_id: variables.recipientId,
+        quantity: variables.quantity ?? 1,
+        amount_cents: variables.amountCents ?? 0,
+        is_anonymous: variables.isAnonymous ?? false,
+        has_message: !!variables.message,
+      });
       // Award engagement points for sending a gift
       if (variables.senderId) {
         awardEngagementPoints(variables.senderId, "send_gift", { referenceId: (data as any)?.id });

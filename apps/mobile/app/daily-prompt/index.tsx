@@ -2,7 +2,7 @@ import { View, ScrollView, TextInput, Pressable, Alert, ActivityIndicator } from
 import { useState, useCallback } from "react";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuth, useTodayPrompt, useRespondToPromptDaily, useMyPromptHistory, useRecordEngagement } from "@foreverr/core";
+import { useAuth, useTodayPrompt, useRespondToPromptDaily, useMyPromptHistory, useRecordEngagement, analytics } from "@foreverr/core";
 import { Text, DailyPromptCard } from "@foreverr/ui";
 
 type LifecycleMode = "celebrate" | "preserve" | "support" | "remember" | "legacy";
@@ -42,6 +42,11 @@ export default function DailyPromptScreen() {
         content: responseText.trim(),
       });
       await recordEngagement.mutateAsync({ userId: user.id, type: "prompt" });
+      analytics.track("daily_prompt_answered", {
+        prompt_id: todayPrompt.id,
+        response_length: responseText.trim().length,
+        lifecycle_mode: selectedMode,
+      });
       setResponseText("");
       setShowInput(false);
       Alert.alert("Shared!", "Your response has been shared with the community.");

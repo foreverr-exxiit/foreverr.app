@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
 import { awardEngagementPoints } from "../services/engagement";
+import { analytics } from "../services/analytics";
 import type { Tribute, TributeInsert, TributeComment } from "../types/models";
 
 const TRIBUTES_KEY = "tributes";
@@ -179,6 +180,11 @@ export function useCreateTribute() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [TRIBUTES_KEY, "list", data.memorial_id] });
       queryClient.invalidateQueries({ queryKey: [TRIBUTES_KEY, "feed"] });
+      analytics.track("tribute_created", {
+        tribute_id: data.id,
+        memorial_id: data.memorial_id,
+        has_media: !!(data as any).media_url,
+      });
       // Award engagement points for creating a tribute
       if (data.author_id) {
         awardEngagementPoints(data.author_id, "create_tribute", { referenceId: data.id });

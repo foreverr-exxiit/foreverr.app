@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Pressable, Modal, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { analytics } from "@foreverr/core";
 import { Text } from "../primitives/Text";
 
 // ── Types ──────────────────────────────────────────────────
@@ -103,6 +104,16 @@ export function PaywallModal({
 }: PaywallModalProps) {
   const [selectedPlan, setSelectedPlan] = useState<string>("premium");
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "annual">("annual");
+
+  // Track when the paywall is actually shown to the user (per open).
+  useEffect(() => {
+    if (visible) {
+      analytics.track("paywall_shown", {
+        feature_label: featureLabel ?? "unknown",
+        current_tier: currentTier,
+      });
+    }
+  }, [visible, featureLabel, currentTier]);
 
   const activePlan = PLANS.find((p) => p.slug === selectedPlan) ?? PLANS[0];
 
@@ -277,7 +288,15 @@ export function PaywallModal({
                 <Pressable
                   className="rounded-2xl py-4 items-center"
                   style={{ backgroundColor: activePlan.badge_color }}
-                  onPress={() => onSelectPlan(activePlan.slug, billingPeriod)}
+                  onPress={() => {
+                    analytics.track("purchase_started", {
+                      plan_slug: activePlan.slug,
+                      billing_period: billingPeriod,
+                      tier: activePlan.tier,
+                      feature_label: featureLabel ?? "unknown",
+                    });
+                    onSelectPlan(activePlan.slug, billingPeriod);
+                  }}
                   disabled={isLoading}
                 >
                   {isLoading ? (

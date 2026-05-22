@@ -3,6 +3,7 @@ import { useShallow } from "zustand/react/shallow";
 import { supabase } from "../supabase/client";
 import { useAuthStore } from "../stores/authStore";
 import { getPendingAction, clearPendingAction } from "./useRequireAuth";
+import { analytics } from "../services/analytics";
 
 /* ------------------------------------------------------------------ */
 /*  Module-level singleton — auth listeners registered ONCE globally.  */
@@ -61,6 +62,7 @@ function initAuth() {
         user: session?.user ?? null,
       });
       if (session?.user) {
+        analytics.identify(session.user.id);
         fetchProfile(session.user.id);
         const pending = getPendingAction();
         if (pending) {
@@ -70,6 +72,7 @@ function initAuth() {
           }, 300);
         }
       } else {
+        analytics.reset();
         useAuthStore.setState({ profile: null });
       }
     }
@@ -90,6 +93,7 @@ function initAuth() {
     _initialSessionHandled = true;
 
     if (session?.user) {
+      analytics.identify(session.user.id);
       fetchProfile(session.user.id);
     }
   });
@@ -132,6 +136,7 @@ export function useAuth() {
       useAuthStore.getState().setLoading(true);
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       useAuthStore.getState().setLoading(false);
+      if (!error) analytics.track("sign_in", { method: "email" });
       return { data, error };
     },
     []
@@ -146,6 +151,7 @@ export function useAuth() {
         options: { data: { username, display_name: displayName } },
       });
       useAuthStore.getState().setLoading(false);
+      if (!error) analytics.track("sign_up", { method: "email" });
       return { data, error };
     },
     []
@@ -155,6 +161,7 @@ export function useAuth() {
     useAuthStore.getState().setLoading(true);
     const { data, error } = await supabase.auth.signInWithIdToken({ provider: "apple", token: identityToken });
     useAuthStore.getState().setLoading(false);
+    if (!error) analytics.track("sign_in", { method: "apple" });
     return { data, error };
   }, []);
 
@@ -162,6 +169,7 @@ export function useAuth() {
     useAuthStore.getState().setLoading(true);
     const { data, error } = await supabase.auth.signInWithIdToken({ provider: "google", token: idToken });
     useAuthStore.getState().setLoading(false);
+    if (!error) analytics.track("sign_in", { method: "google" });
     return { data, error };
   }, []);
 
@@ -169,6 +177,7 @@ export function useAuth() {
     useAuthStore.getState().setLoading(true);
     const { data, error } = await supabase.auth.signInWithIdToken({ provider: "facebook", token: accessToken });
     useAuthStore.getState().setLoading(false);
+    if (!error) analytics.track("sign_in", { method: "facebook" });
     return { data, error };
   }, []);
 
@@ -176,6 +185,7 @@ export function useAuth() {
     useAuthStore.getState().setLoading(true);
     const { data, error } = await supabase.auth.signInWithIdToken({ provider: "twitter" as any, token: accessToken });
     useAuthStore.getState().setLoading(false);
+    if (!error) analytics.track("sign_in", { method: "twitter" });
     return { data, error };
   }, []);
 
@@ -187,8 +197,13 @@ export function useAuth() {
   }, []);
 
   const signOut = useCallback(async () => {
+    analytics.track("sign_out");
+    analytics.flush();
     const { error } = await supabase.auth.signOut();
-    if (!error) useAuthStore.getState().reset();
+    if (!error) {
+      analytics.reset();
+      useAuthStore.getState().reset();
+    }
     return { error };
   }, []);
 
