@@ -147,7 +147,7 @@ export default function SettingsScreen() {
       </View>
 
       {/* Sign Out */}
-      <View className="mt-4 px-4 pb-8">
+      <View className="mt-4 px-4">
         <Pressable
           className="flex-row items-center justify-center py-3 rounded-xl border border-red-200 dark:border-red-800"
           onPress={() => {
@@ -159,6 +159,19 @@ export default function SettingsScreen() {
         >
           <Ionicons name="log-out-outline" size={18} color="#EF4444" />
           <Text className="ml-2 text-sm font-sans-medium text-red-500">Sign Out</Text>
+        </Pressable>
+      </View>
+
+      {/* Delete Account */}
+      <View className="mt-3 px-4 pb-8">
+        <Pressable
+          className="flex-row items-center justify-center py-3 rounded-xl"
+          onPress={() => router.push("/settings/delete-account" as any)}
+        >
+          <Ionicons name="trash-outline" size={16} color="#9ca3af" />
+          <Text className="ml-2 text-xs font-sans-medium text-gray-500">
+            Delete Account
+          </Text>
         </Pressable>
       </View>
 

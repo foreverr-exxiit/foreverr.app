@@ -57,6 +57,7 @@
     { "source": "/settings/terms", "destination": "/settings/terms.html" },
     { "source": "/settings/privacy-policy", "destination": "/settings/privacy-policy.html" },
     { "source": "/settings/about", "destination": "/settings/about.html" },
+    { "source": "/settings/delete-account", "destination": "/settings/delete-account.html" },
     { "source": "/settings/help", "destination": "/settings/help.html" },
     { "source": "/settings/language", "destination": "/settings/language.html" },
     { "source": "/settings", "destination": "/settings/index.html" },

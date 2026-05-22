@@ -31,6 +31,12 @@ function fetchProfile(userId: string) {
         return;
       }
       if (data) {
+        // Safety net: a deleted account that somehow still has a live session
+        // gets signed out immediately and never sees app state.
+        if ((data as any).deleted_at) {
+          supabase.auth.signOut().then(() => useAuthStore.getState().reset());
+          return;
+        }
         useAuthStore.getState().setProfile(data as any);
       }
     });
@@ -186,6 +192,14 @@ export function useAuth() {
     return { error };
   }, []);
 
+  const deleteAccount = useCallback(async () => {
+    const { error } = await (supabase as any).rpc("delete_my_account");
+    if (error) return { error };
+    await supabase.auth.signOut();
+    useAuthStore.getState().reset();
+    return { error: null };
+  }, []);
+
   const updateProfile = useCallback(
     async (updates: { username?: string; display_name?: string; avatar_url?: string; bio?: string }) => {
       const currentUser = useAuthStore.getState().user;
@@ -228,6 +242,7 @@ export function useAuth() {
     signInWithTwitter,
     resetPassword,
     signOut,
+    deleteAccount,
     updateProfile,
     refreshProfile,
   }), [session, user, profile, isLoading, isInitialized]);
