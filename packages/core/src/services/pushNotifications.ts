@@ -1,6 +1,7 @@
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 import { supabase } from "../supabase/client";
+import { captureException } from "./errorReporting";
 
 // ============================================================
 // Configuration (skip on web — push notifications are native-only)
@@ -71,6 +72,7 @@ export async function registerForPushNotifications(): Promise<string | null> {
     return tokenData.data;
   } catch (error) {
     console.error("Failed to register for push notifications:", error);
+    captureException(error, { where: "pushNotifications.registerForPushNotifications" });
     return null;
   }
 }
@@ -102,6 +104,7 @@ export async function savePushToken(userId: string, token: string): Promise<void
       .eq("id", userId);
   } catch (error) {
     console.error("Failed to save push token:", error);
+    captureException(error, { where: "pushNotifications.savePushToken", userId });
   }
 }
 

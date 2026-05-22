@@ -22,6 +22,8 @@ import { env } from "@foreverr/config";
 import { useAuth } from "./useAuth";
 import { useActivateSubscription, useRestoreSubscription } from "./usePremium";
 import type { SubscriptionPlan } from "./usePremium";
+import { analytics } from "../services/analytics";
+import { captureException } from "../services/errorReporting";
 
 // ── Types ──────────────────────────────────────────────────
 
@@ -180,6 +182,16 @@ export function useRevenueCat() {
           trial_end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         });
 
+        analytics.track("purchase_completed", {
+          plan_id: plan.id,
+          plan_slug: plan.slug,
+          tier: plan.tier,
+          billing_period: billingPeriod,
+          product_id: productId,
+          transaction_id: transactionId,
+          stub_mode: !Purchases,
+        });
+
         setState((s) => ({ ...s, isPurchasing: false }));
         return {
           success: true,
@@ -193,8 +205,20 @@ export function useRevenueCat() {
           err?.userCancelled === true;
 
         if (!isCancellation) {
+          // Real failure — report so we can diagnose payment friction.
+          captureException(err, {
+            where: "useRevenueCat.purchase",
+            plan_id: plan.id,
+            plan_slug: plan.slug,
+            billing_period: billingPeriod,
+          });
           setState((s) => ({ ...s, isPurchasing: false, error: errorMessage }));
         } else {
+          analytics.track("purchase_cancelled", {
+            plan_id: plan.id,
+            plan_slug: plan.slug,
+            billing_period: billingPeriod,
+          });
           setState((s) => ({ ...s, isPurchasing: false }));
         }
 
@@ -232,6 +256,7 @@ export function useRevenueCat() {
         return { success: true };
       }
     } catch (err: any) {
+      captureException(err, { where: "useRevenueCat.restore" });
       setState((s) => ({ ...s, isRestoring: false, error: err?.message }));
       return { success: false, error: err?.message };
     }

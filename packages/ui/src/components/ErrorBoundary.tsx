@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Pressable, Platform } from "react-native";
+import { captureException } from "@foreverr/core";
 import { Text } from "../primitives/Text";
 
 interface ErrorBoundaryProps {
@@ -26,6 +27,11 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     // Log the error for debugging
     console.error("[ErrorBoundary] Caught error:", error?.message);
     console.error("[ErrorBoundary] Component stack:", errorInfo?.componentStack);
+    // Report to Sentry (no-op until SDK + DSN are wired)
+    captureException(error, {
+      where: "ErrorBoundary",
+      componentStack: errorInfo?.componentStack,
+    });
   }
 
   handleRetry = () => {
@@ -92,6 +98,10 @@ export class SectionErrorBoundary extends React.Component<
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("[SectionErrorBoundary] Caught error:", error?.message);
     console.error("[SectionErrorBoundary] Component stack:", errorInfo?.componentStack);
+    captureException(error, {
+      where: "SectionErrorBoundary",
+      componentStack: errorInfo?.componentStack,
+    });
   }
 
   render() {

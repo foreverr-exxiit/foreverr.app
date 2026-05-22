@@ -148,7 +148,7 @@ export default function TermsOfServiceScreen() {
             We may terminate or suspend your account at any time, with or without cause, with or without notice. Upon termination, your right to use the Service will immediately cease. Provisions of these Terms that by their nature should survive termination shall survive, including ownership provisions, warranty disclaimers, and limitations of liability.
           </P>
           <P>
-            You may delete your account at any time through the Privacy &amp; Security settings. Upon deletion, your personal data will be removed in accordance with our Privacy Policy and applicable data retention requirements.
+            You may delete your account at any time from Settings → Delete Account. Deletion permanently anonymizes your profile (name, photo, bio) and signs you out. Memorial pages, tributes, and family-tree contributions you authored for other people are preserved so co-contributors retain access to grief work; everything else is removed in accordance with our Privacy Policy and applicable data retention requirements.
           </P>
         </Section>
 

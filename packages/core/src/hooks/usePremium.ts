@@ -6,6 +6,7 @@ import {
 import { useCallback, useMemo } from "react";
 import { supabase } from "../supabase/client";
 import { useAuth } from "./useAuth";
+import { analytics } from "../services/analytics";
 
 const PREMIUM_KEY = "premium";
 
@@ -383,7 +384,11 @@ export function useCancelSubscription() {
       if (error) throw error;
       return data as unknown as UserSubscription;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      analytics.track("subscription_cancelled", {
+        plan_id: (data as any)?.plan_id,
+        cancel_at_period_end: true,
+      });
       queryClient.invalidateQueries({ queryKey: [PREMIUM_KEY] });
     },
   });

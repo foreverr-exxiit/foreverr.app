@@ -138,7 +138,7 @@ export default function PrivacyPolicyScreen() {
           <Bullet>Restrict processing: Request that we limit how we use your data</Bullet>
           <Bullet>Object: Object to processing of your data for certain purposes</Bullet>
           <P>
-            To exercise any of these rights, please contact us at privacy@eterrn.app or use the Privacy &amp; Security settings in the app.
+            To delete your account directly from the app, go to Settings → Delete Account. This permanently anonymizes your profile (name, photo, bio) and signs you out; memorial content you authored for other people is preserved so co-contributors don't lose grief work. For any other rights above — access, correction, portability, restriction, objection — contact privacy@eterrn.app or use the Privacy &amp; Security settings in the app.
           </P>
         </Section>
 

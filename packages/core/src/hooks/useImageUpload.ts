@@ -15,6 +15,7 @@ import { Platform, Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { supabase } from "../supabase/client";
 import { useAuth } from "./useAuth";
+import { captureException } from "../services/errorReporting";
 
 // ── Types ──────────────────────────────────────────────────
 
@@ -244,6 +245,7 @@ export function useImageUpload(
         bucket,
       };
     } catch (err: any) {
+      captureException(err, { where: "useImageUpload.uploadImage", bucket });
       setIsUploading(false);
       setProgress(0);
       setError(err.message ?? "Upload failed");
@@ -278,6 +280,7 @@ export function useImageUpload(
       if (deleteError) throw deleteError;
       return true;
     } catch (err: any) {
+      captureException(err, { where: "useImageUpload.deleteImage", bucket });
       setError(err.message ?? "Delete failed");
       return false;
     }
