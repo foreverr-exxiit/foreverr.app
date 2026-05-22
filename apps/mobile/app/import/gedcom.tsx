@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { View, ScrollView, Alert, FlatList, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useRouter, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -9,10 +9,14 @@ import {
   useParseGedcom,
   useImportGedcomToTree,
 } from "@foreverr/core";
-import type { GedcomParseResult } from "@foreverr/core/src/hooks/useGedcomImport";
+import type { GedcomParseResult } from "@foreverr/core";
 
 export default function GedcomImportScreen() {
   const router = useRouter();
+  const goBack = useCallback(() => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(tabs)" as any);
+  }, [router]);
   const { session } = useAuth();
   const userId = session?.user?.id;
 
@@ -29,7 +33,7 @@ export default function GedcomImportScreen() {
   const handlePickFile = async () => {
     // Simulated GEDCOM content for demonstration
     const sampleGedcom = `0 HEAD
-1 SOUR Foreverr
+1 SOUR ǝterrn
 1 GEDC
 2 VERS 5.5
 0 @I1@ INDI
@@ -93,7 +97,7 @@ export default function GedcomImportScreen() {
             text: "View Tree",
             onPress: () => router.push(`/family-tree/${selectedTreeId}`),
           },
-          { text: "Done", onPress: () => router.back() },
+          { text: "Done", onPress: goBack },
         ]
       );
     } catch (err: any) {
@@ -106,8 +110,8 @@ export default function GedcomImportScreen() {
       <Stack.Screen
         options={{
           title: "GEDCOM Import",
-          headerStyle: { backgroundColor: "#2D1B4E" },
-          headerTintColor: "#fff",
+          headerStyle: { backgroundColor: "#FFFFFF" },
+          headerTintColor: "#4A2D7A",
         }}
       />
 

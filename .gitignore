@@ -18,3 +18,7 @@ web-build/
 .env.*.local
 ios/
 android/
+
+# Local agent / tooling state
+.claude/
+supabase/.temp/

@@ -29,9 +29,11 @@ CREATE TABLE IF NOT EXISTS user_prompt_responses (
   tagged_memorial_id uuid REFERENCES memorials(id) ON DELETE SET NULL,
   tagged_user_id     uuid REFERENCES profiles(id) ON DELETE SET NULL,
   reaction_count     integer DEFAULT 0,
-  created_at         timestamptz DEFAULT now(),
-  UNIQUE(user_id, prompt_id, (created_at::date))
+  created_at         timestamptz DEFAULT now()
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_prompt_responses_daily
+  ON user_prompt_responses (user_id, prompt_id, ((created_at AT TIME ZONE 'UTC')::date));
 
 -- ============================================================
 -- Table: smart_reminders

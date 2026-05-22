@@ -12,6 +12,7 @@ interface ChatBubbleProps {
   replyPreview?: string | null;
   onLongPress?: () => void;
   onReplyPress?: () => void;
+  onPressSender?: () => void;
 }
 
 function formatTime(dateStr: string): string {
@@ -27,11 +28,14 @@ export function ChatBubble({
   type = "text",
   replyPreview,
   onLongPress,
+  onPressSender,
 }: ChatBubbleProps) {
   return (
     <View className={`px-3 py-1 ${isOwn ? "items-end" : "items-start"}`}>
       {!isOwn && (
-        <Text className="text-[10px] font-sans-medium text-gray-400 ml-2 mb-0.5">{senderName}</Text>
+        <Pressable onPress={onPressSender} disabled={!onPressSender}>
+          <Text className="text-[10px] font-sans-medium text-gray-400 ml-2 mb-0.5">{senderName}</Text>
+        </Pressable>
       )}
       <Pressable
         className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 ${

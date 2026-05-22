@@ -24,7 +24,7 @@ export default function LegacyLettersScreen() {
 
   return (
     <ScreenWrapper>
-      <Stack.Screen options={{ title: "Legacy Letters" }} />
+      <Stack.Screen options={{ title: "Core Letters" }} />
 
       {/* Tab Bar */}
       <View className="flex-row px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">

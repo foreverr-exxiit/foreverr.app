@@ -60,7 +60,7 @@ export function LegacyPointsBadge({
         {currentBalance.toLocaleString()}
       </Text>
       <Text className="text-sm font-sans text-gray-500 dark:text-gray-400 mt-0.5">
-        Legacy Points
+        Core Points
       </Text>
 
       {/* Level Pill */}

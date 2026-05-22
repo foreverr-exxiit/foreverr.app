@@ -1,0 +1,66 @@
+{
+  "buildCommand": "",
+  "outputDirectory": "dist",
+  "headers": [
+    {
+      "source": "/(.*).html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/_expo/static/js/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/lifecycle/:id/wall", "destination": "/lifecycle/[id]/wall.html" },
+    { "source": "/lifecycle/:id/gallery", "destination": "/lifecycle/[id]/gallery.html" },
+    { "source": "/lifecycle/:id/timeline", "destination": "/lifecycle/[id]/timeline.html" },
+    { "source": "/lifecycle/:id/events", "destination": "/lifecycle/[id]/events.html" },
+    { "source": "/lifecycle/:id/obituary", "destination": "/lifecycle/[id]/obituary.html" },
+    { "source": "/lifecycle/:id/fundraiser", "destination": "/lifecycle/[id]/fundraiser.html" },
+    { "source": "/lifecycle/:id/ai-biography", "destination": "/lifecycle/[id]/ai-biography.html" },
+    { "source": "/lifecycle/:id/ai-obituary", "destination": "/lifecycle/[id]/ai-obituary.html" },
+    { "source": "/lifecycle/:id", "destination": "/lifecycle/[id]/index.html" },
+
+    { "source": "/living-tribute/:id/messages", "destination": "/living-tribute/[id]/messages.html" },
+    { "source": "/living-tribute/:id", "destination": "/living-tribute/[id]/index.html" },
+
+    { "source": "/user/:id/followers", "destination": "/user/[id]/followers.html" },
+    { "source": "/user/:id", "destination": "/user/[id]/index.html" },
+
+    { "source": "/gifts/:targetType/:targetId", "destination": "/gifts/[targetType]/[targetId].html" },
+    { "source": "/marketplace/seller/:id", "destination": "/marketplace/seller/[id].html" },
+
+    { "source": "/chat/:id", "destination": "/chat/[id].html" },
+    { "source": "/directory/:id", "destination": "/directory/[id].html" },
+    { "source": "/events/:id", "destination": "/events/[id].html" },
+    { "source": "/family-tree/:id", "destination": "/family-tree/[id].html" },
+    { "source": "/legacy-letters/:id", "destination": "/legacy-letters/[id].html" },
+    { "source": "/marketplace/:id", "destination": "/marketplace/[id].html" },
+    { "source": "/memory-prompts/:id", "destination": "/memory-prompts/[id].html" },
+    { "source": "/memory-vault/:id", "destination": "/memory-vault/[id].html" },
+    { "source": "/scrapbook/:id", "destination": "/scrapbook/[id].html" },
+    { "source": "/virtual-space/:id", "destination": "/virtual-space/[id].html" },
+    { "source": "/import/:source", "destination": "/import/[source].html" },
+
+    { "source": "/settings/privacy", "destination": "/settings/privacy.html" },
+    { "source": "/settings/terms", "destination": "/settings/terms.html" },
+    { "source": "/settings/privacy-policy", "destination": "/settings/privacy-policy.html" },
+    { "source": "/settings/about", "destination": "/settings/about.html" },
+    { "source": "/settings/help", "destination": "/settings/help.html" },
+    { "source": "/settings/language", "destination": "/settings/language.html" },
+    { "source": "/settings", "destination": "/settings/index.html" },
+
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

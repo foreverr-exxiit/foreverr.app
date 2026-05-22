@@ -142,11 +142,11 @@ insert into public.ribbon_packages (name, description, ribbon_amount, price_cent
 
 -- SEED DATA: Gift catalog items
 insert into public.gift_catalog (category, name, description, image_url, ribbon_cost, sort_order) values
-  ('candle', 'Eternal Flame', 'A beautiful virtual candle', 'https://placeholder.co/candle.png', 5, 1),
-  ('candle', 'Peace Candle', 'Lit with thoughts of peace', 'https://placeholder.co/peace-candle.png', 10, 2),
-  ('flower', 'White Rose', 'Symbol of purity and remembrance', 'https://placeholder.co/white-rose.png', 8, 3),
-  ('flower', 'Lily Bouquet', 'A gentle lily arrangement', 'https://placeholder.co/lily.png', 15, 4),
-  ('plant', 'Remembrance Tree', 'A lasting tribute tree', 'https://placeholder.co/tree.png', 25, 5),
-  ('sympathy_card', 'Thinking of You', 'Heartfelt sympathy card', 'https://placeholder.co/card.png', 10, 6),
-  ('wreath', 'Memorial Wreath', 'Traditional remembrance wreath', 'https://placeholder.co/wreath.png', 30, 7),
-  ('ribbon_bouquet', 'Ribbon Bouquet', 'A colorful ribbon arrangement', 'https://placeholder.co/ribbon-bouquet.png', 20, 8);
+  ('candle', 'Eternal Flame', 'A beautiful virtual candle', '', 5, 1),
+  ('candle', 'Peace Candle', 'Lit with thoughts of peace', '', 10, 2),
+  ('flower', 'White Rose', 'Symbol of purity and remembrance', '', 8, 3),
+  ('flower', 'Lily Bouquet', 'A gentle lily arrangement', '', 15, 4),
+  ('plant', 'Remembrance Tree', 'A lasting tribute tree', '', 25, 5),
+  ('sympathy_card', 'Thinking of You', 'Heartfelt sympathy card', '', 10, 6),
+  ('wreath', 'Memorial Wreath', 'Traditional remembrance wreath', '', 30, 7),
+  ('ribbon_bouquet', 'Ribbon Bouquet', 'A colorful ribbon arrangement', '', 20, 8);

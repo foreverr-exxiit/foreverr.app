@@ -1,15 +1,32 @@
-import { View, ScrollView, Alert, Pressable } from "react-native";
+import { useState, useCallback } from "react";
+import { View, ScrollView, Alert, Platform, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Ionicons } from "@expo/vector-icons";
 import { useAuth, registerSchema } from "@foreverr/core";
 import type { z } from "zod";
 type RegisterInput = z.infer<typeof registerSchema>;
-import { Text, Input, Button, ForeverrLogo } from "@foreverr/ui";
+import { Text, Input, Button, EternLogo } from "@foreverr/ui";
+
+// Cross-platform alert that works on web + native
+function showAlert(title: string, message: string) {
+  if (Platform.OS === "web") {
+    window.alert(`${title}\n\n${message}`);
+  } else {
+    Alert.alert(title, message);
+  }
+}
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const goBack = useCallback(() => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(auth)/login" as any);
+  }, [router]);
   const { signUpWithEmail, isLoading } = useAuth();
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authSuccess, setAuthSuccess] = useState<string | null>(null);
 
   const { control, handleSubmit, formState: { errors } } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
@@ -23,29 +40,42 @@ export default function RegisterScreen() {
   });
 
   const onSubmit = async (data: RegisterInput) => {
-    const { error } = await signUpWithEmail(
-      data.email,
-      data.password,
-      data.username,
-      data.displayName
-    );
-    if (error) {
-      Alert.alert("Sign Up Failed", error.message);
-    } else {
-      Alert.alert(
-        "Check your email",
-        "We've sent a confirmation link to your email address.",
-        [{ text: "OK", onPress: () => router.back() }]
+    setAuthError(null);
+    setAuthSuccess(null);
+    try {
+      const { data: signUpData, error } = await signUpWithEmail(
+        data.email,
+        data.password,
+        data.username,
+        data.displayName
       );
+      if (error) {
+        setAuthError(error.message);
+        showAlert("Sign Up Failed", error.message);
+      } else if (signUpData?.session) {
+        // Auto-confirmed — user is signed in
+        setAuthSuccess("Account created! Signing you in...");
+      } else {
+        // Email confirmation required
+        const msg = "We've sent a confirmation link to your email address. Please check your inbox.";
+        setAuthSuccess(msg);
+        showAlert("Check your email", msg);
+      }
+    } catch (err: any) {
+      const msg = err?.message ?? "Something went wrong. Please try again.";
+      setAuthError(msg);
+      showAlert("Sign Up Failed", msg);
     }
   };
 
   return (
     <View className="flex-1 bg-white dark:bg-gray-900">
       {/* Branded header */}
-      <View className="bg-brand-900 px-4 pb-4 pt-14 items-center">
-        <Pressable onPress={() => router.push("/(tabs)")}>
-          <ForeverrLogo width={550} variant="full" />
+      <View className="bg-brand-900 px-4 pb-6 pt-14 items-center">
+        <Pressable onPress={() => router.push("/(tabs)")} className="items-center">
+          <View className="mt-2">
+            <EternLogo width={1200} variant="full" />
+          </View>
         </Pressable>
       </View>
     <ScrollView
@@ -60,6 +90,30 @@ export default function RegisterScreen() {
             Join the community honoring loved ones
           </Text>
         </View>
+
+        {/* Inline error banner — visible on web where Alert.alert may not show */}
+        {authError && (
+          <Pressable
+            className="mb-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 flex-row items-start"
+            onPress={() => setAuthError(null)}
+          >
+            <Ionicons name="alert-circle" size={18} color="#ef4444" style={{ marginTop: 1 }} />
+            <Text className="ml-2 flex-1 text-sm font-sans text-red-700 dark:text-red-300">
+              {authError}
+            </Text>
+            <Ionicons name="close" size={16} color="#ef4444" />
+          </Pressable>
+        )}
+
+        {/* Success banner */}
+        {authSuccess && (
+          <View className="mb-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-3 flex-row items-start">
+            <Ionicons name="checkmark-circle" size={18} color="#22c55e" style={{ marginTop: 1 }} />
+            <Text className="ml-2 flex-1 text-sm font-sans text-green-700 dark:text-green-300">
+              {authSuccess}
+            </Text>
+          </View>
+        )}
 
         <View className="gap-4">
           <Controller
@@ -153,7 +207,8 @@ export default function RegisterScreen() {
               handleSubmit(onSubmit, (validationErrors) => {
                 const firstError = Object.values(validationErrors)[0]?.message;
                 if (firstError) {
-                  Alert.alert("Please fix", String(firstError));
+                  setAuthError(String(firstError));
+                  showAlert("Please fix", String(firstError));
                 }
               })();
             }}
@@ -162,7 +217,7 @@ export default function RegisterScreen() {
 
         <View className="mt-6 flex-row justify-center">
           <Text variant="body" className="text-gray-500">Already have an account? </Text>
-          <Pressable onPress={() => router.back()}>
+          <Pressable onPress={goBack}>
             <Text className="text-base font-sans-semibold text-brand-700">Sign In</Text>
           </Pressable>
         </View>

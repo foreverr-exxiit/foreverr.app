@@ -76,9 +76,9 @@ export default function LegacyPointsScreen() {
     <ScreenWrapper>
       <Stack.Screen
         options={{
-          title: "Legacy Points",
-          headerStyle: { backgroundColor: "#2D1B4E" },
-          headerTintColor: "#fff",
+          title: "Core Points",
+          headerStyle: { backgroundColor: "#FFFFFF" },
+          headerTintColor: "#4A2D7A",
         }}
       />
 
@@ -146,7 +146,7 @@ export default function LegacyPointsScreen() {
                 No points earned yet
               </Text>
               <Text className="text-xs font-sans text-gray-400 dark:text-gray-500 mt-1">
-                Start engaging to earn Legacy Points!
+                Start engaging to earn Core Points!
               </Text>
             </View>
           ) : (

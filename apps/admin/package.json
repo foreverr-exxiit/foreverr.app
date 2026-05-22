@@ -1,0 +1,12 @@
+{
+  "name": "@foreverr/admin",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve src -l 3001",
+    "build": "echo 'Static HTML — no build needed'"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.47.12"
+  }
+}

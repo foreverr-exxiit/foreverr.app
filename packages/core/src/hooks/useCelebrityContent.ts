@@ -7,7 +7,7 @@ import {
 } from "../data/celebrityData";
 
 /**
- * Fetch recent celebrity obituaries / deaths, ordered by date_of_death descending.
+ * Fetch recent notable moments — memorials + celebrations interleaved.
  * Falls back to static data when the DB table is empty or doesn't exist yet.
  */
 export function useRecentObituaries(limit = 10) {
@@ -26,7 +26,18 @@ export function useRecentObituaries(limit = 10) {
       } catch {
         // Table might not exist yet — fall back to static
       }
-      return STATIC_CELEBRITIES.slice(0, limit);
+      // Interleave memorial + celebration entries for lifecycle diversity
+      const memorials = STATIC_CELEBRITIES.filter((c) => c.lifecycle_type === "memorial");
+      const celebrations = STATIC_CELEBRITIES.filter((c) => c.lifecycle_type !== "memorial");
+      const mixed: typeof STATIC_CELEBRITIES = [];
+      let mi = 0, ci = 0;
+      // Pattern: 2 memorial, 1 celebration, repeat
+      while (mixed.length < limit && (mi < memorials.length || ci < celebrations.length)) {
+        if (mi < memorials.length) mixed.push(memorials[mi++]);
+        if (mixed.length < limit && mi < memorials.length) mixed.push(memorials[mi++]);
+        if (mixed.length < limit && ci < celebrations.length) mixed.push(celebrations[ci++]);
+      }
+      return mixed.slice(0, limit);
     },
     staleTime: 1000 * 60 * 30,
   });

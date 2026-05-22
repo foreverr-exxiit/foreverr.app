@@ -33,8 +33,8 @@ export default function FollowersScreen() {
       <Stack.Screen
         options={{
           title: activeTab === "followers" ? "Followers" : "Following",
-          headerStyle: { backgroundColor: "#2D1B4E" },
-          headerTintColor: "#fff",
+          headerStyle: { backgroundColor: "#FFFFFF" },
+          headerTintColor: "#4A2D7A",
         }}
       />
 

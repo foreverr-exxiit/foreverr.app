@@ -33,7 +33,7 @@ export function LegacyProfileSection({
           <View className="flex-row items-center">
             <Ionicons name="sparkles" size={16} color="#7C3AED" />
             <Text className="ml-2 text-sm font-sans-bold text-gray-900 dark:text-white">
-              Living Legacy
+              Living Core
             </Text>
           </View>
           {isOwnProfile && onEditMessage && (
@@ -54,18 +54,18 @@ export function LegacyProfileSection({
       ) : isOwnProfile ? (
         <Pressable className="px-4 pb-3" onPress={onEditMessage}>
           <Text className="text-xs font-sans text-gray-400">
-            Add a legacy message — what do you want to be remembered for?
+            Add a Core message — what do you want to be remembered for?
           </Text>
         </Pressable>
       ) : null}
 
-      {/* Legacy Link */}
+      {/* Core Link */}
       {legacyLinkSlug && (
         <View className="px-4 pb-3">
           <View className="flex-row items-center">
             <Ionicons name="link" size={14} color="#4A2D7A" />
             <Text className="ml-1.5 text-xs font-sans-medium text-brand-700">
-              foreverr.app/{legacyLinkSlug}
+              eterrn.app/{legacyLinkSlug}
             </Text>
           </View>
         </View>

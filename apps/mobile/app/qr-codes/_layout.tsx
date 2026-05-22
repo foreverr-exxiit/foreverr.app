@@ -4,8 +4,8 @@ export default function QRCodesLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: "#2D1B4E" },
-        headerTintColor: "#FFFFFF",
+        headerStyle: { backgroundColor: "#FFFFFF" },
+        headerTintColor: "#4A2D7A",
         headerTitleStyle: { fontWeight: "600" },
       }}
     />

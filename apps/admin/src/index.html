@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ǝterrn Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 700: '#4A2D7A', 900: '#2D1558' },
+            accent: '#7C3AED',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .tab-active { border-bottom: 2px solid #4A2D7A; color: #4A2D7A; font-weight: 600; }
+    .tab-inactive { border-bottom: 2px solid transparent; color: #6b7280; }
+    .stat-card { transition: transform 0.15s; }
+    .stat-card:hover { transform: translateY(-2px); }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <!-- Login Screen -->
+  <div id="login-screen" class="min-h-screen flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-lg p-8 w-96">
+      <div class="text-center mb-6">
+        <h1 class="text-2xl font-bold text-brand-900">ǝterrn Admin</h1>
+        <p class="text-sm text-gray-500 mt-1">Sign in with your admin account</p>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input id="login-email" type="email" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-700 focus:border-brand-700" placeholder="admin@eterrn.app" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <input id="login-password" type="password" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-700 focus:border-brand-700" placeholder="Password" />
+        </div>
+        <button onclick="handleLogin()" class="w-full bg-brand-700 text-white rounded-lg py-2.5 text-sm font-semibold hover:bg-brand-900 transition">Sign In</button>
+        <p id="login-error" class="text-red-500 text-xs text-center hidden"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="hidden">
+    <!-- Header -->
+    <header class="bg-brand-900 text-white px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <h1 class="text-lg font-bold">ǝterrn Admin</h1>
+        <span class="bg-white/20 text-xs px-2 py-0.5 rounded-full">Dashboard</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span id="admin-email" class="text-sm text-white/70"></span>
+        <button onclick="handleLogout()" class="text-sm text-white/70 hover:text-white">Sign Out</button>
+      </div>
+    </header>
+
+    <!-- Tabs -->
+    <nav class="bg-white border-b px-6 flex gap-6">
+      <button onclick="showTab('overview')" id="tab-overview" class="tab-active py-3 text-sm">Overview</button>
+      <button onclick="showTab('memorials')" id="tab-memorials" class="tab-inactive py-3 text-sm">Memorials</button>
+      <button onclick="showTab('users')" id="tab-users" class="tab-inactive py-3 text-sm">Users</button>
+      <button onclick="showTab('directory')" id="tab-directory" class="tab-inactive py-3 text-sm">Directory Import</button>
+      <button onclick="showTab('moderation')" id="tab-moderation" class="tab-inactive py-3 text-sm">Moderation</button>
+      <button onclick="showTab('emails')" id="tab-emails" class="tab-inactive py-3 text-sm">Email Log</button>
+    </nav>
+
+    <!-- Content -->
+    <main class="p-6 max-w-7xl mx-auto">
+      <!-- Overview Tab -->
+      <div id="content-overview">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Dashboard Overview</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="stats-grid"></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-white rounded-xl p-5 shadow-sm">
+            <h3 class="font-semibold text-gray-800 mb-3">Recent Activity</h3>
+            <div id="recent-activity" class="space-y-2 text-sm text-gray-600">Loading...</div>
+          </div>
+          <div class="bg-white rounded-xl p-5 shadow-sm">
+            <h3 class="font-semibold text-gray-800 mb-3">System Health</h3>
+            <div id="system-health" class="space-y-2 text-sm">
+              <div class="flex justify-between"><span class="text-gray-600">Database</span><span class="text-green-600 font-medium">Healthy</span></div>
+              <div class="flex justify-between"><span class="text-gray-600">Edge Functions</span><span class="text-green-600 font-medium">12 Active</span></div>
+              <div class="flex justify-between"><span class="text-gray-600">Storage</span><span class="text-green-600 font-medium">Active</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Memorials Tab -->
+      <div id="content-memorials" class="hidden">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-gray-900">Memorials</h2>
+          <input id="memorial-search" oninput="searchMemorials()" type="text" placeholder="Search memorials..." class="border rounded-lg px-3 py-2 text-sm w-64" />
+        </div>
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-left text-gray-500">
+              <tr><th class="px-4 py-3">Name</th><th class="px-4 py-3">Created</th><th class="px-4 py-3">Tributes</th><th class="px-4 py-3">Status</th></tr>
+            </thead>
+            <tbody id="memorials-table" class="divide-y">
+              <tr><td class="px-4 py-3 text-gray-400" colspan="4">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Users Tab -->
+      <div id="content-users" class="hidden">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Users</h2>
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-left text-gray-500">
+              <tr><th class="px-4 py-3">User</th><th class="px-4 py-3">Email</th><th class="px-4 py-3">Joined</th><th class="px-4 py-3">Role</th><th class="px-4 py-3">Premium</th></tr>
+            </thead>
+            <tbody id="users-table" class="divide-y">
+              <tr><td class="px-4 py-3 text-gray-400" colspan="5">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Directory Import Tab -->
+      <div id="content-directory" class="hidden">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Directory Mass Import</h2>
+        <div class="bg-white rounded-xl p-5 shadow-sm mb-6">
+          <h3 class="font-semibold text-gray-800 mb-3">Start New Import</h3>
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Source</label>
+              <select id="import-source" class="w-full border rounded-lg px-3 py-2 text-sm">
+                <option value="google_places">Google Places</option>
+                <option value="yelp">Yelp</option>
+                <option value="manual_csv">CSV Upload</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Category</label>
+              <select id="import-category" class="w-full border rounded-lg px-3 py-2 text-sm">
+                <option value="funeral_home">Funeral Homes</option>
+                <option value="florist">Florists</option>
+                <option value="cemetery">Cemeteries</option>
+                <option value="grief_counselor">Grief Counselors</option>
+                <option value="estate_attorney">Estate Attorneys</option>
+                <option value="hospice">Hospice</option>
+                <option value="church">Churches</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Region</label>
+              <input id="import-region" type="text" placeholder="e.g. New York, NY" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+          </div>
+          <button onclick="startImport()" class="mt-4 bg-brand-700 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-brand-900 transition">Start Import</button>
+          <p id="import-status" class="text-sm text-gray-500 mt-2 hidden"></p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+          <h3 class="font-semibold text-gray-800 p-4 border-b">Import History</h3>
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-left text-gray-500">
+              <tr><th class="px-4 py-3">Source</th><th class="px-4 py-3">Category</th><th class="px-4 py-3">Region</th><th class="px-4 py-3">Imported</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Date</th></tr>
+            </thead>
+            <tbody id="import-table" class="divide-y">
+              <tr><td class="px-4 py-3 text-gray-400" colspan="6">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Moderation Tab -->
+      <div id="content-moderation" class="hidden">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Content Moderation</h2>
+
+        <!-- Recent Tributes for Review -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
+          <div class="px-5 py-3 border-b bg-gray-50"><span class="font-semibold text-gray-700 text-sm">Recent Tributes (Latest 30)</span></div>
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-left text-gray-500">
+              <tr><th class="px-4 py-3">Author</th><th class="px-4 py-3">Content Preview</th><th class="px-4 py-3">Memorial</th><th class="px-4 py-3">Date</th></tr>
+            </thead>
+            <tbody id="moderation-tributes" class="divide-y">
+              <tr><td class="px-4 py-3 text-gray-400" colspan="4">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Duplicate Reports -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div class="px-5 py-3 border-b bg-gray-50"><span class="font-semibold text-gray-700 text-sm">Duplicate Reports</span></div>
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-left text-gray-500">
+              <tr><th class="px-4 py-3">Reporter</th><th class="px-4 py-3">Memorial A</th><th class="px-4 py-3">Memorial B</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Date</th></tr>
+            </thead>
+            <tbody id="moderation-duplicates" class="divide-y">
+              <tr><td class="px-4 py-3 text-gray-400" colspan="5">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Email Log Tab -->
+      <div id="content-emails" class="hidden">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Email Log</h2>
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-left text-gray-500">
+              <tr><th class="px-4 py-3">Recipient</th><th class="px-4 py-3">Type</th><th class="px-4 py-3">Subject</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Sent</th></tr>
+            </thead>
+            <tbody id="email-table" class="divide-y">
+              <tr><td class="px-4 py-3 text-gray-400" colspan="5">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // ── Supabase Client ──
+    const SUPABASE_URL = 'https://icwinmkpsmfejuucpmdo.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imljd2lubWtwc21mZWp1dWNwbWRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMDA4MjEsImV4cCI6MjA4NzU3NjgyMX0.3IhoiPzDSBGtYCi90FUCzbJujLPK4eEucjEwbbDuZ1c';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentUser = null;
+
+    // ── Auth ──
+    async function handleLogin() {
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const errorEl = document.getElementById('login-error');
+
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) { errorEl.textContent = error.message; errorEl.classList.remove('hidden'); return; }
+
+      // Verify admin role
+      const { data: profile } = await sb.from('profiles').select('role').eq('id', data.user.id).single();
+      if (profile?.role !== 'admin') {
+        errorEl.textContent = 'Admin access required';
+        errorEl.classList.remove('hidden');
+        await sb.auth.signOut();
+        return;
+      }
+
+      currentUser = data.user;
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      document.getElementById('admin-email').textContent = email;
+      loadDashboard();
+    }
+
+    async function handleLogout() {
+      await sb.auth.signOut();
+      location.reload();
+    }
+
+    // ── Tabs ──
+    function showTab(tab) {
+      document.querySelectorAll('[id^="content-"]').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('[id^="tab-"]').forEach(el => { el.className = 'tab-inactive py-3 text-sm'; });
+      document.getElementById('content-' + tab).classList.remove('hidden');
+      document.getElementById('tab-' + tab).className = 'tab-active py-3 text-sm';
+
+      if (tab === 'memorials') loadMemorials();
+      if (tab === 'users') loadUsers();
+      if (tab === 'directory') loadImports();
+      if (tab === 'moderation') loadModeration();
+      if (tab === 'emails') loadEmails();
+    }
+
+    // ── Dashboard ──
+    async function loadDashboard() {
+      const [memorials, profiles, tributes, directory, imports] = await Promise.all([
+        sb.from('memorials').select('id', { count: 'exact', head: true }),
+        sb.from('profiles').select('id', { count: 'exact', head: true }),
+        sb.from('tributes').select('id', { count: 'exact', head: true }),
+        sb.from('directory_listings').select('id', { count: 'exact', head: true }),
+        sb.from('directory_import_batches').select('id', { count: 'exact', head: true }),
+      ]);
+
+      const stats = [
+        { label: 'Memorials', value: memorials.count ?? 0, color: 'purple' },
+        { label: 'Users', value: profiles.count ?? 0, color: 'blue' },
+        { label: 'Tributes', value: tributes.count ?? 0, color: 'pink' },
+        { label: 'Directory Listings', value: directory.count ?? 0, color: 'green' },
+      ];
+
+      document.getElementById('stats-grid').innerHTML = stats.map(s => `
+        <div class="stat-card bg-white rounded-xl p-5 shadow-sm">
+          <div class="text-2xl font-bold text-${s.color}-600">${s.value.toLocaleString()}</div>
+          <div class="text-sm text-gray-500 mt-1">${s.label}</div>
+        </div>
+      `).join('');
+
+      // Recent activity
+      const { data: recent } = await sb.from('tributes').select('id, content, created_at').order('created_at', { ascending: false }).limit(5);
+      document.getElementById('recent-activity').innerHTML = (recent ?? []).map(t =>
+        `<div class="flex justify-between items-center py-1.5"><span class="truncate mr-4">${(t.content ?? '').slice(0, 60)}...</span><span class="text-xs text-gray-400 whitespace-nowrap">${new Date(t.created_at).toLocaleDateString()}</span></div>`
+      ).join('') || '<p class="text-gray-400">No recent activity</p>';
+    }
+
+    async function loadMemorials() {
+      const { data } = await sb.from('memorials').select('id, first_name, last_name, is_published, created_at').order('created_at', { ascending: false }).limit(50);
+      document.getElementById('memorials-table').innerHTML = (data ?? []).map(m => `
+        <tr>
+          <td class="px-4 py-3 font-medium">${m.first_name ?? ''} ${m.last_name ?? ''}</td>
+          <td class="px-4 py-3 text-gray-500">${new Date(m.created_at).toLocaleDateString()}</td>
+          <td class="px-4 py-3">-</td>
+          <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs ${m.is_published ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">${m.is_published ? 'Published' : 'Draft'}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadUsers() {
+      const { data } = await sb.from('profiles').select('id, display_name, username, email, role, premium_tier, created_at').order('created_at', { ascending: false }).limit(50);
+      const tiers = ['Free', 'Premium', 'Elite'];
+      document.getElementById('users-table').innerHTML = (data ?? []).map(u => `
+        <tr>
+          <td class="px-4 py-3 font-medium">${u.display_name ?? u.username ?? 'Anonymous'}</td>
+          <td class="px-4 py-3 text-gray-500">${u.email ?? '-'}</td>
+          <td class="px-4 py-3 text-gray-500">${new Date(u.created_at).toLocaleDateString()}</td>
+          <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600'}">${u.role ?? 'user'}</span></td>
+          <td class="px-4 py-3">${tiers[u.premium_tier ?? 0] ?? 'Free'}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadImports() {
+      const { data } = await sb.from('directory_import_batches').select('*').order('created_at', { ascending: false }).limit(20);
+      const statusColors = { completed: 'green', processing: 'yellow', pending: 'gray', failed: 'red' };
+      document.getElementById('import-table').innerHTML = (data ?? []).map(b => `
+        <tr>
+          <td class="px-4 py-3">${b.source}</td>
+          <td class="px-4 py-3">${b.category}</td>
+          <td class="px-4 py-3">${b.region ?? '-'}</td>
+          <td class="px-4 py-3">${b.imported_count}/${b.total_listings}</td>
+          <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs bg-${statusColors[b.status] ?? 'gray'}-100 text-${statusColors[b.status] ?? 'gray'}-700">${b.status}</span></td>
+          <td class="px-4 py-3 text-gray-500">${new Date(b.created_at).toLocaleDateString()}</td>
+        </tr>
+      `).join('') || '<tr><td class="px-4 py-3 text-gray-400" colspan="6">No imports yet</td></tr>';
+    }
+
+    async function startImport() {
+      const source = document.getElementById('import-source').value;
+      const category = document.getElementById('import-category').value;
+      const region = document.getElementById('import-region').value;
+      const statusEl = document.getElementById('import-status');
+
+      if (!region) { statusEl.textContent = 'Please enter a region'; statusEl.classList.remove('hidden'); return; }
+
+      statusEl.textContent = 'Starting import...';
+      statusEl.classList.remove('hidden');
+
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch(SUPABASE_URL + '/functions/v1/admin-directory-import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token },
+        body: JSON.stringify({ source, category, region }),
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        statusEl.textContent = `Import complete! Found ${result.total_found}, imported ${result.imported}, skipped ${result.skipped_duplicates} duplicates.`;
+        loadImports();
+      } else {
+        statusEl.textContent = 'Error: ' + (result.error ?? 'Unknown error');
+      }
+    }
+
+    async function loadEmails() {
+      const { data } = await sb.from('email_log').select('*').order('created_at', { ascending: false }).limit(50);
+      document.getElementById('email-table').innerHTML = (data ?? []).map(e => `
+        <tr>
+          <td class="px-4 py-3">${e.recipient}</td>
+          <td class="px-4 py-3">${e.email_type}</td>
+          <td class="px-4 py-3 text-gray-500">${e.subject ?? '-'}</td>
+          <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs ${e.status === 'sent' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${e.status}</span></td>
+          <td class="px-4 py-3 text-gray-500">${new Date(e.created_at).toLocaleString()}</td>
+        </tr>
+      `).join('') || '<tr><td class="px-4 py-3 text-gray-400" colspan="5">No emails sent yet</td></tr>';
+    }
+
+    async function loadModeration() {
+      // Load recent tributes for review
+      const { data: tributes } = await sb.from('tributes').select('id, content, author_id, memorial_id, created_at').order('created_at', { ascending: false }).limit(30);
+      document.getElementById('moderation-tributes').innerHTML = (tributes ?? []).map(t => `
+        <tr>
+          <td class="px-4 py-3 text-gray-500 font-mono text-xs">${(t.author_id ?? '').slice(0, 8)}...</td>
+          <td class="px-4 py-3">${(t.content ?? '').slice(0, 80)}${(t.content ?? '').length > 80 ? '...' : ''}</td>
+          <td class="px-4 py-3 font-mono text-xs">${(t.memorial_id ?? '').slice(0, 8)}...</td>
+          <td class="px-4 py-3 text-gray-500">${new Date(t.created_at).toLocaleString()}</td>
+        </tr>
+      `).join('') || '<tr><td class="px-4 py-3 text-gray-400" colspan="4">No tributes yet</td></tr>';
+
+      // Load duplicate reports
+      const { data: duplicates } = await sb.from('duplicate_reports').select('*').order('created_at', { ascending: false }).limit(20);
+      const dupStatusColors = { pending: 'yellow', confirmed: 'red', rejected: 'gray', merged: 'green' };
+      document.getElementById('moderation-duplicates').innerHTML = (duplicates ?? []).map(d => `
+        <tr>
+          <td class="px-4 py-3 font-mono text-xs">${(d.reporter_id ?? '').slice(0, 8)}...</td>
+          <td class="px-4 py-3 font-mono text-xs">${(d.memorial_id_a ?? '').slice(0, 8)}...</td>
+          <td class="px-4 py-3 font-mono text-xs">${(d.memorial_id_b ?? '').slice(0, 8)}...</td>
+          <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs" style="background:${d.status==='pending'?'#fef9c3':d.status==='confirmed'?'#fee2e2':d.status==='merged'?'#dcfce7':'#f3f4f6'};color:${d.status==='pending'?'#a16207':d.status==='confirmed'?'#b91c1c':d.status==='merged'?'#15803d':'#4b5563'}">${d.status}</span></td>
+          <td class="px-4 py-3 text-gray-500">${new Date(d.created_at).toLocaleDateString()}</td>
+        </tr>
+      `).join('') || '<tr><td class="px-4 py-3 text-gray-400" colspan="5">No duplicate reports</td></tr>';
+    }
+
+    function searchMemorials() {
+      // Client-side filter for simplicity
+      const q = document.getElementById('memorial-search').value.toLowerCase();
+      document.querySelectorAll('#memorials-table tr').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    }
+
+    // Check existing session
+    sb.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        sb.from('profiles').select('role').eq('id', session.user.id).single().then(({ data: profile }) => {
+          if (profile?.role === 'admin') {
+            currentUser = session.user;
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('admin-email').textContent = session.user.email;
+            loadDashboard();
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

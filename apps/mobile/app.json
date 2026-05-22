@@ -1,33 +1,49 @@
 {
   "expo": {
-    "name": "Foreverr",
-    "slug": "foreverr",
-    "version": "0.1.0",
+    "name": "ǝterrn",
+    "slug": "eterrn",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "foreverr",
+    "scheme": "eterrn",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#2D1B4E"
+      "backgroundColor": "#FFFFFF"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.exxit.foreverr",
+      "bundleIdentifier": "com.exxit.eterrn",
+      "associatedDomains": ["applinks:eterrn.app", "webcredentials:eterrn.app"],
       "infoPlist": {
-        "NSCameraUsageDescription": "Foreverr needs camera access to take photos for memorials.",
-        "NSPhotoLibraryUsageDescription": "Foreverr needs photo library access to upload memorial photos.",
-        "NSMicrophoneUsageDescription": "Foreverr needs microphone access for voice messages."
+        "NSCameraUsageDescription": "ǝterrn needs camera access to take photos for memorials and turning points.",
+        "NSPhotoLibraryUsageDescription": "ǝterrn needs photo library access to upload memorial photos and tag people.",
+        "NSMicrophoneUsageDescription": "ǝterrn needs microphone access for voice messages and live rooms.",
+        "NSFaceIDUsageDescription": "Use Face ID to protect your Core.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "config": {
+        "usesNonExemptEncryption": false
       }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#2D1B4E"
+        "backgroundColor": "#FFFFFF"
       },
-      "package": "com.exxit.foreverr"
+      "package": "com.exxit.eterrn",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            { "scheme": "https", "host": "eterrn.app", "pathPrefix": "/" }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -38,10 +54,26 @@
       "expo-router",
       "expo-secure-store",
       "expo-notifications",
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      "expo-image-picker"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "f9654091-7f1e-4246-9b53-c3b2e77cb3a2"
+      }
+    },
+    "owner": "seginc",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/f9654091-7f1e-4246-9b53-c3b2e77cb3a2"
     }
   }
 }

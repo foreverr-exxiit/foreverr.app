@@ -21,27 +21,40 @@ export function WarmGreetingHeader({
   onPointsPress,
 }: WarmGreetingHeaderProps) {
   return (
-    <View className="mx-4 mt-4 rounded-2xl bg-brand-600 dark:bg-brand-800 p-5 shadow-lg overflow-hidden">
-      {/* Decorative circles */}
-      <View className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-brand-500/20" />
-      <View className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full bg-brand-400/15" />
+    <View
+      className="mx-4 mt-4 rounded-2xl p-5 shadow-lg overflow-hidden"
+      style={{ backgroundColor: "#FFFFFF" }}
+    >
+      {/* Decorative circles — pushed further into corners, lower opacity */}
+      <View
+        className="absolute -top-8 -right-8 w-28 h-28 rounded-full"
+        style={{ backgroundColor: "rgba(124, 58, 237, 0.12)" }}
+      />
+      <View
+        className="absolute -bottom-6 -left-6 w-20 h-20 rounded-full"
+        style={{ backgroundColor: "rgba(124, 58, 237, 0.08)" }}
+      />
 
-      {/* Greeting */}
-      <Text className="text-lg font-sans-bold text-white mb-1">
+      {/* Greeting — dark text on light background */}
+      <Text className="text-lg font-sans-bold text-gray-900 mb-1" style={{ zIndex: 1 }}>
         {greeting}
       </Text>
-      <Text className="text-sm font-sans text-brand-200 dark:text-brand-300 mb-4">
+      {/* Subtitle — gray for legibility on white */}
+      <Text className="text-sm font-sans text-gray-600 mb-4" style={{ zIndex: 1 }}>
         {subtitle}
       </Text>
 
       {/* Bottom row: streak + points */}
       {(!!streakCount || !!pointBalance) && (
-        <View className="flex-row items-center gap-3">
+        <View className="flex-row items-center gap-3" style={{ zIndex: 1 }}>
           {/* Streak badge */}
           {!!streakCount && streakCount > 0 && (
-            <View className="flex-row items-center bg-white/15 rounded-full px-3 py-1.5">
-              <Ionicons name="flame" size={14} color="#FCD34D" />
-              <Text className="text-xs font-sans-semibold text-amber-200 ml-1">
+            <View
+              className="flex-row items-center rounded-full px-3 py-1.5"
+              style={{ backgroundColor: "rgba(74,45,122,0.1)" }}
+            >
+              <Ionicons name="flame" size={14} color="#F59E0B" />
+              <Text className="text-xs font-sans-semibold text-brand-700 ml-1">
                 {streakCount} day streak
               </Text>
             </View>
@@ -50,11 +63,12 @@ export function WarmGreetingHeader({
           {/* Points badge */}
           {pointBalance !== undefined && pointBalance !== null && (
             <Pressable
-              className="flex-row items-center bg-white/15 rounded-full px-3 py-1.5"
+              className="flex-row items-center rounded-full px-3 py-1.5"
+              style={{ backgroundColor: "rgba(74,45,122,0.1)" }}
               onPress={onPointsPress}
             >
-              <Ionicons name="star" size={14} color="#FCD34D" />
-              <Text className="text-xs font-sans-semibold text-amber-200 ml-1">
+              <Ionicons name="star" size={14} color="#F59E0B" />
+              <Text className="text-xs font-sans-semibold text-brand-700 ml-1">
                 {pointBalance.toLocaleString()} pts
               </Text>
             </Pressable>

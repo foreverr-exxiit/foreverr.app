@@ -116,7 +116,7 @@ export default function LivingTributeDetailScreen() {
               onPress={async () => {
                 try {
                   await Share.share({
-                    message: `${tribute.title} — Honor ${tribute.honoree_name} on Foreverr! https://foreverr.app/tribute/${tribute.slug}`,
+                    message: `${tribute.title} — Honor ${tribute.honoree_name} on ǝterrn! https://eterrn.app/tribute/${tribute.slug}`,
                   });
                 } catch {}
               }}
@@ -221,7 +221,7 @@ export default function LivingTributeDetailScreen() {
               "Memorial Created",
               `A memorial for ${tribute.honoree_name} has been created with all ${tribute.message_count ?? 0} messages preserved.`,
               [
-                { text: "View Memorial", onPress: () => router.push(`/memorial/${memorial.id}` as any) },
+                { text: "View Memorial", onPress: () => router.push(`/lifecycle/${memorial.id}` as any) },
                 { text: "OK" },
               ]
             );

@@ -30,11 +30,13 @@ interface TributeComposerProps {
     ribbonCount: number;
   }) => Promise<void>;
   onAISuggest?: () => Promise<string | null>;
+  /** Render prop for external AI buttons (replaces built-in AI Suggest when provided) */
+  renderAIButtons?: (props: { currentText: string; onResult: (text: string) => void }) => React.ReactNode;
   userAvatarUrl?: string | null;
   ribbonBalance?: number;
 }
 
-export function TributeComposer({ visible, onClose, onSubmit, onAISuggest, userAvatarUrl, ribbonBalance = 0 }: TributeComposerProps) {
+export function TributeComposer({ visible, onClose, onSubmit, onAISuggest, renderAIButtons, userAvatarUrl, ribbonBalance = 0 }: TributeComposerProps) {
   const [content, setContent] = useState("");
   const [selectedType, setSelectedType] = useState("text");
   const [selectedRibbon, setSelectedRibbon] = useState("silver");
@@ -72,85 +74,58 @@ export function TributeComposer({ visible, onClose, onSubmit, onAISuggest, userA
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <KeyboardAvoidingView className="flex-1 bg-white dark:bg-gray-800" behavior={Platform.OS === "ios" ? "padding" : undefined}>
+      <KeyboardAvoidingView className="flex-1 bg-gray-50 dark:bg-gray-900" behavior={Platform.OS === "ios" ? "padding" : undefined}>
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 pt-4 pb-3 border-b border-gray-200 dark:border-gray-600 bg-brand-900">
-          <Pressable onPress={onClose}>
-            <Text className="text-base font-sans-medium text-white/70">Cancel</Text>
+        <View className="flex-row items-center justify-between px-5 pt-4 pb-3">
+          <Pressable onPress={onClose} className="h-8 w-8 rounded-full bg-gray-200/60 dark:bg-gray-700 items-center justify-center">
+            <Ionicons name="close" size={18} color="#6b7280" />
           </Pressable>
-          <Text className="text-base font-sans-bold text-white">New Tribute</Text>
-          <View className="flex-row items-center gap-1.5 bg-white/15 rounded-full px-3 py-1.5">
-            <Ionicons name="ribbon" size={14} color="#FFD700" />
-            <Text className="text-sm font-sans-bold text-white">{ribbonBalance}</Text>
+          <Text className="text-base font-sans-bold text-gray-900 dark:text-white">New Tribute</Text>
+          <View className="flex-row items-center gap-1.5 bg-brand-50 dark:bg-brand-900/20 rounded-full px-3 py-1.5">
+            <Ionicons name="ribbon" size={13} color="#7C3AED" />
+            <Text className="text-xs font-sans-bold text-brand-700 dark:text-brand-400">{ribbonBalance}</Text>
           </View>
         </View>
 
-        <ScrollView className="flex-1" keyboardShouldPersistTaps="handled">
+        <ScrollView className="flex-1" keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           {/* Tribute Type Selection */}
-          <View className="px-4 pt-4">
-            <Text className="text-sm font-sans-semibold text-gray-700 dark:text-gray-300 mb-2">Type</Text>
-            <View className="flex-row gap-2 mb-4">
+          <View className="px-5 pt-2">
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
               {TRIBUTE_TYPES.map((type) => (
                 <Pressable
                   key={type.key}
-                  className={`flex-1 flex-row items-center justify-center gap-1.5 rounded-full py-2 border ${
+                  className={`flex-row items-center gap-1.5 rounded-full px-4 py-2 ${
                     selectedType === type.key
-                      ? "border-brand-700 bg-brand-50"
-                      : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800"
+                      ? "bg-brand-700"
+                      : "bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
                   }`}
                   onPress={() => setSelectedType(type.key)}
                 >
                   <Ionicons
                     name={type.icon}
-                    size={14}
-                    color={selectedType === type.key ? "#4A2D7A" : "#9ca3af"}
+                    size={13}
+                    color={selectedType === type.key ? "#ffffff" : "#9ca3af"}
                   />
-                  <Text className={`text-xs font-sans-medium ${selectedType === type.key ? "text-brand-700" : "text-gray-500"}`}>
+                  <Text className={`text-xs font-sans-medium ${selectedType === type.key ? "text-white" : "text-gray-500 dark:text-gray-400"}`}>
                     {type.label}
                   </Text>
                 </Pressable>
               ))}
-            </View>
+            </ScrollView>
           </View>
 
-          {/* AI Suggest */}
-          {onAISuggest && (
-            <View className="px-4 mb-2">
-              <Pressable
-                className="flex-row items-center justify-center gap-2 rounded-full bg-brand-50 py-2.5 px-4"
-                onPress={async () => {
-                  setIsAISuggesting(true);
-                  try {
-                    const suggestion = await onAISuggest();
-                    if (suggestion) setContent(suggestion);
-                  } catch {
-                    // silently fail
-                  } finally {
-                    setIsAISuggesting(false);
-                  }
-                }}
-                disabled={isAISuggesting}
-              >
-                <Ionicons name="sparkles" size={14} color="#4A2D7A" />
-                <Text className="text-xs font-sans-semibold text-brand-700">
-                  {isAISuggesting ? "Generating..." : "AI Suggest"}
-                </Text>
-              </Pressable>
-            </View>
-          )}
-
-          {/* Content */}
-          <View className="px-4">
-            <View className="flex-row items-start">
-              <View className="h-10 w-10 rounded-full bg-brand-100 items-center justify-center overflow-hidden mr-3 mt-1">
+          {/* Content area */}
+          <View className="mx-5 mt-4 bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700">
+            <View className="flex-row items-start px-4 pt-4 pb-3">
+              <View className="h-9 w-9 rounded-full bg-brand-100 dark:bg-brand-900/30 items-center justify-center overflow-hidden mr-3">
                 {userAvatarUrl ? (
-                  <Image source={{ uri: userAvatarUrl }} style={{ width: 40, height: 40 }} contentFit="cover" />
+                  <Image source={{ uri: userAvatarUrl }} style={{ width: 36, height: 36 }} contentFit="cover" />
                 ) : (
-                  <Ionicons name="person" size={18} color="#4A2D7A" />
+                  <Ionicons name="person" size={16} color="#4A2D7A" />
                 )}
               </View>
               <TextInput
-                className="flex-1 text-base font-sans text-gray-900 dark:text-white min-h-[120px]"
+                className="flex-1 text-sm font-sans text-gray-900 dark:text-white min-h-[100px]"
                 placeholder={
                   selectedType === "memory"
                     ? "Share a cherished memory..."
@@ -168,40 +143,67 @@ export function TributeComposer({ visible, onClose, onSubmit, onAISuggest, userA
                 autoFocus
               />
             </View>
+
+            {/* AI Writing Assistance — inside the compose card */}
+            <View className="px-4 pb-3">
+              {renderAIButtons ? (
+                renderAIButtons({ currentText: content, onResult: setContent })
+              ) : onAISuggest ? (
+                <Pressable
+                  className="flex-row items-center self-start gap-1.5 rounded-full bg-brand-50 dark:bg-brand-900/20 py-1.5 px-3"
+                  onPress={async () => {
+                    setIsAISuggesting(true);
+                    try {
+                      const suggestion = await onAISuggest();
+                      if (suggestion) setContent(suggestion);
+                    } catch (err: any) {
+                      Alert.alert("AI Suggest Failed", err?.message || "Could not generate suggestion. Please try again.");
+                    } finally {
+                      setIsAISuggesting(false);
+                    }
+                  }}
+                  disabled={isAISuggesting}
+                >
+                  <Ionicons name="sparkles" size={12} color="#4A2D7A" />
+                  <Text className="text-[11px] font-sans-semibold text-brand-700 dark:text-brand-400">
+                    {isAISuggesting ? "Generating..." : "AI Suggest"}
+                  </Text>
+                </Pressable>
+              ) : null}
+            </View>
           </View>
 
           {/* Ribbon Selection */}
-          <View className="px-4 pt-4 pb-2">
-            <Text className="text-sm font-sans-bold text-gray-900 dark:text-white mb-1">Select Ribbon</Text>
-            <Text className="text-xs font-sans text-gray-500 mb-4">
-              Every tribute requires a ribbon. Higher ribbons show more honor and support.
-            </Text>
-            <View className="flex-row gap-2">
+          <View className="px-5 pt-4 pb-2">
+            <Text className="text-xs font-sans-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Attach Ribbon</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
               {RIBBON_TYPES.map((ribbon) => (
                 <Pressable
                   key={ribbon.key}
-                  className={`flex-1 items-center rounded-xl py-3 border-2 ${
+                  className={`items-center rounded-2xl py-2 px-3 border ${
                     selectedRibbon === ribbon.key
                       ? "border-brand-700"
                       : "border-gray-100 dark:border-gray-700"
                   }`}
-                  style={selectedRibbon === ribbon.key ? { backgroundColor: ribbon.bgColor } : undefined}
+                  style={[
+                    selectedRibbon === ribbon.key ? { backgroundColor: ribbon.bgColor } : { backgroundColor: "white" },
+                    { minWidth: 64 },
+                  ]}
                   onPress={() => setSelectedRibbon(ribbon.key)}
                 >
-                  <Text className="text-lg mb-0.5">{ribbon.emoji}</Text>
-                  <Ionicons name="ribbon" size={22} color={ribbon.color} />
-                  <Text className="text-[11px] font-sans-bold text-gray-800 dark:text-gray-100 mt-1">{ribbon.label}</Text>
-                  <Text className="text-[10px] font-sans-semibold mt-0.5" style={{ color: ribbon.color }}>
-                    {ribbon.cost} 🎀
+                  <Text className="text-base">{ribbon.emoji}</Text>
+                  <Text className="text-[10px] font-sans-bold text-gray-700 dark:text-gray-200 mt-0.5">{ribbon.label}</Text>
+                  <Text className="text-[9px] font-sans-semibold mt-0.5" style={{ color: ribbon.color }}>
+                    {ribbon.cost} pt{ribbon.cost > 1 ? "s" : ""}
                   </Text>
                 </Pressable>
               ))}
-            </View>
+            </ScrollView>
             {!canAfford && (
-              <View className="flex-row items-center mt-3 bg-red-50 rounded-lg px-3 py-2">
-                <Ionicons name="alert-circle" size={16} color="#ef4444" />
-                <Text className="text-xs font-sans-medium text-red-600 ml-2">
-                  Not enough ribbons. You need {ribbonCost} but have {ribbonBalance}.
+              <View className="flex-row items-center mt-3 bg-red-50 dark:bg-red-900/20 rounded-full px-3 py-2">
+                <Ionicons name="alert-circle" size={14} color="#ef4444" />
+                <Text className="text-[11px] font-sans-medium text-red-600 dark:text-red-400 ml-2">
+                  Need {ribbonCost} ribbons — you have {ribbonBalance}
                 </Text>
               </View>
             )}
@@ -209,15 +211,18 @@ export function TributeComposer({ visible, onClose, onSubmit, onAISuggest, userA
         </ScrollView>
 
         {/* Submit */}
-        <View className="px-4 py-4 border-t border-gray-100 dark:border-gray-700">
-          <Button
-            title={`Post Tribute (${ribbonCost} ribbon${ribbonCost > 1 ? "s" : ""})`}
-            size="lg"
-            fullWidth
-            loading={isSubmitting}
-            disabled={!content.trim() || !canAfford}
+        <View className="px-5 py-3">
+          <Pressable
+            className={`rounded-full py-3.5 items-center ${
+              !content.trim() || !canAfford || isSubmitting ? "bg-gray-300 dark:bg-gray-600" : "bg-brand-700"
+            }`}
             onPress={handleSubmit}
-          />
+            disabled={!content.trim() || !canAfford || isSubmitting}
+          >
+            <Text className="text-sm font-sans-bold text-white">
+              {isSubmitting ? "Posting..." : `Post Tribute · ${ribbonCost} ribbon${ribbonCost > 1 ? "s" : ""}`}
+            </Text>
+          </Pressable>
         </View>
       </KeyboardAvoidingView>
     </Modal>

@@ -21,10 +21,10 @@ export function LegacyLinkCard({ slug, onEdit, onCopy, onShare }: LegacyLinkCard
           <Ionicons name="link" size={24} color="#7C3AED" />
         </View>
         <Text className="text-sm font-sans-bold text-gray-900 dark:text-white">
-          Claim Your Legacy Link
+          Claim Your Core Link
         </Text>
         <Text className="text-xs font-sans text-gray-500 mt-1 text-center">
-          Get your personal foreverr.app/yourname link{"\n"}to share on social media bios
+          Get your personal eterrn.app/yourname link{"\n"}to share on social media bios
         </Text>
         <View className="mt-3 rounded-full bg-brand-700 px-5 py-2">
           <Text className="text-xs font-sans-semibold text-white">Claim Now</Text>
@@ -39,7 +39,7 @@ export function LegacyLinkCard({ slug, onEdit, onCopy, onShare }: LegacyLinkCard
         <View className="flex-row items-center">
           <Ionicons name="link" size={16} color="#7C3AED" />
           <Text className="ml-1.5 text-xs font-sans-semibold text-brand-700">
-            Legacy Link
+            Core Link
           </Text>
         </View>
         <Pressable onPress={onEdit}>
@@ -52,7 +52,7 @@ export function LegacyLinkCard({ slug, onEdit, onCopy, onShare }: LegacyLinkCard
         onPress={onCopy}
       >
         <Text className="flex-1 text-sm font-sans-semibold text-brand-900 dark:text-brand-100">
-          foreverr.app/{slug}
+          eterrn.app/{slug}
         </Text>
         <View className="flex-row items-center gap-3">
           <Pressable onPress={onCopy} hitSlop={8}>

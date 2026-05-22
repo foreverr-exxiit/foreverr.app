@@ -13,7 +13,7 @@ type ActivityWithUser = UserActivity & {
 };
 
 // ============================================================
-// Activity Feed (followed users' public activities)
+// Echoes (followed users' public activities)
 // ============================================================
 
 export function useActivityFeed(userId: string | undefined) {

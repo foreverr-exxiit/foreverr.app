@@ -14,6 +14,7 @@ interface TodayInHistorySectionProps {
     age_at_death?: number | null;
     biography_summary?: string | null;
     photo_url?: string | null;
+    lifecycle_type?: string | null;
   }>;
   onCelebrityPress?: (id: string) => void;
 }

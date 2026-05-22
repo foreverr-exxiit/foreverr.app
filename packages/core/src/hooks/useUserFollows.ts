@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
+import { awardEngagementPoints } from "../services/engagement";
 import type { Database } from "../supabase/types";
 
 type Tables = Database["public"]["Tables"];
@@ -124,6 +125,10 @@ export function useToggleUserFollow() {
       queryClient.invalidateQueries({ queryKey: [FOLLOWS_KEY] });
       queryClient.invalidateQueries({ queryKey: ["public-profile", vars.followingId] });
       queryClient.invalidateQueries({ queryKey: ["public-profile", vars.followerId] });
+      // Award engagement points when following (not unfollowing)
+      if (!vars.isCurrentlyFollowing && vars.followerId) {
+        awardEngagementPoints(vars.followerId, "follow_user", { referenceId: vars.followingId });
+      }
     },
   });
 }
@@ -138,7 +143,7 @@ export function useSuggestedUsers(userId: string | undefined) {
     queryFn: async () => {
       // Get memorials the user follows
       const { data: myFollows } = await supabase
-        .from("memorial_followers")
+        .from("followers")
         .select("memorial_id")
         .eq("user_id", userId!);
       const memorialIds = (myFollows ?? []).map((f) => (f as any).memorial_id);
@@ -146,7 +151,7 @@ export function useSuggestedUsers(userId: string | undefined) {
 
       // Get users who also follow those memorials
       const { data: otherFollowers } = await supabase
-        .from("memorial_followers")
+        .from("followers")
         .select("user_id")
         .in("memorial_id", memorialIds)
         .neq("user_id", userId!)

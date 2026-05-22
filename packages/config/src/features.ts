@@ -44,4 +44,53 @@ export const features = {
   directoryImportEnabled: true,
   lifecycleStagesEnabled: true,
   celebrityRequestsEnabled: true,
+  premiumSubscriptionsEnabled: true,
+  paywallEnabled: true,
+  lifeTimelineEnabled: true,
+  milestonesEnabled: true,
+  photoTaggingEnabled: true,
+  faceRecognitionEnabled: false, // Requires ML service API keys
+  autoRemindersEnabled: true,
+  directoryMassImportEnabled: true,
+  fullTextSearchEnabled: true,
+  imageUploadEnabled: true,
+  analyticsEnabled: true,
+  deepLinksEnabled: true,
+  i18nEnabled: true,
+  offlineCacheEnabled: true,
+  accessibilityHelpersEnabled: true,
+  realtimeCollaborationEnabled: true,
+  adminDashboardEnabled: true,
+  emailDeliveryEnabled: true,
+  aiLifeStoryEnabled: true,
+  liveBroadcastEnabled: true,
+  proximityFeedEnabled: true,
+  weddingPagesEnabled: true,
+  petPagesEnabled: true,
+  welcomeJourneyEnabled: true,
+  questsEnabled: true,
+  surpriseDelightEnabled: true,
+  personalizedFeedEnabled: true,
+  mysteryGiftDropsEnabled: true,
+  creatorEconomyEnabled: true,
+  serviceMarketplaceEnabled: true,
+  honorFundraiserEnabled: true,
+
+  // Page Stewardship & Transfer System
+  pageStewardshipEnabled: true,
+  pageTransfersEnabled: true,
+  pageValuationEnabled: true,
+  stewardshipMarketplaceEnabled: false, // Phase 3 — not yet implemented
+  communityGovernanceEnabled: false, // Phase 3 — not yet implemented
+
+  // Progressive Feature Unlocking
+  progressiveUnlockingEnabled: true,
+  creatorLevelGateEnabled: true,
+
+  // Baby Journey ("Little Arcs")
+  babyJourneyEnabled: true,
+  babyGrowthTrackingEnabled: true,
+
+  // Relationship Lifecycle
+  relationshipLifecycleEnabled: true,
 } as const;

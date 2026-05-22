@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
 import type { Database } from "../supabase/types";
+import { awardEngagementPoints } from "../services/engagement";
 
 type LivingTribute = Database["public"]["Tables"]["living_tributes"]["Row"];
 type LivingTributeInsert = Database["public"]["Tables"]["living_tributes"]["Insert"];
@@ -117,8 +118,9 @@ export function useCreateLivingTribute() {
       if (error) throw error;
       return data as LivingTribute;
     },
-    onSuccess: (_data, vars) => {
+    onSuccess: (data, vars) => {
       queryClient.invalidateQueries({ queryKey: [LIVING_TRIBUTE_KEY] });
+      awardEngagementPoints(vars.created_by, "create_living_tribute", { referenceId: data.id });
     },
   });
 }

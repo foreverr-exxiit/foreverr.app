@@ -17,11 +17,14 @@ interface PublicProfile {
   profile: Profile;
   hostedMemorials: Array<{
     id: string;
-    name: string;
+    first_name: string;
+    last_name: string;
     slug: string;
-    cover_image_url: string | null;
-    born_date: string | null;
-    passed_date: string | null;
+    profile_photo_url: string | null;
+    cover_photo_url: string | null;
+    date_of_birth: string | null;
+    date_of_death: string | null;
+    lifecycle_stage: string;
   }>;
   displayedBadges: BadgeWithDef[];
   tributeCount: number;
@@ -46,9 +49,9 @@ export function usePublicProfile(userId: string | undefined) {
       // Fetch hosted memorials (cast to any to avoid TS2589 deep instantiation)
       const memorialsResult = await (supabase as any)
         .from("memorials")
-        .select("id, name, slug, cover_image_url, born_date, passed_date")
+        .select("id, first_name, last_name, slug, profile_photo_url, cover_photo_url, date_of_birth, date_of_death, lifecycle_stage")
         .eq("created_by", userId!)
-        .eq("is_published", true)
+        .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(10);
       const memorials = (memorialsResult.data ?? []) as any[];
@@ -66,7 +69,7 @@ export function usePublicProfile(userId: string | undefined) {
       const tributeResult = await (supabase as any)
         .from("tributes")
         .select("id", { count: "exact", head: true })
-        .eq("user_id", userId!);
+        .eq("author_id", userId!);
       const tributeCount = (tributeResult.count ?? 0) as number;
 
       return {

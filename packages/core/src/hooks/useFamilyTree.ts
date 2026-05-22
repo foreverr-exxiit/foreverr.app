@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
+import { awardEngagementPoints } from "../services/engagement";
 import type { Database } from "../supabase/types";
 
 type Tables = Database["public"]["Tables"];
@@ -178,9 +179,13 @@ export function useAddTreeMember() {
       if (error) throw error;
       return data as FamilyTreeMember;
     },
-    onSuccess: (_data, vars) => {
+    onSuccess: (data, vars) => {
       queryClient.invalidateQueries({ queryKey: [TREE_MEMBERS_KEY, vars.treeId] });
       queryClient.invalidateQueries({ queryKey: [FAMILY_TREES_KEY, vars.treeId] });
+      // Award engagement points for adding a family member
+      if (data.profile_id) {
+        awardEngagementPoints(data.profile_id, "add_family_member", { referenceId: data.id });
+      }
     },
   });
 }
@@ -414,6 +419,10 @@ export function useRespondToPrompt() {
     onSuccess: (_data, vars) => {
       queryClient.invalidateQueries({ queryKey: [PROMPT_RESPONSES_KEY, vars.promptId] });
       queryClient.invalidateQueries({ queryKey: [MEMORY_PROMPTS_KEY] });
+      // Award engagement points for responding to a prompt
+      if (vars.userId) {
+        awardEngagementPoints(vars.userId, "respond_to_prompt", { referenceId: vars.promptId });
+      }
     },
   });
 }

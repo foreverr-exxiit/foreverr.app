@@ -117,9 +117,19 @@ export type DirectoryLead = Database["public"]["Tables"]["directory_leads"]["Row
 export type DirectoryLeadInsert = Database["public"]["Tables"]["directory_leads"]["Insert"];
 
 export type DirectoryBusinessType =
-  | "funeral_home" | "cemetery" | "crematorium" | "florist" | "catering"
-  | "monument_maker" | "grief_counselor" | "estate_planner" | "transport"
-  | "cleaning_service" | "photographer" | "musician" | "celebrant" | "other";
+  // Memorial & End-of-Life
+  | "funeral_home" | "cemetery" | "crematorium" | "monument_maker"
+  | "grief_counselor" | "estate_planner" | "transport"
+  // Birth & Baby
+  | "maternity" | "doula_midwife" | "baby_store" | "pediatrician"
+  // Wedding & Engagement
+  | "wedding_venue" | "wedding_planner" | "bridal_shop" | "jeweler"
+  // Celebrations & Events
+  | "event_venue" | "event_planner" | "party_supplies" | "entertainer"
+  // Shared / Cross-lifecycle
+  | "florist" | "catering" | "photographer" | "videographer"
+  | "musician" | "celebrant" | "bakery" | "cleaning_service"
+  | "other";
 
 export type PriceRange = "$" | "$$" | "$$$" | "$$$$";
 export type LeadStatus = "new" | "contacted" | "quoted" | "booked" | "completed" | "cancelled";
@@ -184,3 +194,35 @@ export type NewsItemInsert = Database["public"]["Tables"]["news_items"]["Insert"
 
 export type CelebrityCategory = "recent_death" | "anniversary" | "historical" | "featured";
 export type NewsCategory = "obituary" | "anniversary" | "memorial_news" | "platform_update" | "general";
+
+// Page Stewardship types
+export type PageTransfer = Database["public"]["Tables"]["page_transfers"]["Row"];
+export type PageTransferInsert = Database["public"]["Tables"]["page_transfers"]["Insert"];
+export type PageTransferUpdate = Database["public"]["Tables"]["page_transfers"]["Update"];
+
+export type TransferMessage = Database["public"]["Tables"]["transfer_messages"]["Row"];
+export type TransferMessageInsert = Database["public"]["Tables"]["transfer_messages"]["Insert"];
+
+export type StewardshipScore = Database["public"]["Tables"]["stewardship_scores"]["Row"];
+export type PageValuation = Database["public"]["Tables"]["page_valuations"]["Row"];
+export type TransferHistory = Database["public"]["Tables"]["transfer_history"]["Row"];
+export type GuardianSubscription = Database["public"]["Tables"]["guardian_subscriptions"]["Row"];
+
+export type TransferType = "voluntary" | "request" | "claim_transfer" | "stewardship" | "purchase" | "inheritance" | "reclamation";
+export type TransferStatus = "pending" | "negotiating" | "accepted" | "cooling_off" | "escrow_funded" | "completed" | "rejected" | "cancelled" | "expired" | "disputed" | "admin_review";
+export type StewardshipTier = "newcomer" | "reliable" | "dedicated" | "exemplary" | "legendary";
+export type ValuationTier = "basic" | "bronze" | "silver" | "gold" | "platinum" | "priceless";
+export type EscrowStatus = "pending" | "funded" | "released" | "refunded" | "disputed";
+export type GuardianTier = "basic" | "plus" | "pro";
+export type TransferMessageType = "text" | "system" | "offer" | "counter_offer" | "evidence" | "terms_update";
+export type InheritanceTrigger = "manual" | "inactivity_90d" | "inactivity_180d" | "date_triggered";
+export type TransferHistoryAction = "created" | "transferred" | "claimed" | "stewardship_started" | "stewardship_ended" | "inherited" | "purchased" | "reclaimed";
+
+export type TransferWithParties = PageTransfer & {
+  from_user: Pick<Profile, "id" | "username" | "display_name" | "avatar_url">;
+  to_user: Pick<Profile, "id" | "username" | "display_name" | "avatar_url">;
+};
+
+export type TransferMessageWithSender = TransferMessage & {
+  sender: Pick<Profile, "id" | "username" | "display_name" | "avatar_url">;
+};

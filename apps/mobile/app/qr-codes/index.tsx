@@ -34,7 +34,7 @@ export default function QRCodesScreen() {
   const handleShareCode = async (code: string, codeLabel?: string | null) => {
     try {
       await Share.share({
-        message: `Memorial QR Code${codeLabel ? ` (${codeLabel})` : ""}: ${code}\n\nScan to visit the memorial on Foreverr`,
+        message: `Memorial QR Code${codeLabel ? ` (${codeLabel})` : ""}: ${code}\n\nScan to visit the memorial on ǝterrn`,
       });
     } catch (_e) {
       // user cancelled
@@ -48,8 +48,8 @@ export default function QRCodesScreen() {
       <Stack.Screen
         options={{
           title: "QR Codes",
-          headerStyle: { backgroundColor: "#2D1B4E" },
-          headerTintColor: "#fff",
+          headerStyle: { backgroundColor: "#FFFFFF" },
+          headerTintColor: "#4A2D7A",
         }}
       />
 

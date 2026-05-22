@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Pressable } from "react-native";
+import { View, Pressable, Platform } from "react-native";
 import { Text } from "../primitives/Text";
 
 interface ErrorBoundaryProps {
@@ -22,8 +22,22 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     return { hasError: true, error };
   }
 
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Log the error for debugging
+    console.error("[ErrorBoundary] Caught error:", error?.message);
+    console.error("[ErrorBoundary] Component stack:", errorInfo?.componentStack);
+  }
+
   handleRetry = () => {
     this.setState({ hasError: false, error: null });
+  };
+
+  handleGoHome = () => {
+    this.setState({ hasError: false, error: null });
+    // On web, navigate to root; on native, just retry (router may not be available)
+    if (Platform.OS === "web" && typeof window !== "undefined") {
+      window.location.href = "/";
+    }
   };
 
   render() {
@@ -32,23 +46,58 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
       return (
         <View className="flex-1 items-center justify-center px-8 bg-white dark:bg-gray-900">
-          <Text className="text-4xl mb-4">⚠️</Text>
+          <Text className="text-4xl mb-4">{"⚠️"}</Text>
           <Text className="text-lg font-sans-bold text-gray-900 dark:text-white mb-2 text-center">
             Something went wrong
           </Text>
           <Text className="text-sm font-sans text-gray-500 text-center mb-6">
             {this.state.error?.message ?? "An unexpected error occurred."}
           </Text>
-          <Pressable
-            className="rounded-full bg-brand-700 px-6 py-2.5"
-            onPress={this.handleRetry}
-          >
-            <Text className="text-sm font-sans-semibold text-white">Try Again</Text>
-          </Pressable>
+          <View style={{ gap: 10, alignItems: "center" }}>
+            <Pressable
+              className="rounded-full bg-brand-700 px-6 py-2.5"
+              onPress={this.handleRetry}
+            >
+              <Text className="text-sm font-sans-semibold text-white">Try Again</Text>
+            </Pressable>
+            <Pressable
+              className="rounded-full bg-gray-200 dark:bg-gray-700 px-6 py-2.5"
+              onPress={this.handleGoHome}
+            >
+              <Text className="text-sm font-sans-semibold text-gray-700 dark:text-gray-300">Go Home</Text>
+            </Pressable>
+          </View>
         </View>
       );
     }
 
+    return this.props.children;
+  }
+}
+
+/** Inline error boundary for individual sections — prevents one section crash from killing the whole screen */
+export class SectionErrorBoundary extends React.Component<
+  { children: React.ReactNode; fallback?: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode; fallback?: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(): { hasError: boolean } {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("[SectionErrorBoundary] Caught error:", error?.message);
+    console.error("[SectionErrorBoundary] Component stack:", errorInfo?.componentStack);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback ?? null;
+    }
     return this.props.children;
   }
 }

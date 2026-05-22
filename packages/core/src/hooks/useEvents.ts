@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
+import { awardEngagementPoints } from "../services/engagement";
 import type { Event, EventRsvp, ImportantDate } from "../types/models";
 
 const EVENTS_KEY = "events";
@@ -83,29 +84,42 @@ export function useCreateEvent() {
       startDate: string;
       endDate?: string;
       maxAttendees?: number;
+      isTicketed?: boolean;
+      ticketPriceCents?: number;
+      ticketLimit?: number;
     }) => {
+      const insertData: any = {
+        memorial_id: params.memorialId,
+        created_by: params.createdBy,
+        title: params.title,
+        description: params.description,
+        type: params.type ?? "ceremony",
+        location: params.location,
+        is_virtual: params.isVirtual ?? false,
+        virtual_link: params.virtualLink,
+        start_date: params.startDate,
+        end_date: params.endDate,
+        max_attendees: params.maxAttendees,
+      };
+      if (params.isTicketed) {
+        insertData.is_ticketed = true;
+        insertData.ticket_price_cents = params.ticketPriceCents ?? 0;
+        insertData.ticket_limit = params.ticketLimit;
+      }
       const { data, error } = await supabase
         .from("events")
-        .insert({
-          memorial_id: params.memorialId,
-          created_by: params.createdBy,
-          title: params.title,
-          description: params.description,
-          type: params.type ?? "ceremony",
-          location: params.location,
-          is_virtual: params.isVirtual ?? false,
-          virtual_link: params.virtualLink,
-          start_date: params.startDate,
-          end_date: params.endDate,
-          max_attendees: params.maxAttendees,
-        })
+        .insert(insertData)
         .select("*")
         .single();
       if (error) throw error;
       return data as unknown as Event;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: [EVENTS_KEY] });
+      // Award engagement points for creating an event
+      if (variables.createdBy) {
+        awardEngagementPoints(variables.createdBy, "create_event", { referenceId: (data as any)?.id });
+      }
     },
   });
 }
@@ -134,6 +148,10 @@ export function useRsvp() {
     onSuccess: (_data, vars) => {
       queryClient.invalidateQueries({ queryKey: [RSVPS_KEY, vars.eventId] });
       queryClient.invalidateQueries({ queryKey: [EVENTS_KEY] });
+      // Award engagement points for RSVP'ing
+      if (vars.userId && vars.status === "going") {
+        awardEngagementPoints(vars.userId, "rsvp_event", { referenceId: vars.eventId });
+      }
     },
   });
 }

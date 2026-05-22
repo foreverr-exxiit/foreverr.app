@@ -74,7 +74,7 @@ export function useGenerateShareImage() {
       const template = (templates ?? [])[0] as ShareCardTemplate | undefined;
 
       // Fallback defaults if no template found
-      const backgroundColor = template?.background_color ?? "#2D1B4E";
+      const backgroundColor = template?.background_color ?? "#111111";
       const textColor = template?.text_color ?? "#FFFFFF";
       const layout = template?.layout ?? "standard";
 

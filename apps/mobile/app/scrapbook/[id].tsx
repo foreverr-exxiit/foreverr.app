@@ -51,8 +51,8 @@ export default function ScrapbookPageDetailScreen() {
         <Stack.Screen
           options={{
             title: "Loading...",
-            headerStyle: { backgroundColor: "#2D1B4E" },
-            headerTintColor: "#fff",
+            headerStyle: { backgroundColor: "#FFFFFF" },
+            headerTintColor: "#4A2D7A",
           }}
         />
         <View className="flex-1 items-center justify-center">
@@ -174,8 +174,8 @@ export default function ScrapbookPageDetailScreen() {
       <Stack.Screen
         options={{
           title: page.title,
-          headerStyle: { backgroundColor: "#2D1B4E" },
-          headerTintColor: "#fff",
+          headerStyle: { backgroundColor: "#FFFFFF" },
+          headerTintColor: "#4A2D7A",
           headerRight: () => (
             <View className="flex-row items-center mr-2 gap-3">
               <TouchableOpacity onPress={handlePublishToggle}>

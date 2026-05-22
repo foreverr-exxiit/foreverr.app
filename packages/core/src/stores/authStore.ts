@@ -13,6 +13,18 @@ interface AuthState {
     ribbon_balance: number;
     is_verified: boolean;
     onboarding_completed: boolean;
+    trust_level?: number;
+    premium_tier?: number;
+    legacy_link_slug?: string | null;
+    prompt_streak?: number;
+    role?: string;
+    city?: string | null;
+    region?: string | null;
+    country?: string | null;
+    feature_tier?: number;
+    stewardship_score?: number;
+    is_guardian_subscriber?: boolean;
+    [key: string]: unknown;
   } | null;
   isLoading: boolean;
   isInitialized: boolean;

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
+import { awardEngagementPoints } from "../services/engagement";
 import type { Database } from "../supabase/types";
 
 type Tables = Database["public"]["Tables"];
@@ -147,8 +148,12 @@ export function useCheckAndAwardBadges() {
 
       return newBadges;
     },
-    onSuccess: () => {
+    onSuccess: (newBadges, variables) => {
       queryClient.invalidateQueries({ queryKey: [BADGES_KEY] });
+      // Award engagement points for each new badge earned
+      for (const badge of newBadges) {
+        awardEngagementPoints(variables.userId, "earn_badge", { description: `Earned ${badge.badge_type} (${badge.badge_tier})` });
+      }
     },
   });
 }

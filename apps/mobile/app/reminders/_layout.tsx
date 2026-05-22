@@ -4,8 +4,8 @@ export default function RemindersLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: "#2D1B4E" },
-        headerTintColor: "#fff",
+        headerStyle: { backgroundColor: "#FFFFFF" },
+        headerTintColor: "#4A2D7A",
         headerTitleStyle: { fontFamily: "Inter_600SemiBold" },
         headerBackTitle: "Back",
       }}

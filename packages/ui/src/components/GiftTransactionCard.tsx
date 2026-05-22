@@ -46,38 +46,41 @@ export function GiftTransactionCard({
   const displayName = isAnonymous ? "Anonymous" : senderName;
 
   return (
-    <View className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-3 border border-gray-100 dark:border-gray-700">
+    <View className="bg-white dark:bg-gray-800 rounded-2xl p-3 mb-2 border border-gray-100 dark:border-gray-700">
       <View className="flex-row">
         {/* Avatar */}
         {isAnonymous ? (
-          <View className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 items-center justify-center">
-            <Ionicons name="person" size={18} color="#9ca3af" />
+          <View className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 items-center justify-center">
+            <Ionicons name="person" size={16} color="#9ca3af" />
           </View>
         ) : senderAvatar ? (
           <Image
             source={{ uri: senderAvatar }}
-            className="w-10 h-10 rounded-full"
+            className="w-9 h-9 rounded-full"
           />
         ) : (
-          <View className="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-900/30 items-center justify-center">
-            <Ionicons name="person" size={18} color="#7C3AED" />
+          <View className="w-9 h-9 rounded-full bg-brand-100 dark:bg-brand-900/30 items-center justify-center">
+            <Ionicons name="person" size={16} color="#7C3AED" />
           </View>
         )}
 
         {/* Gift Info */}
-        <View className="flex-1 ml-3">
+        <View className="flex-1 ml-2.5">
           <View className="flex-row items-center gap-1.5">
-            <Text style={{ fontSize: 18 }}>{giftIcon}</Text>
-            <Text className="text-sm font-sans-semibold text-gray-900 dark:text-white flex-shrink">
+            <View className="h-6 w-6 rounded-full bg-gray-50 dark:bg-gray-700 items-center justify-center">
+              <Text style={{ fontSize: 14 }}>{giftIcon}</Text>
+            </View>
+            <Text className="text-xs font-sans-semibold text-gray-900 dark:text-white flex-shrink">
               {displayName}
             </Text>
+            <Text className="text-[10px] font-sans text-gray-400 ml-auto">{formatRelativeTime(timestamp)}</Text>
           </View>
-          <Text className="text-xs font-sans text-gray-500 dark:text-gray-400 mt-0.5">
-            sent {giftName} {"\u00B7"} {formatRelativeTime(timestamp)}
+          <Text className="text-[11px] font-sans text-gray-400 mt-0.5">
+            sent {giftName}
           </Text>
           {message ? (
-            <View className="bg-gray-50 dark:bg-gray-700/50 rounded-lg px-3 py-2 mt-2">
-              <Text className="text-sm font-sans text-gray-700 dark:text-gray-300">
+            <View className="bg-gray-50 dark:bg-gray-700/50 rounded-xl px-2.5 py-1.5 mt-1.5">
+              <Text className="text-xs font-sans text-gray-600 dark:text-gray-300">
                 &ldquo;{message}&rdquo;
               </Text>
             </View>
@@ -86,9 +89,9 @@ export function GiftTransactionCard({
 
         {/* Amount */}
         {amountCents > 0 && (
-          <View className="ml-2 items-end">
-            <View className="bg-green-50 dark:bg-green-900/20 rounded-full px-2.5 py-1">
-              <Text className="text-xs font-sans-bold text-green-700 dark:text-green-400">
+          <View className="ml-2 self-start">
+            <View className="bg-green-50 dark:bg-green-900/20 rounded-full px-2 py-0.5">
+              <Text className="text-[10px] font-sans-bold text-green-700 dark:text-green-400">
                 ${(amountCents / 100).toFixed(2)}
               </Text>
             </View>
@@ -98,17 +101,15 @@ export function GiftTransactionCard({
 
       {/* React Button */}
       {onReact && (
-        <View className="flex-row items-center mt-3 pt-2.5 border-t border-gray-50 dark:border-gray-700/50">
-          <Pressable
-            className="flex-row items-center gap-1.5 py-1 px-2 rounded-full"
-            onPress={onReact}
-          >
-            <Ionicons name="heart-outline" size={16} color="#6b7280" />
-            <Text className="text-xs font-sans-medium text-gray-500 dark:text-gray-400">
-              React
-            </Text>
-          </Pressable>
-        </View>
+        <Pressable
+          className="flex-row items-center gap-1 mt-2 pt-2 border-t border-gray-50 dark:border-gray-700/50 self-start py-1 px-2 rounded-full"
+          onPress={onReact}
+        >
+          <Ionicons name="heart-outline" size={14} color="#9ca3af" />
+          <Text className="text-[11px] font-sans-medium text-gray-400">
+            React
+          </Text>
+        </Pressable>
       )}
     </View>
   );

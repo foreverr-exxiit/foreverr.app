@@ -71,8 +71,8 @@ export default function ImportCenterScreen() {
       <Stack.Screen
         options={{
           title: "Import Center",
-          headerStyle: { backgroundColor: "#2D1B4E" },
-          headerTintColor: "#fff",
+          headerStyle: { backgroundColor: "#FFFFFF" },
+          headerTintColor: "#4A2D7A",
         }}
       />
 
@@ -88,7 +88,7 @@ export default function ImportCenterScreen() {
                 Import Your Memories
               </Text>
               <Text className="text-xs font-sans text-gray-600 dark:text-gray-400 mt-0.5">
-                Bring photos, posts, and family data from other platforms into Foreverr
+                Bring photos, posts, and family data from other platforms into ǝterrn
               </Text>
             </View>
           </View>

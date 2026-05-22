@@ -50,8 +50,8 @@ export default function ActivityFeedScreen() {
       <Stack.Screen
         options={{
           title: "Activity",
-          headerStyle: { backgroundColor: "#2D1B4E" },
-          headerTintColor: "#fff",
+          headerStyle: { backgroundColor: "#FFFFFF" },
+          headerTintColor: "#4A2D7A",
         }}
       />
 

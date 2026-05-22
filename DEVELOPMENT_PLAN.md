@@ -644,7 +644,7 @@ Root _layout.tsx
 
 ### Monetization Opportunities Being Missed
 
-1. **Premium Memorial Tiers** — Free = limited photos/storage. Premium ($4.99/mo or $39.99/yr) = unlimited storage, AI features, custom domain (john-doe.foreverr.app), priority search, visitor analytics.
+1. **Premium Memorial Tiers** — Free = limited photos/storage. Premium ($4.99/mo or $39.99/yr) = unlimited storage, AI features, custom domain (john-doe.eterrn.app), priority search, visitor analytics.
 
 2. **Funeral Home SaaS Dashboard** — White-label dashboard for funeral homes to create/manage memorials for clients. Monthly SaaS fee. B2B revenue + user acquisition channel.
 

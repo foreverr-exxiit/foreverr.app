@@ -71,7 +71,7 @@ export function QRCodeImage({ code, size = 120 }: QRCodeImageProps) {
                 style={{
                   width: cellSize,
                   height: cellSize,
-                  backgroundColor: filled ? "#2D1B4E" : "#ffffff",
+                  backgroundColor: filled ? "#111111" : "#ffffff",
                   borderRadius: cellSize * 0.1,
                 }}
               />

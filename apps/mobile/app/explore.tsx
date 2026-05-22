@@ -2,7 +2,7 @@ import { View, ScrollView, TextInput, Pressable } from "react-native";
 import { useState, useMemo } from "react";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Text, ForeverrLogo } from "@foreverr/ui";
+import { Text, EternLogo } from "@foreverr/ui";
 
 // ── Feature definitions ──────────────────────────────────────────────
 
@@ -21,17 +21,17 @@ type FeatureCategory = {
 
 const FEATURE_CATEGORIES: FeatureCategory[] = [
   {
-    title: "Memories & Legacy",
+    title: "Memories & The Core",
     features: [
       {
-        title: "Memory Vault",
+        title: "The Core",
         description: "Store and protect precious digital memories",
         icon: "lock-closed",
         route: "/memory-vault",
         color: "#7C3AED",
       },
       {
-        title: "Legacy Letters",
+        title: "Core Letters",
         description: "Write heartfelt letters to loved ones",
         icon: "mail",
         route: "/legacy-letters",
@@ -71,11 +71,32 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
         color: "#8B5CF6",
       },
       {
-        title: "Legacy Link",
-        description: "Claim your foreverr.app/yourname link",
+        title: "Core Link",
+        description: "Claim your eterrn.app/yourname link",
         icon: "link",
         route: "/legacy-link",
         color: "#7C3AED",
+      },
+      {
+        title: "Give Flowers",
+        description: "Send flowers to someone you appreciate today",
+        icon: "flower",
+        route: "/gifts",
+        color: "#EC4899",
+      },
+      {
+        title: "Little Arcs",
+        description: "Track your baby's journey from pregnancy to adulthood",
+        icon: "happy",
+        route: "/baby",
+        color: "#F59E0B",
+      },
+      {
+        title: "Relationship Journey",
+        description: "Record life's relationship milestones and chapters",
+        icon: "heart-half",
+        route: "/relationship/history",
+        color: "#EC4899",
       },
     ],
   },
@@ -91,7 +112,7 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
       },
       {
         title: "Events",
-        description: "Memorial events and gatherings",
+        description: "Celebrations, events, and gatherings",
         icon: "calendar",
         route: "/events",
         color: "#3B82F6",
@@ -105,7 +126,7 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
       },
       {
         title: "Virtual Spaces",
-        description: "Visit virtual memorial spaces",
+        description: "Visit virtual tribute and memorial spaces",
         icon: "globe",
         route: "/virtual-space",
         color: "#60A5FA",
@@ -113,18 +134,53 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
     ],
   },
   {
-    title: "Services",
+    title: "Services & Earning",
     features: [
       {
+        title: "Creator Hub",
+        description: "Earn money by honoring people you love",
+        icon: "cash",
+        route: "/creator",
+        color: "#059669",
+      },
+      {
+        title: "Service Marketplace",
+        description: "Hire creators for tributes, art, and more",
+        icon: "briefcase",
+        route: "/services",
+        color: "#7c3aed",
+      },
+      {
+        title: "Honor Fundraiser",
+        description: "Raise money in someone's honor",
+        icon: "ribbon",
+        route: "/honor-fundraiser/create",
+        color: "#f59e0b",
+      },
+      {
+        title: "Templates",
+        description: "Beautiful memorial & celebration designs",
+        icon: "color-palette",
+        route: "/creator/templates",
+        color: "#ec4899",
+      },
+      {
+        title: "My Orders",
+        description: "Track services you've ordered",
+        icon: "bag-check",
+        route: "/creator/my-orders",
+        color: "#3b82f6",
+      },
+      {
         title: "Marketplace",
-        description: "Memorial products and keepsakes",
+        description: "Gifts, keepsakes, and meaningful products",
         icon: "storefront",
         route: "/marketplace",
         color: "#059669",
       },
       {
         title: "Directory",
-        description: "Find funeral homes and services",
+        description: "Find services, florists, and support",
         icon: "business",
         route: "/directory",
         color: "#10B981",
@@ -136,13 +192,48 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
         route: "/donate",
         color: "#EC4899",
       },
+      {
+        title: "Content Licensing",
+        description: "License reusable memorial content",
+        icon: "document-text",
+        route: "/licensing",
+        color: "#6366f1",
+      },
+      {
+        title: "Honor a Day",
+        description: "Sponsor a day on a memorial",
+        icon: "flame",
+        route: "/honor-day",
+        color: "#f97316",
+      },
+      {
+        title: "Grief Coaching",
+        description: "Connect with compassionate grief coaches",
+        icon: "heart-half",
+        route: "/grief-coaching",
+        color: "#6366f1",
+      },
+      {
+        title: "My Tickets",
+        description: "Event tickets you've purchased",
+        icon: "ticket",
+        route: "/creator/my-tickets",
+        color: "#06b6d4",
+      },
+      {
+        title: "My Subscriptions",
+        description: "Channels and creators you subscribe to",
+        icon: "star-half",
+        route: "/creator/my-subscriptions",
+        color: "#8b5cf6",
+      },
     ],
   },
   {
     title: "Social",
     features: [
       {
-        title: "Activity Feed",
+        title: "Echoes",
         description: "See what your community is up to",
         icon: "pulse",
         route: "/activity",
@@ -164,7 +255,7 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
       },
       {
         title: "Stories",
-        description: "Watch memorial tribute stories",
+        description: "Watch tribute stories from the community",
         icon: "play-circle",
         route: "/stories",
         color: "#EC4899",
@@ -195,7 +286,7 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
     features: [
       {
         title: "QR Codes",
-        description: "Create QR codes for memorials",
+        description: "Create QR codes for tributes and memorials",
         icon: "qr-code",
         route: "/qr-codes",
         color: "#F59E0B",
@@ -221,13 +312,13 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
     features: [
       {
         title: "Send Gifts",
-        description: "Send flowers, candles, and keepsakes",
+        description: "Give someone their flowers — living or remembered",
         icon: "flower",
         route: "/gifts",
         color: "#EC4899",
       },
       {
-        title: "Legacy Points",
+        title: "Core Points",
         description: "Track your engagement and level up",
         icon: "star",
         route: "/points",
@@ -252,6 +343,20 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
         route: "/trust",
         color: "#6366F1",
       },
+      {
+        title: "Stewardship",
+        description: "Transfer, manage, and protect page ownership",
+        icon: "swap-horizontal",
+        route: "/stewardship",
+        color: "#4A2D7A",
+      },
+      {
+        title: "Page Valuation",
+        description: "See how much your pages are worth",
+        icon: "analytics",
+        route: "/stewardship/valuation",
+        color: "#7C3AED",
+      },
     ],
   },
   {
@@ -274,8 +379,29 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
     ],
   },
   {
-    title: "Lifecycle",
+    title: "Life Story",
     features: [
+      {
+        title: "The Arc",
+        description: "A chronological journey through their entire life",
+        icon: "time",
+        route: "/timeline",
+        color: "#8B5CF6",
+      },
+      {
+        title: "Turning Points",
+        description: "Track first steps, graduations, weddings & more",
+        icon: "trophy",
+        route: "/milestones",
+        color: "#F59E0B",
+      },
+      {
+        title: "Photo Tags",
+        description: "Tag and find people across all photos",
+        icon: "people-circle",
+        route: "/photo-tags",
+        color: "#3B82F6",
+      },
       {
         title: "Lifecycle Stages",
         description: "Navigate life's milestones and transitions",
@@ -283,12 +409,24 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
         route: "/lifecycle",
         color: "#7C3AED",
       },
+    ],
+  },
+  {
+    title: "Celebrity",
+    features: [
       {
         title: "Celebrity Request",
         description: "Request a notable person's memorial page",
         icon: "star",
         route: "/trust",
         color: "#D97706",
+      },
+      {
+        title: "Celebrity Memorials",
+        description: "Browse celebrity and notable person pages",
+        icon: "sparkles",
+        route: "/stories",
+        color: "#f59e0b",
       },
     ],
   },
@@ -321,7 +459,9 @@ export default function ExploreScreen() {
       {/* ── Branded header ── */}
       <View className="bg-brand-900 px-4 pb-4 pt-14">
         <Pressable onPress={() => router.push("/(tabs)")} className="items-center mb-4">
-          <ForeverrLogo width={550} variant="full" />
+          <View className="items-center">
+            <EternLogo width={960} variant="full" />
+          </View>
         </Pressable>
 
         {/* Search bar */}

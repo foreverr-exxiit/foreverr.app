@@ -78,9 +78,9 @@ export default function MemoryVaultScreen() {
     <ScreenWrapper>
       <Stack.Screen
         options={{
-          title: "Memory Vault",
-          headerStyle: { backgroundColor: "#2D1B4E" },
-          headerTintColor: "#fff",
+          title: "The Core",
+          headerStyle: { backgroundColor: "#FFFFFF" },
+          headerTintColor: "#4A2D7A",
         }}
       />
 
@@ -174,6 +174,22 @@ export default function MemoryVaultScreen() {
               <Text className="text-sm font-sans-medium text-brand-700 ml-3 flex-1">
                 Manage Folders
               </Text>
+              <Ionicons name="chevron-forward" size={16} color="#9ca3af" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => router.push(`/memory-vault/preserve?vaultId=${memorialId}&itemCount=${stats.data?.totalItems ?? 0}` as any)}
+              className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 flex-row items-center"
+            >
+              <Ionicons name="shield-checkmark" size={20} color="#059669" />
+              <View className="ml-3 flex-1">
+                <Text className="text-sm font-sans-medium text-green-700">
+                  Preserve Memories
+                </Text>
+                <Text className="text-[10px] font-sans text-green-600/70">
+                  Digital archive, printed book, video & more
+                </Text>
+              </View>
               <Ionicons name="chevron-forward" size={16} color="#9ca3af" />
             </TouchableOpacity>
           </View>

@@ -22,6 +22,16 @@ export interface Database {
           is_living_tribute_enabled: boolean;
           prompt_streak: number;
           trust_level: number;
+          premium_tier: number;
+          role: string;
+          city: string | null;
+          region: string | null;
+          country: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          stewardship_score: number;
+          is_guardian_subscriber: boolean;
+          max_managed_pages: number;
           created_at: string;
           updated_at: string;
         };
@@ -43,6 +53,16 @@ export interface Database {
           follower_count?: number;
           following_count?: number;
           badge_count?: number;
+          premium_tier?: number;
+          role?: string;
+          city?: string | null;
+          region?: string | null;
+          country?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          stewardship_score?: number;
+          is_guardian_subscriber?: boolean;
+          max_managed_pages?: number;
         };
         Update: {
           id?: string;
@@ -62,6 +82,16 @@ export interface Database {
           is_living_tribute_enabled?: boolean;
           prompt_streak?: number;
           trust_level?: number;
+          premium_tier?: number;
+          role?: string;
+          city?: string | null;
+          region?: string | null;
+          country?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          stewardship_score?: number;
+          is_guardian_subscriber?: boolean;
+          max_managed_pages?: number;
         };
         Relationships: [
           {
@@ -1613,7 +1643,15 @@ export interface Database {
           is_private?: boolean;
           folder_id?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "memory_vault_items_uploaded_by_fkey";
+            columns: ["uploaded_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       time_capsules: {
         Row: {
@@ -1655,7 +1693,15 @@ export interface Database {
           is_unlocked?: boolean;
           unlocked_at?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "time_capsules_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       legacy_letters: {
         Row: {
@@ -1703,7 +1749,15 @@ export interface Database {
           is_read?: boolean;
           read_at?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "legacy_letters_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       scrapbook_pages: {
         Row: {
@@ -1772,7 +1826,15 @@ export interface Database {
           is_active?: boolean;
           last_scanned_at?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "memorial_qr_codes_memorial_id_fkey";
+            columns: ["memorial_id"];
+            isOneToOne: false;
+            referencedRelation: "memorials";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       family_trees: {
         Row: {
@@ -1799,7 +1861,15 @@ export interface Database {
           cover_image_url?: string | null;
           is_public?: boolean;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "family_trees_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       family_tree_members: {
         Row: {
@@ -1934,7 +2004,15 @@ export interface Database {
           content?: string;
           media_url?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "memory_prompt_responses_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       virtual_spaces: {
         Row: {
@@ -1970,7 +2048,22 @@ export interface Database {
           background_music_url?: string | null;
           is_public?: boolean;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "virtual_spaces_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "virtual_spaces_memorial_id_fkey";
+            columns: ["memorial_id"];
+            isOneToOne: false;
+            referencedRelation: "memorials";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       virtual_space_items: {
         Row: {
@@ -2031,7 +2124,15 @@ export interface Database {
           is_permanent?: boolean;
           expires_at?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "virtual_space_items_placed_by_fkey";
+            columns: ["placed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       memory_streaks: {
         Row: {
@@ -2062,7 +2163,15 @@ export interface Database {
           total_candles_lit?: number;
           total_memories_shared?: number;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "memory_streaks_memorial_id_fkey";
+            columns: ["memorial_id"];
+            isOneToOne: false;
+            referencedRelation: "memorials";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       seasonal_decorations: {
         Row: {
@@ -2123,7 +2232,15 @@ export interface Database {
         Update: {
           expires_at?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "applied_decorations_decoration_id_fkey";
+            columns: ["decoration_id"];
+            isOneToOne: false;
+            referencedRelation: "seasonal_decorations";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       celebrity_memorials: {
         Row: {
@@ -3735,7 +3852,22 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "fundraise_campaigns_v2_memorial_id_fkey";
+            columns: ["memorial_id"];
+            isOneToOne: false;
+            referencedRelation: "memorials";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "fundraise_campaigns_v2_creator_id_fkey";
+            columns: ["creator_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       import_jobs: {
         Row: {
@@ -3986,9 +4118,2015 @@ export interface Database {
         };
         Relationships: [];
       };
+      // ── Migration 00028: Premium Subscriptions ──
+      subscription_plans: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string;
+          description: string | null;
+          price_cents: number;
+          annual_price_cents: number;
+          currency: string;
+          tier: number;
+          features: Json;
+          limits: Json;
+          badge_icon: string | null;
+          badge_color: string | null;
+          is_active: boolean;
+          sort_order: number;
+          store_product_id_monthly: string | null;
+          store_product_id_annual: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          slug: string;
+          description?: string | null;
+          price_cents?: number;
+          annual_price_cents?: number;
+          currency?: string;
+          tier?: number;
+          features?: Json;
+          limits?: Json;
+          badge_icon?: string | null;
+          badge_color?: string | null;
+          is_active?: boolean;
+          sort_order?: number;
+          store_product_id_monthly?: string | null;
+          store_product_id_annual?: string | null;
+        };
+        Update: {
+          name?: string;
+          slug?: string;
+          description?: string | null;
+          price_cents?: number;
+          annual_price_cents?: number;
+          currency?: string;
+          tier?: number;
+          features?: Json;
+          limits?: Json;
+          badge_icon?: string | null;
+          badge_color?: string | null;
+          is_active?: boolean;
+          sort_order?: number;
+          store_product_id_monthly?: string | null;
+          store_product_id_annual?: string | null;
+        };
+        Relationships: [];
+      };
+      user_subscriptions: {
+        Row: {
+          id: string;
+          user_id: string;
+          plan_id: string;
+          status: string;
+          billing_period: string;
+          current_period_start: string;
+          current_period_end: string | null;
+          trial_start: string | null;
+          trial_end: string | null;
+          cancel_at_period_end: boolean;
+          cancelled_at: string | null;
+          provider: string;
+          provider_subscription_id: string | null;
+          provider_customer_id: string | null;
+          points_multiplier: number;
+          metadata: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          plan_id: string;
+          status?: string;
+          billing_period?: string;
+          current_period_start?: string;
+          current_period_end?: string | null;
+          trial_start?: string | null;
+          trial_end?: string | null;
+          cancel_at_period_end?: boolean;
+          cancelled_at?: string | null;
+          provider?: string;
+          provider_subscription_id?: string | null;
+          provider_customer_id?: string | null;
+          points_multiplier?: number;
+          metadata?: Json;
+        };
+        Update: {
+          user_id?: string;
+          plan_id?: string;
+          status?: string;
+          billing_period?: string;
+          current_period_start?: string;
+          current_period_end?: string | null;
+          trial_start?: string | null;
+          trial_end?: string | null;
+          cancel_at_period_end?: boolean;
+          cancelled_at?: string | null;
+          provider?: string;
+          provider_subscription_id?: string | null;
+          provider_customer_id?: string | null;
+          points_multiplier?: number;
+          metadata?: Json;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "user_subscriptions_plan_id_fkey";
+            columns: ["plan_id"];
+            isOneToOne: false;
+            referencedRelation: "subscription_plans";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      premium_entitlements: {
+        Row: {
+          id: string;
+          plan_id: string;
+          feature_key: string;
+          description: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          plan_id: string;
+          feature_key: string;
+          description?: string | null;
+        };
+        Update: {
+          plan_id?: string;
+          feature_key?: string;
+          description?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "premium_entitlements_plan_id_fkey";
+            columns: ["plan_id"];
+            isOneToOne: false;
+            referencedRelation: "subscription_plans";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      billing_history: {
+        Row: {
+          id: string;
+          user_id: string;
+          subscription_id: string | null;
+          amount_cents: number;
+          currency: string;
+          description: string | null;
+          status: string;
+          provider: string | null;
+          provider_payment_id: string | null;
+          invoice_url: string | null;
+          receipt_url: string | null;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          subscription_id?: string | null;
+          amount_cents: number;
+          currency?: string;
+          description?: string | null;
+          status?: string;
+          provider?: string | null;
+          provider_payment_id?: string | null;
+          invoice_url?: string | null;
+          receipt_url?: string | null;
+          metadata?: Json;
+        };
+        Update: {
+          user_id?: string;
+          subscription_id?: string | null;
+          amount_cents?: number;
+          currency?: string;
+          description?: string | null;
+          status?: string;
+          provider?: string | null;
+          provider_payment_id?: string | null;
+          invoice_url?: string | null;
+          receipt_url?: string | null;
+          metadata?: Json;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "billing_history_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "billing_history_subscription_id_fkey";
+            columns: ["subscription_id"];
+            isOneToOne: false;
+            referencedRelation: "user_subscriptions";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      premium_feature_gates: {
+        Row: {
+          id: string;
+          feature_key: string;
+          label: string;
+          description: string | null;
+          required_tier: number;
+          category: string;
+          is_active: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          feature_key: string;
+          label: string;
+          description?: string | null;
+          required_tier?: number;
+          category?: string;
+          is_active?: boolean;
+        };
+        Update: {
+          feature_key?: string;
+          label?: string;
+          description?: string | null;
+          required_tier?: number;
+          category?: string;
+          is_active?: boolean;
+        };
+        Relationships: [];
+      };
+      // ── Migration 00029: Life Timeline & Photos ──
+      life_milestones: {
+        Row: {
+          id: string;
+          memorial_id: string;
+          created_by: string;
+          milestone_type: string;
+          title: string;
+          description: string | null;
+          milestone_date: string | null;
+          age_at_milestone: number | null;
+          location: string | null;
+          photo_url: string | null;
+          media_urls: string[];
+          is_verified: boolean;
+          verified_by: string | null;
+          emoji: string | null;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          memorial_id: string;
+          created_by: string;
+          milestone_type: string;
+          title: string;
+          description?: string | null;
+          milestone_date?: string | null;
+          age_at_milestone?: number | null;
+          location?: string | null;
+          photo_url?: string | null;
+          media_urls?: string[];
+          is_verified?: boolean;
+          verified_by?: string | null;
+          emoji?: string | null;
+          sort_order?: number;
+        };
+        Update: {
+          memorial_id?: string;
+          created_by?: string;
+          milestone_type?: string;
+          title?: string;
+          description?: string | null;
+          milestone_date?: string | null;
+          age_at_milestone?: number | null;
+          location?: string | null;
+          photo_url?: string | null;
+          media_urls?: string[];
+          is_verified?: boolean;
+          verified_by?: string | null;
+          emoji?: string | null;
+          sort_order?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "life_milestones_memorial_id_fkey";
+            columns: ["memorial_id"];
+            isOneToOne: false;
+            referencedRelation: "memorials";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "life_milestones_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      life_timeline_events: {
+        Row: {
+          id: string;
+          memorial_id: string;
+          created_by: string | null;
+          event_type: string;
+          source_type: string | null;
+          source_id: string | null;
+          title: string;
+          description: string | null;
+          event_date: string | null;
+          event_end_date: string | null;
+          location: string | null;
+          photo_url: string | null;
+          media_urls: string[];
+          icon: string;
+          color: string;
+          is_highlight: boolean;
+          is_private: boolean;
+          sort_date: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          memorial_id: string;
+          created_by?: string | null;
+          event_type: string;
+          source_type?: string | null;
+          source_id?: string | null;
+          title: string;
+          description?: string | null;
+          event_date?: string | null;
+          event_end_date?: string | null;
+          location?: string | null;
+          photo_url?: string | null;
+          media_urls?: string[];
+          icon?: string;
+          color?: string;
+          is_highlight?: boolean;
+          is_private?: boolean;
+          sort_date?: string | null;
+        };
+        Update: {
+          memorial_id?: string;
+          created_by?: string | null;
+          event_type?: string;
+          source_type?: string | null;
+          source_id?: string | null;
+          title?: string;
+          description?: string | null;
+          event_date?: string | null;
+          event_end_date?: string | null;
+          location?: string | null;
+          photo_url?: string | null;
+          media_urls?: string[];
+          icon?: string;
+          color?: string;
+          is_highlight?: boolean;
+          is_private?: boolean;
+          sort_date?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "life_timeline_events_memorial_id_fkey";
+            columns: ["memorial_id"];
+            isOneToOne: false;
+            referencedRelation: "memorials";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      milestone_templates: {
+        Row: {
+          id: number;
+          milestone_type: string;
+          label: string;
+          emoji: string;
+          category: string;
+          typical_age_range: string | null;
+          description: string | null;
+          sort_order: number;
+        };
+        Insert: {
+          id?: number;
+          milestone_type: string;
+          label: string;
+          emoji: string;
+          category: string;
+          typical_age_range?: string | null;
+          description?: string | null;
+          sort_order?: number;
+        };
+        Update: {
+          milestone_type?: string;
+          label?: string;
+          emoji?: string;
+          category?: string;
+          typical_age_range?: string | null;
+          description?: string | null;
+          sort_order?: number;
+        };
+        Relationships: [];
+      };
+      photo_face_tags: {
+        Row: {
+          id: string;
+          photo_url: string;
+          memorial_id: string | null;
+          tagged_memorial_id: string | null;
+          tagged_profile_id: string | null;
+          tagged_name: string | null;
+          face_x: number | null;
+          face_y: number | null;
+          face_width: number | null;
+          face_height: number | null;
+          confidence: number | null;
+          is_verified: boolean;
+          is_auto_detected: boolean;
+          tagged_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          photo_url: string;
+          memorial_id?: string | null;
+          tagged_memorial_id?: string | null;
+          tagged_profile_id?: string | null;
+          tagged_name?: string | null;
+          face_x?: number | null;
+          face_y?: number | null;
+          face_width?: number | null;
+          face_height?: number | null;
+          confidence?: number | null;
+          is_verified?: boolean;
+          is_auto_detected?: boolean;
+          tagged_by?: string | null;
+        };
+        Update: {
+          photo_url?: string;
+          memorial_id?: string | null;
+          tagged_memorial_id?: string | null;
+          tagged_profile_id?: string | null;
+          tagged_name?: string | null;
+          face_x?: number | null;
+          face_y?: number | null;
+          face_width?: number | null;
+          face_height?: number | null;
+          confidence?: number | null;
+          is_verified?: boolean;
+          is_auto_detected?: boolean;
+          tagged_by?: string | null;
+        };
+        Relationships: [];
+      };
+      face_embeddings: {
+        Row: {
+          id: string;
+          memorial_id: string | null;
+          profile_id: string | null;
+          source_photo_url: string;
+          embedding: Json;
+          embedding_model: string;
+          quality_score: number;
+          is_primary: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          memorial_id?: string | null;
+          profile_id?: string | null;
+          source_photo_url: string;
+          embedding: Json;
+          embedding_model?: string;
+          quality_score?: number;
+          is_primary?: boolean;
+        };
+        Update: {
+          memorial_id?: string | null;
+          profile_id?: string | null;
+          source_photo_url?: string;
+          embedding?: Json;
+          embedding_model?: string;
+          quality_score?: number;
+          is_primary?: boolean;
+        };
+        Relationships: [];
+      };
+      auto_reminder_rules: {
+        Row: {
+          id: string;
+          user_id: string;
+          memorial_id: string | null;
+          rule_type: string;
+          title_template: string;
+          days_before: number;
+          is_recurring: boolean;
+          is_enabled: boolean;
+          recurring_month: number | null;
+          recurring_day: number | null;
+          last_triggered_at: string | null;
+          next_trigger_date: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          memorial_id?: string | null;
+          rule_type: string;
+          title_template: string;
+          days_before?: number;
+          is_recurring?: boolean;
+          is_enabled?: boolean;
+          recurring_month?: number | null;
+          recurring_day?: number | null;
+          last_triggered_at?: string | null;
+          next_trigger_date?: string | null;
+        };
+        Update: {
+          user_id?: string;
+          memorial_id?: string | null;
+          rule_type?: string;
+          title_template?: string;
+          days_before?: number;
+          is_recurring?: boolean;
+          is_enabled?: boolean;
+          recurring_month?: number | null;
+          recurring_day?: number | null;
+          last_triggered_at?: string | null;
+          next_trigger_date?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "auto_reminder_rules_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      // ── Migration 00040: Creator Economy ──
+      creator_profiles: {
+        Row: {
+          id: string;
+          user_id: string;
+          display_name: string;
+          tagline: string;
+          bio: string;
+          avatar_url: string | null;
+          cover_image_url: string | null;
+          portfolio_urls: string[];
+          specialties: string[];
+          tier: string;
+          tier_points: number;
+          total_earned_cents: number;
+          pending_balance_cents: number;
+          lifetime_orders: number;
+          stripe_connect_id: string | null;
+          stripe_onboarding_complete: boolean;
+          is_verified: boolean;
+          is_accepting_orders: boolean;
+          application_status: string;
+          rating_avg: number;
+          rating_count: number;
+          response_time_hours: number;
+          completion_rate: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          display_name?: string;
+          tagline?: string;
+          bio?: string;
+          avatar_url?: string | null;
+          cover_image_url?: string | null;
+          portfolio_urls?: string[];
+          specialties?: string[];
+          tier?: string;
+          tier_points?: number;
+          total_earned_cents?: number;
+          pending_balance_cents?: number;
+          lifetime_orders?: number;
+          stripe_connect_id?: string | null;
+          stripe_onboarding_complete?: boolean;
+          is_verified?: boolean;
+          is_accepting_orders?: boolean;
+          application_status?: string;
+          rating_avg?: number;
+          rating_count?: number;
+          response_time_hours?: number;
+          completion_rate?: number;
+        };
+        Update: {
+          display_name?: string;
+          tagline?: string;
+          bio?: string;
+          avatar_url?: string | null;
+          cover_image_url?: string | null;
+          portfolio_urls?: string[];
+          specialties?: string[];
+          tier?: string;
+          tier_points?: number;
+          total_earned_cents?: number;
+          pending_balance_cents?: number;
+          lifetime_orders?: number;
+          stripe_connect_id?: string | null;
+          stripe_onboarding_complete?: boolean;
+          is_verified?: boolean;
+          is_accepting_orders?: boolean;
+          application_status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "creator_profiles_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      creator_tiers: {
+        Row: {
+          id: string;
+          name: string;
+          min_points: number;
+          icon: string;
+          color: string;
+          platform_fee_pct: number;
+          perks: string[];
+          sort_order: number;
+        };
+        Insert: {
+          id: string;
+          name: string;
+          min_points?: number;
+          icon?: string;
+          color?: string;
+          platform_fee_pct?: number;
+          perks?: string[];
+          sort_order?: number;
+        };
+        Update: {
+          name?: string;
+          min_points?: number;
+          icon?: string;
+          color?: string;
+          platform_fee_pct?: number;
+          perks?: string[];
+          sort_order?: number;
+        };
+        Relationships: [];
+      };
+      service_listings: {
+        Row: {
+          id: string;
+          creator_id: string;
+          title: string;
+          description: string;
+          category: string;
+          pricing_type: string;
+          price_cents: number;
+          packages: Json;
+          cover_image_url: string | null;
+          sample_images: string[];
+          delivery_days: number;
+          max_revisions: number;
+          is_active: boolean;
+          is_featured: boolean;
+          order_count: number;
+          rating_avg: number;
+          rating_count: number;
+          view_count: number;
+          tags: string[];
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          creator_id: string;
+          title: string;
+          description?: string;
+          category: string;
+          pricing_type?: string;
+          price_cents?: number;
+          packages?: Json;
+          cover_image_url?: string | null;
+          sample_images?: string[];
+          delivery_days?: number;
+          max_revisions?: number;
+          is_active?: boolean;
+          is_featured?: boolean;
+          tags?: string[];
+        };
+        Update: {
+          title?: string;
+          description?: string;
+          category?: string;
+          pricing_type?: string;
+          price_cents?: number;
+          packages?: Json;
+          cover_image_url?: string | null;
+          sample_images?: string[];
+          delivery_days?: number;
+          max_revisions?: number;
+          is_active?: boolean;
+          is_featured?: boolean;
+          tags?: string[];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "service_listings_creator_id_fkey";
+            columns: ["creator_id"];
+            isOneToOne: false;
+            referencedRelation: "creator_profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      service_orders: {
+        Row: {
+          id: string;
+          service_id: string;
+          creator_id: string;
+          buyer_id: string;
+          title: string;
+          description: string | null;
+          package_name: string | null;
+          amount_cents: number;
+          platform_fee_cents: number;
+          creator_payout_cents: number;
+          payment_status: string;
+          stripe_payment_intent_id: string | null;
+          status: string;
+          delivery_deadline: string | null;
+          delivered_at: string | null;
+          completed_at: string | null;
+          deliverables: Json;
+          messages_count: number;
+          buyer_rating: number | null;
+          buyer_review: string | null;
+          memorial_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          service_id: string;
+          creator_id: string;
+          buyer_id: string;
+          title: string;
+          description?: string | null;
+          package_name?: string | null;
+          amount_cents: number;
+          platform_fee_cents?: number;
+          creator_payout_cents?: number;
+          payment_status?: string;
+          stripe_payment_intent_id?: string | null;
+          status?: string;
+          delivery_deadline?: string | null;
+          deliverables?: Json;
+          memorial_id?: string | null;
+        };
+        Update: {
+          title?: string;
+          description?: string | null;
+          status?: string;
+          payment_status?: string;
+          delivery_deadline?: string | null;
+          delivered_at?: string | null;
+          completed_at?: string | null;
+          deliverables?: Json;
+          buyer_rating?: number | null;
+          buyer_review?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "service_orders_service_id_fkey";
+            columns: ["service_id"];
+            isOneToOne: false;
+            referencedRelation: "service_listings";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "service_orders_creator_id_fkey";
+            columns: ["creator_id"];
+            isOneToOne: false;
+            referencedRelation: "creator_profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "service_orders_buyer_id_fkey";
+            columns: ["buyer_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      service_order_messages: {
+        Row: {
+          id: string;
+          order_id: string;
+          sender_id: string;
+          content: string;
+          attachments: string[];
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          order_id: string;
+          sender_id: string;
+          content: string;
+          attachments?: string[];
+        };
+        Update: {
+          content?: string;
+          attachments?: string[];
+        };
+        Relationships: [];
+      };
+      creator_earnings: {
+        Row: {
+          id: string;
+          creator_id: string;
+          type: string;
+          amount_cents: number;
+          platform_fee_cents: number;
+          net_amount_cents: number;
+          reference_type: string | null;
+          reference_id: string | null;
+          description: string;
+          status: string;
+          clears_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          creator_id: string;
+          type: string;
+          amount_cents: number;
+          platform_fee_cents?: number;
+          net_amount_cents: number;
+          reference_type?: string | null;
+          reference_id?: string | null;
+          description?: string;
+          status?: string;
+          clears_at?: string | null;
+        };
+        Update: {
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "creator_earnings_creator_id_fkey";
+            columns: ["creator_id"];
+            isOneToOne: false;
+            referencedRelation: "creator_profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      creator_payouts: {
+        Row: {
+          id: string;
+          creator_id: string;
+          amount_cents: number;
+          currency: string;
+          stripe_transfer_id: string | null;
+          stripe_payout_id: string | null;
+          status: string;
+          failure_reason: string | null;
+          requested_at: string;
+          processed_at: string | null;
+          completed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          creator_id: string;
+          amount_cents: number;
+          currency?: string;
+          status?: string;
+        };
+        Update: {
+          status?: string;
+          stripe_transfer_id?: string | null;
+          stripe_payout_id?: string | null;
+          failure_reason?: string | null;
+          processed_at?: string | null;
+          completed_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "creator_payouts_creator_id_fkey";
+            columns: ["creator_id"];
+            isOneToOne: false;
+            referencedRelation: "creator_profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      honor_fundraisers: {
+        Row: {
+          id: string;
+          creator_id: string | null;
+          organizer_id: string;
+          honoree_name: string;
+          honoree_image_url: string | null;
+          memorial_id: string | null;
+          title: string;
+          description: string;
+          story: string;
+          cover_image_url: string | null;
+          images: string[];
+          goal_cents: number;
+          raised_cents: number;
+          donor_count: number;
+          beneficiary_name: string;
+          beneficiary_type: string;
+          beneficiary_url: string | null;
+          organizer_fee_pct: number;
+          organizer_earned_cents: number;
+          status: string;
+          is_featured: boolean;
+          end_date: string | null;
+          share_count: number;
+          view_count: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          creator_id?: string | null;
+          organizer_id: string;
+          honoree_name: string;
+          honoree_image_url?: string | null;
+          memorial_id?: string | null;
+          title: string;
+          description?: string;
+          story?: string;
+          cover_image_url?: string | null;
+          images?: string[];
+          goal_cents?: number;
+          beneficiary_name?: string;
+          beneficiary_type?: string;
+          beneficiary_url?: string | null;
+          organizer_fee_pct?: number;
+          status?: string;
+          end_date?: string | null;
+        };
+        Update: {
+          honoree_name?: string;
+          honoree_image_url?: string | null;
+          title?: string;
+          description?: string;
+          story?: string;
+          cover_image_url?: string | null;
+          images?: string[];
+          goal_cents?: number;
+          beneficiary_name?: string;
+          beneficiary_type?: string;
+          beneficiary_url?: string | null;
+          organizer_fee_pct?: number;
+          status?: string;
+          end_date?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "honor_fundraisers_organizer_id_fkey";
+            columns: ["organizer_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      honor_donations: {
+        Row: {
+          id: string;
+          fundraiser_id: string;
+          donor_id: string | null;
+          amount_cents: number;
+          organizer_fee_cents: number;
+          platform_fee_cents: number;
+          net_to_beneficiary_cents: number;
+          stripe_payment_intent_id: string | null;
+          payment_status: string;
+          donor_name: string;
+          message: string;
+          is_anonymous: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          fundraiser_id: string;
+          donor_id?: string | null;
+          amount_cents: number;
+          organizer_fee_cents?: number;
+          platform_fee_cents?: number;
+          net_to_beneficiary_cents: number;
+          stripe_payment_intent_id?: string | null;
+          payment_status?: string;
+          donor_name?: string;
+          message?: string;
+          is_anonymous?: boolean;
+        };
+        Update: {
+          payment_status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "honor_donations_fundraiser_id_fkey";
+            columns: ["fundraiser_id"];
+            isOneToOne: false;
+            referencedRelation: "honor_fundraisers";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      creator_reviews: {
+        Row: {
+          id: string;
+          creator_id: string;
+          reviewer_id: string;
+          order_id: string | null;
+          rating: number;
+          review_text: string;
+          is_featured: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          creator_id: string;
+          reviewer_id: string;
+          order_id?: string | null;
+          rating: number;
+          review_text?: string;
+          is_featured?: boolean;
+        };
+        Update: {
+          rating?: number;
+          review_text?: string;
+          is_featured?: boolean;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "creator_reviews_creator_id_fkey";
+            columns: ["creator_id"];
+            isOneToOne: false;
+            referencedRelation: "creator_profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "creator_reviews_reviewer_id_fkey";
+            columns: ["reviewer_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      // ── Migration 00041: Memorial Templates ──
+      memorial_templates: {
+        Row: {
+          id: string;
+          creator_id: string;
+          title: string;
+          description: string;
+          category: string;
+          price_cents: number;
+          is_free: boolean;
+          is_published: boolean;
+          preview_images: string[];
+          template_data: Json;
+          tags: string[];
+          download_count: number;
+          rating_avg: number;
+          rating_count: number;
+          view_count: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          creator_id: string;
+          title: string;
+          description?: string;
+          category?: string;
+          price_cents?: number;
+          is_free?: boolean;
+          is_published?: boolean;
+          preview_images?: string[];
+          template_data?: Json;
+          tags?: string[];
+        };
+        Update: {
+          title?: string;
+          description?: string;
+          category?: string;
+          price_cents?: number;
+          is_free?: boolean;
+          is_published?: boolean;
+          preview_images?: string[];
+          template_data?: Json;
+          tags?: string[];
+          download_count?: number;
+          rating_avg?: number;
+          rating_count?: number;
+          view_count?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "memorial_templates_creator_id_fkey";
+            columns: ["creator_id"];
+            isOneToOne: false;
+            referencedRelation: "creator_profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      template_downloads: {
+        Row: {
+          id: string;
+          template_id: string;
+          buyer_id: string;
+          amount_paid_cents: number;
+          payment_status: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          template_id: string;
+          buyer_id: string;
+          amount_paid_cents?: number;
+          payment_status?: string;
+        };
+        Update: {
+          amount_paid_cents?: number;
+          payment_status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "template_downloads_template_id_fkey";
+            columns: ["template_id"];
+            isOneToOne: false;
+            referencedRelation: "memorial_templates";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      template_reviews: {
+        Row: {
+          id: string;
+          template_id: string;
+          reviewer_id: string;
+          rating: number;
+          review_text: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          template_id: string;
+          reviewer_id: string;
+          rating: number;
+          review_text?: string | null;
+        };
+        Update: {
+          rating?: number;
+          review_text?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "template_reviews_template_id_fkey";
+            columns: ["template_id"];
+            isOneToOne: false;
+            referencedRelation: "memorial_templates";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      // ── Migration 00030: Email Log ──
+      email_log: {
+        Row: {
+          id: string;
+          recipient: string;
+          email_type: string;
+          subject: string | null;
+          status: string;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          recipient: string;
+          email_type: string;
+          subject?: string | null;
+          status?: string;
+          metadata?: Json;
+        };
+        Update: {
+          recipient?: string;
+          email_type?: string;
+          subject?: string | null;
+          status?: string;
+          metadata?: Json;
+        };
+        Relationships: [];
+      };
+      // ── Migration: Event Tickets ──
+      event_tickets: {
+        Row: {
+          id: string;
+          event_id: string;
+          buyer_id: string;
+          amount_paid_cents: number;
+          quantity: number;
+          ticket_code: string;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          buyer_id: string;
+          amount_paid_cents?: number;
+          quantity?: number;
+          ticket_code?: string;
+          status?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          event_id?: string;
+          buyer_id?: string;
+          amount_paid_cents?: number;
+          quantity?: number;
+          ticket_code?: string;
+          status?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_tickets_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      // ── Migration: Honor Day Sponsorships ──
+      honor_day_sponsorships: {
+        Row: {
+          id: string;
+          memorial_id: string;
+          sponsor_id: string;
+          sponsored_date: string;
+          amount_cents: number;
+          message: string | null;
+          sponsor_name: string | null;
+          is_anonymous: boolean;
+          is_active: boolean;
+          display_badge: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          memorial_id: string;
+          sponsor_id: string;
+          sponsored_date: string;
+          amount_cents?: number;
+          message?: string | null;
+          sponsor_name?: string | null;
+          is_anonymous?: boolean;
+          is_active?: boolean;
+          display_badge?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          memorial_id?: string;
+          sponsor_id?: string;
+          sponsored_date?: string;
+          amount_cents?: number;
+          message?: string | null;
+          sponsor_name?: string | null;
+          is_anonymous?: boolean;
+          is_active?: boolean;
+          display_badge?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "honor_day_sponsorships_memorial_id_fkey";
+            columns: ["memorial_id"];
+            isOneToOne: false;
+            referencedRelation: "memorials";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      // ── Migration: Vault Preservation Orders ──
+      vault_preservation_orders: {
+        Row: {
+          id: string;
+          vault_id: string;
+          owner_id: string;
+          creator_id: string | null;
+          preservation_type: string;
+          status: string;
+          amount_cents: number;
+          items_count: number;
+          notes: string | null;
+          deliverables: Json;
+          completed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          vault_id: string;
+          owner_id: string;
+          creator_id?: string | null;
+          preservation_type?: string;
+          status?: string;
+          amount_cents?: number;
+          items_count?: number;
+          notes?: string | null;
+          deliverables?: Json;
+          completed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          vault_id?: string;
+          owner_id?: string;
+          creator_id?: string | null;
+          preservation_type?: string;
+          status?: string;
+          amount_cents?: number;
+          items_count?: number;
+          notes?: string | null;
+          deliverables?: Json;
+          completed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "vault_preservation_orders_vault_id_fkey";
+            columns: ["vault_id"];
+            isOneToOne: false;
+            referencedRelation: "memory_vaults";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      // ── Migration: Content Licenses ──
+      content_licenses: {
+        Row: {
+          id: string;
+          creator_id: string;
+          title: string;
+          description: string;
+          content_type: string;
+          license_type: string;
+          price_cents: number;
+          preview_url: string | null;
+          content_url: string | null;
+          tags: string[];
+          download_count: number;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          creator_id: string;
+          title: string;
+          description?: string;
+          content_type?: string;
+          license_type?: string;
+          price_cents?: number;
+          preview_url?: string | null;
+          content_url?: string | null;
+          tags?: string[];
+          download_count?: number;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          creator_id?: string;
+          title?: string;
+          description?: string;
+          content_type?: string;
+          license_type?: string;
+          price_cents?: number;
+          preview_url?: string | null;
+          content_url?: string | null;
+          tags?: string[];
+          download_count?: number;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      // ── Migration: Content License Purchases ──
+      content_license_purchases: {
+        Row: {
+          id: string;
+          license_id: string;
+          buyer_id: string;
+          amount_paid_cents: number;
+          license_type: string;
+          granted_at: string;
+          expires_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          license_id: string;
+          buyer_id: string;
+          amount_paid_cents?: number;
+          license_type?: string;
+          granted_at?: string;
+          expires_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          license_id?: string;
+          buyer_id?: string;
+          amount_paid_cents?: number;
+          license_type?: string;
+          granted_at?: string;
+          expires_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "content_license_purchases_license_id_fkey";
+            columns: ["license_id"];
+            isOneToOne: false;
+            referencedRelation: "content_licenses";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      // ── Migration: Channel Subscriptions ──
+      channel_subscriptions: {
+        Row: {
+          id: string;
+          channel_id: string;
+          subscriber_id: string;
+          tier: string;
+          amount_cents: number;
+          status: string;
+          started_at: string;
+          expires_at: string | null;
+          auto_renew: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          channel_id: string;
+          subscriber_id: string;
+          tier?: string;
+          amount_cents?: number;
+          status?: string;
+          started_at?: string;
+          expires_at?: string | null;
+          auto_renew?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          channel_id?: string;
+          subscriber_id?: string;
+          tier?: string;
+          amount_cents?: number;
+          status?: string;
+          started_at?: string;
+          expires_at?: string | null;
+          auto_renew?: boolean;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      // ── Migration: Universal Page Hosts (00035) ──
+      page_hosts: {
+        Row: {
+          id: string;
+          page_type: string;
+          page_id: string;
+          user_id: string;
+          role: string;
+          relationship: string | null;
+          relationship_detail: string | null;
+          permissions: Json;
+          invited_by: string | null;
+          invite_status: string;
+          accepted_at: string | null;
+          designated_successor_id: string | null;
+          successor_trigger: string | null;
+          successor_trigger_date: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          page_type: string;
+          page_id: string;
+          user_id: string;
+          role?: string;
+          relationship?: string | null;
+          relationship_detail?: string | null;
+          permissions?: Json;
+          invited_by?: string | null;
+          invite_status?: string;
+          accepted_at?: string | null;
+          designated_successor_id?: string | null;
+          successor_trigger?: string | null;
+          successor_trigger_date?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          page_type?: string;
+          page_id?: string;
+          user_id?: string;
+          role?: string;
+          relationship?: string | null;
+          relationship_detail?: string | null;
+          permissions?: Json;
+          invited_by?: string | null;
+          invite_status?: string;
+          accepted_at?: string | null;
+          designated_successor_id?: string | null;
+          successor_trigger?: string | null;
+          successor_trigger_date?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "page_hosts_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "page_hosts_invited_by_fkey";
+            columns: ["invited_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "page_hosts_designated_successor_id_fkey";
+            columns: ["designated_successor_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      // ── Migration: Page Stewardship (00043) ──
+      page_transfers: {
+        Row: {
+          id: string;
+          page_type: string;
+          page_id: string;
+          transfer_type: string;
+          status: string;
+          from_user_id: string;
+          to_user_id: string;
+          initiated_by: string;
+          price_cents: number | null;
+          platform_fee_cents: number | null;
+          net_to_seller_cents: number | null;
+          escrow_status: string | null;
+          stripe_payment_intent_id: string | null;
+          terms: Json | null;
+          inheritance_trigger: string | null;
+          inheritance_trigger_date: string | null;
+          cooling_off_ends_at: string | null;
+          valuation_snapshot: Json | null;
+          reason: string | null;
+          relationship_to_page: string | null;
+          admin_notes: string | null;
+          message_count: number;
+          expires_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          page_type: string;
+          page_id: string;
+          transfer_type: string;
+          status?: string;
+          from_user_id: string;
+          to_user_id: string;
+          initiated_by: string;
+          price_cents?: number | null;
+          platform_fee_cents?: number | null;
+          net_to_seller_cents?: number | null;
+          escrow_status?: string | null;
+          stripe_payment_intent_id?: string | null;
+          terms?: Json | null;
+          inheritance_trigger?: string | null;
+          inheritance_trigger_date?: string | null;
+          cooling_off_ends_at?: string | null;
+          valuation_snapshot?: Json | null;
+          reason?: string | null;
+          relationship_to_page?: string | null;
+          admin_notes?: string | null;
+          message_count?: number;
+          expires_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          page_type?: string;
+          page_id?: string;
+          transfer_type?: string;
+          status?: string;
+          from_user_id?: string;
+          to_user_id?: string;
+          initiated_by?: string;
+          price_cents?: number | null;
+          platform_fee_cents?: number | null;
+          net_to_seller_cents?: number | null;
+          escrow_status?: string | null;
+          stripe_payment_intent_id?: string | null;
+          terms?: Json | null;
+          inheritance_trigger?: string | null;
+          inheritance_trigger_date?: string | null;
+          cooling_off_ends_at?: string | null;
+          valuation_snapshot?: Json | null;
+          reason?: string | null;
+          relationship_to_page?: string | null;
+          admin_notes?: string | null;
+          message_count?: number;
+          expires_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "page_transfers_from_user_id_fkey";
+            columns: ["from_user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "page_transfers_to_user_id_fkey";
+            columns: ["to_user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "page_transfers_initiated_by_fkey";
+            columns: ["initiated_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      transfer_messages: {
+        Row: {
+          id: string;
+          transfer_id: string;
+          sender_id: string;
+          message_type: string;
+          content: string;
+          metadata: Json | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          transfer_id: string;
+          sender_id: string;
+          message_type?: string;
+          content: string;
+          metadata?: Json | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          transfer_id?: string;
+          sender_id?: string;
+          message_type?: string;
+          content?: string;
+          metadata?: Json | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "transfer_messages_transfer_id_fkey";
+            columns: ["transfer_id"];
+            isOneToOne: false;
+            referencedRelation: "page_transfers";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "transfer_messages_sender_id_fkey";
+            columns: ["sender_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      stewardship_scores: {
+        Row: {
+          id: string;
+          user_id: string;
+          total_score: number;
+          pages_managed: number;
+          smooth_transfers: number;
+          disputed_transfers: number;
+          page_growth_score: number;
+          avg_response_hours: number | null;
+          tier: string;
+          founding_steward_pages: string[];
+          last_calculated_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          total_score?: number;
+          pages_managed?: number;
+          smooth_transfers?: number;
+          disputed_transfers?: number;
+          page_growth_score?: number;
+          avg_response_hours?: number | null;
+          tier?: string;
+          founding_steward_pages?: string[];
+          last_calculated_at?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          total_score?: number;
+          pages_managed?: number;
+          smooth_transfers?: number;
+          disputed_transfers?: number;
+          page_growth_score?: number;
+          avg_response_hours?: number | null;
+          tier?: string;
+          founding_steward_pages?: string[];
+          last_calculated_at?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "stewardship_scores_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      page_valuations: {
+        Row: {
+          id: string;
+          page_type: string;
+          page_id: string;
+          tribute_count: number;
+          follower_count: number;
+          media_count: number;
+          event_count: number;
+          gift_count: number;
+          page_age_days: number;
+          last_activity_days: number;
+          content_value_cents: number;
+          engagement_value_cents: number;
+          age_value_cents: number;
+          inactivity_discount_pct: number;
+          total_value_cents: number;
+          value_tier: string;
+          calculated_at: string;
+        };
+        Insert: {
+          id?: string;
+          page_type: string;
+          page_id: string;
+          tribute_count?: number;
+          follower_count?: number;
+          media_count?: number;
+          event_count?: number;
+          gift_count?: number;
+          page_age_days?: number;
+          last_activity_days?: number;
+          content_value_cents?: number;
+          engagement_value_cents?: number;
+          age_value_cents?: number;
+          inactivity_discount_pct?: number;
+          total_value_cents?: number;
+          value_tier?: string;
+          calculated_at?: string;
+        };
+        Update: {
+          id?: string;
+          page_type?: string;
+          page_id?: string;
+          tribute_count?: number;
+          follower_count?: number;
+          media_count?: number;
+          event_count?: number;
+          gift_count?: number;
+          page_age_days?: number;
+          last_activity_days?: number;
+          content_value_cents?: number;
+          engagement_value_cents?: number;
+          age_value_cents?: number;
+          inactivity_discount_pct?: number;
+          total_value_cents?: number;
+          value_tier?: string;
+          calculated_at?: string;
+        };
+        Relationships: [];
+      };
+      transfer_history: {
+        Row: {
+          id: string;
+          page_type: string;
+          page_id: string;
+          sequence_number: number;
+          action: string;
+          from_user_id: string | null;
+          to_user_id: string | null;
+          transfer_id: string | null;
+          metadata: Json | null;
+          recorded_at: string;
+        };
+        Insert: {
+          id?: string;
+          page_type: string;
+          page_id: string;
+          sequence_number: number;
+          action: string;
+          from_user_id?: string | null;
+          to_user_id?: string | null;
+          transfer_id?: string | null;
+          metadata?: Json | null;
+          recorded_at?: string;
+        };
+        Update: {
+          id?: string;
+          page_type?: string;
+          page_id?: string;
+          sequence_number?: number;
+          action?: string;
+          from_user_id?: string | null;
+          to_user_id?: string | null;
+          transfer_id?: string | null;
+          metadata?: Json | null;
+          recorded_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "transfer_history_from_user_id_fkey";
+            columns: ["from_user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "transfer_history_to_user_id_fkey";
+            columns: ["to_user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "transfer_history_transfer_id_fkey";
+            columns: ["transfer_id"];
+            isOneToOne: false;
+            referencedRelation: "page_transfers";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      guardian_subscriptions: {
+        Row: {
+          id: string;
+          user_id: string;
+          tier: string;
+          amount_cents: number;
+          status: string;
+          stripe_subscription_id: string | null;
+          max_managed_pages: number;
+          fee_discount_pct: number;
+          started_at: string;
+          expires_at: string | null;
+          cancelled_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          tier?: string;
+          amount_cents?: number;
+          status?: string;
+          stripe_subscription_id?: string | null;
+          max_managed_pages?: number;
+          fee_discount_pct?: number;
+          started_at?: string;
+          expires_at?: string | null;
+          cancelled_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          tier?: string;
+          amount_cents?: number;
+          status?: string;
+          stripe_subscription_id?: string | null;
+          max_managed_pages?: number;
+          fee_discount_pct?: number;
+          started_at?: string;
+          expires_at?: string | null;
+          cancelled_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "guardian_subscriptions_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      increment_fundraiser_donation: {
+        Args: {
+          p_fundraiser_id: string;
+          p_amount_cents: number;
+        };
+        Returns: Json;
+      };
+      search_all: {
+        Args: {
+          query: string;
+          result_limit?: number;
+        };
+        Returns: {
+          id: string;
+          result_type: string;
+          title: string;
+          subtitle: string;
+          image_url: string | null;
+          rank: number;
+        }[];
+      };
+      calculate_page_valuation: {
+        Args: {
+          p_page_type: string;
+          p_page_id: string;
+        };
+        Returns: Json;
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

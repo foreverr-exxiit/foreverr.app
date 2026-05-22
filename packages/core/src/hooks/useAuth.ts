@@ -1,66 +1,131 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useMemo, useRef } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { supabase } from "../supabase/client";
 import { useAuthStore } from "../stores/authStore";
 import { getPendingAction, clearPendingAction } from "./useRequireAuth";
 
-export function useAuth() {
-  const { session, user, profile, isLoading, isInitialized, setSession, setProfile, setLoading, setInitialized, reset } =
-    useAuthStore();
+/* ------------------------------------------------------------------ */
+/*  Module-level singleton — auth listeners registered ONCE globally.  */
+/*  Prevents N components × N listeners = N² store mutations that      */
+/*  overflow React's render limit (Error #310).                        */
+/* ------------------------------------------------------------------ */
 
-  useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+let _authInitialized = false;
+let _initialSessionHandled = false;
+let _profileFetchingForUser: string | null = null;
+
+function fetchProfile(userId: string) {
+  // Deduplicate: if we're already fetching for this exact user, skip.
+  if (_profileFetchingForUser === userId) return;
+  _profileFetchingForUser = userId;
+
+  supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .single()
+    .then(({ data, error }) => {
+      _profileFetchingForUser = null;
+      if (error) {
+        console.warn("[useAuth] profile fetch failed:", error.message);
+        return;
+      }
+      if (data) {
+        useAuthStore.getState().setProfile(data as any);
+      }
+    });
+}
+
+function initAuth() {
+  if (_authInitialized) return;
+  _authInitialized = true;
+
+  // Register onAuthStateChange FIRST, but it will skip the initial
+  // INITIAL_SESSION event because _initialSessionHandled is false.
+  // This prevents the duplicate fetchProfile that caused Error #310.
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    (_event, session) => {
+      // Skip the INITIAL_SESSION event — getSession() handles it below.
+      // Supabase fires INITIAL_SESSION synchronously when onAuthStateChange
+      // is registered, which duplicates the getSession() result.
+      if (!_initialSessionHandled) return;
+
+      useAuthStore.setState({
+        session,
+        user: session?.user ?? null,
+      });
       if (session?.user) {
         fetchProfile(session.user.id);
+        const pending = getPendingAction();
+        if (pending) {
+          setTimeout(() => {
+            pending();
+            clearPendingAction();
+          }, 300);
+        }
+      } else {
+        useAuthStore.setState({ profile: null });
       }
-      setLoading(false);
-      setInitialized(true);
+    }
+  );
+
+  // Get initial session — single source of truth for first load.
+  // BATCH all updates into ONE set() call to minimize re-renders.
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    // Set initialized state in ONE atomic update
+    useAuthStore.setState({
+      session,
+      user: session?.user ?? null,
+      isLoading: false,
+      isInitialized: true,
     });
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-        if (session?.user) {
-          fetchProfile(session.user.id);
-          // Resume pending action after successful auth (e.g. from guest → signed in)
-          const pending = getPendingAction();
-          if (pending) {
-            setTimeout(() => {
-              pending();
-              clearPendingAction();
-            }, 300);
-          }
-        } else {
-          setProfile(null);
-        }
-      }
-    );
+    // NOW allow onAuthStateChange to process future events
+    _initialSessionHandled = true;
 
-    return () => subscription.unsubscribe();
+    if (session?.user) {
+      fetchProfile(session.user.id);
+    }
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/*  useAuth — safe to call from any number of components.              */
+/*                                                                     */
+/*  Uses ONE useShallow selector (= ONE useSyncExternalStore sub)      */
+/*  instead of 8 individual selectors. This drastically reduces the    */
+/*  number of concurrent subscriptions and torn-read retries.          */
+/* ------------------------------------------------------------------ */
+
+export function useAuth() {
+  // ONE selector → ONE useSyncExternalStore subscription per component.
+  // useShallow does a shallow-equal comparison on the returned object,
+  // so it only triggers a re-render if an actual field value changed.
+  const { session, user, profile, isLoading, isInitialized } =
+    useAuthStore(useShallow((s) => ({
+      session: s.session,
+      user: s.user,
+      profile: s.profile,
+      isLoading: s.isLoading,
+      isInitialized: s.isInitialized,
+    })));
+
+  // Initialize auth once on first mount of any useAuth() consumer.
+  const didInit = useRef(false);
+  useEffect(() => {
+    if (!didInit.current) {
+      didInit.current = true;
+      initAuth();
+    }
   }, []);
 
-  const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("id, username, display_name, avatar_url, bio, ribbon_balance, is_verified, onboarding_completed")
-      .eq("id", userId)
-      .single();
-
-    if (data && !error) {
-      setProfile(data);
-    }
-  };
-
+  // All callbacks use getState() inside the body for stable references.
+  // This means their useCallback deps are [] (empty), so they never change.
   const signInWithEmail = useCallback(
     async (email: string, password: string) => {
-      setLoading(true);
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      setLoading(false);
+      useAuthStore.getState().setLoading(true);
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      useAuthStore.getState().setLoading(false);
       return { data, error };
     },
     []
@@ -68,92 +133,87 @@ export function useAuth() {
 
   const signUpWithEmail = useCallback(
     async (email: string, password: string, username: string, displayName: string) => {
-      setLoading(true);
+      useAuthStore.getState().setLoading(true);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          data: { username, display_name: displayName },
-        },
+        options: { data: { username, display_name: displayName } },
       });
-      setLoading(false);
+      useAuthStore.getState().setLoading(false);
       return { data, error };
     },
     []
   );
 
   const signInWithApple = useCallback(async (identityToken: string) => {
-    setLoading(true);
-    const { data, error } = await supabase.auth.signInWithIdToken({
-      provider: "apple",
-      token: identityToken,
-    });
-    setLoading(false);
+    useAuthStore.getState().setLoading(true);
+    const { data, error } = await supabase.auth.signInWithIdToken({ provider: "apple", token: identityToken });
+    useAuthStore.getState().setLoading(false);
     return { data, error };
   }, []);
 
   const signInWithGoogle = useCallback(async (idToken: string) => {
-    setLoading(true);
-    const { data, error } = await supabase.auth.signInWithIdToken({
-      provider: "google",
-      token: idToken,
-    });
-    setLoading(false);
+    useAuthStore.getState().setLoading(true);
+    const { data, error } = await supabase.auth.signInWithIdToken({ provider: "google", token: idToken });
+    useAuthStore.getState().setLoading(false);
     return { data, error };
   }, []);
 
   const signInWithFacebook = useCallback(async (accessToken: string) => {
-    setLoading(true);
-    const { data, error } = await supabase.auth.signInWithIdToken({
-      provider: "facebook",
-      token: accessToken,
-    });
-    setLoading(false);
+    useAuthStore.getState().setLoading(true);
+    const { data, error } = await supabase.auth.signInWithIdToken({ provider: "facebook", token: accessToken });
+    useAuthStore.getState().setLoading(false);
     return { data, error };
   }, []);
 
-  const signInWithTwitter = useCallback(async (accessToken: string, accessTokenSecret?: string) => {
-    setLoading(true);
-    // X/Twitter uses OAuth 1.0a; Supabase supports the "twitter" provider
-    const { data, error } = await supabase.auth.signInWithIdToken({
-      provider: "twitter" as any,
-      token: accessToken,
-    });
-    setLoading(false);
+  const signInWithTwitter = useCallback(async (accessToken: string, _accessTokenSecret?: string) => {
+    useAuthStore.getState().setLoading(true);
+    const { data, error } = await supabase.auth.signInWithIdToken({ provider: "twitter" as any, token: accessToken });
+    useAuthStore.getState().setLoading(false);
     return { data, error };
   }, []);
 
   const resetPassword = useCallback(async (email: string) => {
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "foreverr://reset-password",
+      redirectTo: "eterrn://reset-password",
     });
     return { data, error };
   }, []);
 
   const signOut = useCallback(async () => {
     const { error } = await supabase.auth.signOut();
-    if (!error) reset();
+    if (!error) useAuthStore.getState().reset();
     return { error };
   }, []);
 
   const updateProfile = useCallback(
     async (updates: { username?: string; display_name?: string; avatar_url?: string; bio?: string }) => {
-      if (!user) return { error: new Error("Not authenticated") };
+      const currentUser = useAuthStore.getState().user;
+      const currentProfile = useAuthStore.getState().profile;
+      if (!currentUser) return { error: new Error("Not authenticated") };
       const { data, error } = await supabase
         .from("profiles")
         .update(updates)
-        .eq("id", user.id)
+        .eq("id", currentUser.id)
         .select()
         .single();
-      if (data && !error && profile) {
-        setProfile({ ...profile, ...data } as typeof profile);
+      if (data && !error && currentProfile) {
+        useAuthStore.getState().setProfile({ ...currentProfile, ...data } as typeof currentProfile);
       }
       return { data, error };
     },
-    [user, profile]
+    []
   );
 
-  return {
+  const refreshProfile = useCallback(() => {
+    const currentUser = useAuthStore.getState().user;
+    if (currentUser) fetchProfile(currentUser.id);
+  }, []);
+
+  // useMemo prevents creating a new object reference on every render.
+  // The deps are now ALL stable (callbacks have [] deps), so this
+  // only recalculates when actual auth state values change.
+  return useMemo(() => ({
     session,
     user,
     profile,
@@ -169,6 +229,7 @@ export function useAuth() {
     resetPassword,
     signOut,
     updateProfile,
-    refreshProfile: () => user && fetchProfile(user.id),
-  };
+    refreshProfile,
+  }), [session, user, profile, isLoading, isInitialized]);
+  // Note: callbacks omitted from deps because they have [] deps (never change)
 }

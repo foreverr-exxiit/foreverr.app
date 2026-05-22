@@ -5,6 +5,12 @@ import {
   useInfiniteQuery,
 } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
+import {
+  ACTION_CATEGORIES,
+  ACTION_LABELS,
+  CATEGORY_LABELS,
+  type EngagementCategory,
+} from "../services/engagement";
 
 const POINTS_KEY = "legacy-points";
 
@@ -215,5 +221,84 @@ export function usePointLeaderboard() {
       return (data ?? []) as unknown as LeaderboardEntry[];
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+// ============================================================
+// Engagement Summary (category breakdown + recent actions)
+// ============================================================
+
+export interface EngagementSummary {
+  totalPoints: number;
+  level: number;
+  levelName: string;
+  breakdown: Record<EngagementCategory, number>;
+  recentActions: Array<{
+    id: string;
+    actionType: string;
+    label: string;
+    points: number;
+    category: EngagementCategory;
+    createdAt: string;
+  }>;
+}
+
+export function useEngagementSummary(userId: string | undefined) {
+  return useQuery({
+    queryKey: [POINTS_KEY, "engagement-summary", userId],
+    queryFn: async (): Promise<EngagementSummary> => {
+      // Fetch balance
+      const { data: balance } = await supabase
+        .from("legacy_point_balances" as any)
+        .select("*")
+        .eq("user_id", userId!)
+        .maybeSingle();
+
+      const bal = balance as unknown as PointBalance | null;
+
+      // Fetch all point entries for category breakdown
+      const { data: allPoints } = await supabase
+        .from("legacy_points" as any)
+        .select("id, action_type, points, description, created_at")
+        .eq("user_id", userId!)
+        .order("created_at", { ascending: false })
+        .limit(200);
+
+      const entries = (allPoints ?? []) as unknown as PointEntry[];
+
+      // Build category breakdown
+      const breakdown: Record<EngagementCategory, number> = {
+        creation: 0,
+        content: 0,
+        social: 0,
+        engagement: 0,
+        achievement: 0,
+      };
+
+      for (const entry of entries) {
+        const category = ACTION_CATEGORIES[entry.action_type] ?? "engagement";
+        breakdown[category] += entry.points;
+      }
+
+      // Recent actions (last 5)
+      const recentActions = entries.slice(0, 5).map((entry) => ({
+        id: entry.id,
+        actionType: entry.action_type,
+        label: ACTION_LABELS[entry.action_type] ?? entry.description ?? entry.action_type,
+        points: entry.points,
+        category: ACTION_CATEGORIES[entry.action_type] ?? ("engagement" as EngagementCategory),
+        createdAt: entry.created_at,
+      }));
+
+      return {
+        totalPoints: bal?.total_earned ?? 0,
+        level: bal?.level ?? 1,
+        levelName: bal?.level_name ?? "Seedling",
+        breakdown,
+        recentActions,
+      };
+    },
+    enabled: !!userId,
+    staleTime: 60_000, // 1 minute
   });
 }

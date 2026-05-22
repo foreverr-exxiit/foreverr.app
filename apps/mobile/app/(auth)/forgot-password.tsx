@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { View, Alert, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
@@ -6,10 +7,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAuth, forgotPasswordSchema } from "@foreverr/core";
 import type { z } from "zod";
 type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
-import { Text, Input, Button, ScreenWrapper, ForeverrLogo } from "@foreverr/ui";
+import { Text, Input, Button, ScreenWrapper, EternLogo } from "@foreverr/ui";
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
+  const goBack = useCallback(() => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(auth)/login" as any);
+  }, [router]);
   const { resetPassword, isLoading } = useAuth();
 
   const { control, handleSubmit, formState: { errors } } = useForm<ForgotPasswordInput>({
@@ -25,7 +30,7 @@ export default function ForgotPasswordScreen() {
       Alert.alert(
         "Email Sent",
         "Check your inbox for a password reset link.",
-        [{ text: "OK", onPress: () => router.back() }]
+        [{ text: "OK", onPress: () => { if (router.canGoBack()) router.back(); else router.replace("/(auth)/login" as any); } }]
       );
     }
   };
@@ -33,9 +38,11 @@ export default function ForgotPasswordScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-gray-900">
       {/* Branded header */}
-      <View className="bg-brand-900 px-4 pb-4 pt-14 items-center">
-        <Pressable onPress={() => router.push("/(tabs)")}>
-          <ForeverrLogo width={550} variant="full" />
+      <View className="bg-brand-900 px-4 pb-6 pt-14 items-center">
+        <Pressable onPress={() => router.push("/(tabs)")} className="items-center">
+          <View className="mt-2">
+            <EternLogo width={1200} variant="full" />
+          </View>
         </Pressable>
       </View>
 
@@ -44,7 +51,7 @@ export default function ForgotPasswordScreen() {
           title="← Back"
           variant="ghost"
           size="sm"
-          onPress={() => router.back()}
+          onPress={goBack}
           className="self-start mb-6"
         />
 

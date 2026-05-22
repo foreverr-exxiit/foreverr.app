@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Platform, useColorScheme } from "react-native";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -40,7 +40,7 @@ function RootLayoutInner() {
   const router = useRouter();
   const segments = useSegments();
   const hasSeenOnboarding = useGuestStore((s) => s.hasSeenOnboarding);
-  const [onboardingChecked, setOnboardingChecked] = useState(false);
+  const onboardingCheckedRef = useRef(false);
 
   useEffect(() => {
     if (isInitialized) {
@@ -69,20 +69,41 @@ function RootLayoutInner() {
     return cleanup;
   }, [router]);
 
-  // Onboarding redirect — new guests who haven't seen onboarding get routed there once
+  // Onboarding / guest stories redirect — only fires once per app launch.
+  // Uses a ref (not state) so the guard takes effect synchronously, preventing
+  // infinite re-render loops caused by router.replace changing segments.
+  // IMPORTANT: Public content routes (memorial, events, etc.) are never
+  // redirected so unauthenticated users can view shared links.
   useEffect(() => {
-    if (!isInitialized || onboardingChecked) return;
+    if (!isInitialized || onboardingCheckedRef.current) return;
+
+    // Mark checked BEFORE any navigation to prevent re-entry
+    onboardingCheckedRef.current = true;
+
+    // Routes that should be publicly accessible without auth or onboarding
+    const publicRoutes = [
+      "lifecycle", "stories", "onboarding", "(auth)", "explore",
+      "events", "directory", "marketplace", "user", "living-tribute",
+      "donate", "lifecycle", "wedding", "pet",
+    ];
+    const currentRoute = segments[0] as string;
+    const isPublicRoute = publicRoutes.includes(currentRoute);
+
+    // Never redirect if already on a public content route (e.g. shared link)
+    if (isPublicRoute) return;
 
     if (
       features.onboardingEnabled &&
       !isAuthenticated &&
-      !hasSeenOnboarding &&
-      segments[0] !== "onboarding"
+      !hasSeenOnboarding
     ) {
+      // Brand-new guest → show onboarding first
       router.replace("/onboarding");
+    } else if (!isAuthenticated) {
+      // Returning guest (past onboarding) → immersive stories landing
+      router.replace("/stories");
     }
-    setOnboardingChecked(true);
-  }, [isInitialized, isAuthenticated, hasSeenOnboarding, onboardingChecked, segments]);
+  }, [isInitialized, isAuthenticated, hasSeenOnboarding]);
 
   if (!isInitialized) return null;
 
@@ -93,7 +114,7 @@ function RootLayoutInner() {
       <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="memorial" options={{ headerShown: false }} />
+        <Stack.Screen name="lifecycle" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ presentation: "modal" }} />
         <Stack.Screen name="onboarding" options={{ headerShown: false }} />
         <Stack.Screen name="memory-vault" />
@@ -104,6 +125,7 @@ function RootLayoutInner() {
         <Stack.Screen name="memory-prompts" />
         <Stack.Screen name="streaks" />
         <Stack.Screen name="seasonal-decorations" />
+        <Stack.Screen name="resources" options={{ headerShown: false }} />
         <Stack.Screen name="explore" options={{ headerShown: false }} />
         <Stack.Screen name="stories" options={{ headerShown: false }} />
         <Stack.Screen name="donate" options={{ headerShown: false }} />
@@ -126,7 +148,27 @@ function RootLayoutInner() {
         <Stack.Screen name="points" options={{ headerShown: false }} />
         <Stack.Screen name="trust" options={{ headerShown: false }} />
         <Stack.Screen name="import" options={{ headerShown: false }} />
-        <Stack.Screen name="lifecycle" options={{ headerShown: false }} />
+        <Stack.Screen name="announce" options={{ headerShown: false }} />
+        <Stack.Screen name="billing" options={{ headerShown: false }} />
+        <Stack.Screen name="timeline" options={{ headerShown: false }} />
+        <Stack.Screen name="milestones" options={{ headerShown: false }} />
+        <Stack.Screen name="photo-tags" options={{ headerShown: false }} />
+        <Stack.Screen name="settings" options={{ headerShown: false }} />
+        <Stack.Screen name="wedding" options={{ headerShown: false }} />
+        <Stack.Screen name="pet" options={{ headerShown: false }} />
+        <Stack.Screen name="quests" options={{ headerShown: false }} />
+        <Stack.Screen name="creator" options={{ headerShown: false }} />
+        <Stack.Screen name="services" options={{ headerShown: false }} />
+        <Stack.Screen name="honor-fundraiser" options={{ headerShown: false }} />
+        <Stack.Screen name="honor-day" options={{ headerShown: false }} />
+        <Stack.Screen name="licensing" options={{ headerShown: false }} />
+        <Stack.Screen name="channel" options={{ headerShown: false }} />
+        <Stack.Screen name="grief-coaching" options={{ headerShown: false }} />
+        <Stack.Screen name="celebrity" options={{ headerShown: false }} />
+        <Stack.Screen name="verification" options={{ headerShown: false }} />
+        <Stack.Screen name="stewardship" options={{ headerShown: false }} />
+        <Stack.Screen name="baby" options={{ headerShown: false }} />
+        <Stack.Screen name="relationship" options={{ headerShown: false }} />
       </Stack>
     </>
   );

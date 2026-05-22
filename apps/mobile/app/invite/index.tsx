@@ -1,5 +1,5 @@
 import { View, ScrollView, Pressable, ActivityIndicator, Alert } from "react-native";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Share } from "react-native";
@@ -8,7 +8,7 @@ import { useAuth, useMyInviteLinks, useCreateInviteLink, useInviteAnalytics } fr
 import { Text, InviteCard } from "@foreverr/ui";
 
 const INVITE_TYPES = [
-  { key: "app_invite", label: "Invite to Foreverr", icon: "person-add", color: "#7C3AED" },
+  { key: "app_invite", label: "Invite to ǝterrn", icon: "person-add", color: "#7C3AED" },
   { key: "memorial_contributor", label: "Memorial Contributor", icon: "flower", color: "#4A2D7A" },
   { key: "living_tribute_contributor", label: "Tribute Contributor", icon: "gift", color: "#059669" },
   { key: "family_tree_join", label: "Family Tree", icon: "people", color: "#2563EB" },
@@ -16,6 +16,10 @@ const INVITE_TYPES = [
 
 export default function InviteScreen() {
   const router = useRouter();
+  const goBack = useCallback(() => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(tabs)" as any);
+  }, [router]);
   const { user } = useAuth();
   const { data: invites, isLoading } = useMyInviteLinks(user?.id);
   const { data: analytics } = useInviteAnalytics(user?.id);
@@ -30,9 +34,9 @@ export default function InviteScreen() {
         creator_id: user.id,
         invite_type: selectedType,
       });
-      const url = `https://foreverr.app/invite/${link.invite_code}`;
+      const url = `https://eterrn.app/invite/${link.invite_code}`;
       await Share.share({
-        message: `Join me on Foreverr — a platform for honoring the people who matter most. ${url}`,
+        message: `Join me on ǝterrn — a platform for honoring the people who matter most. ${url}`,
         url,
       });
     } catch (err: any) {
@@ -52,7 +56,7 @@ export default function InviteScreen() {
     <ScrollView className="flex-1 bg-white dark:bg-gray-900">
       {/* Header */}
       <View className="flex-row items-center px-4 pt-14 pb-4">
-        <Pressable onPress={() => router.back()} className="mr-3">
+        <Pressable onPress={goBack} className="mr-3">
           <Ionicons name="arrow-back" size={24} color="#4A2D7A" />
         </Pressable>
         <Text className="text-xl font-sans-bold text-gray-900 dark:text-white flex-1">
@@ -142,7 +146,7 @@ export default function InviteScreen() {
           </View>
         ) : (
           (invites as any[]).map((invite) => {
-            const url = `https://foreverr.app/invite/${invite.invite_code}`;
+            const url = `https://eterrn.app/invite/${invite.invite_code}`;
             const typeLabel = INVITE_TYPES.find((t) => t.key === invite.invite_type)?.label ?? invite.invite_type;
             return (
               <InviteCard
@@ -157,7 +161,7 @@ export default function InviteScreen() {
                 onShare={async () => {
                   try {
                     await Share.share({
-                      message: `Join me on Foreverr: ${url}`,
+                      message: `Join me on ǝterrn: ${url}`,
                       url,
                     });
                   } catch {}

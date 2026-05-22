@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
+import { awardEngagementPoints } from "../services/engagement";
 import type { Database } from "../supabase/types";
 
 type InviteLink = Database["public"]["Tables"]["invite_links"]["Row"];
@@ -37,8 +38,12 @@ export function useCreateInviteLink() {
       if (error) throw error;
       return data as InviteLink;
     },
-    onSuccess: (_data, vars) => {
+    onSuccess: (data, vars) => {
       qc.invalidateQueries({ queryKey: [INVITE_KEY, "mine", vars.creator_id] });
+      // Award engagement points for creating an invite
+      if (vars.creator_id) {
+        awardEngagementPoints(vars.creator_id, "invite_user", { referenceId: (data as any)?.id });
+      }
     },
   });
 }

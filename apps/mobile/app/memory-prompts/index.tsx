@@ -70,8 +70,8 @@ export default function MemoryPromptsScreen() {
       <Stack.Screen
         options={{
           title: "Memory Prompts",
-          headerStyle: { backgroundColor: "#2D1B4E" },
-          headerTintColor: "#fff",
+          headerStyle: { backgroundColor: "#FFFFFF" },
+          headerTintColor: "#4A2D7A",
         }}
       />
 

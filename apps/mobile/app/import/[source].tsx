@@ -139,7 +139,7 @@ export default function SourceImportScreen() {
   const TARGET_TYPES = [
     { key: "memorial", label: "Memorial", icon: "flower" },
     { key: "living_tribute", label: "Living Tribute", icon: "heart" },
-    { key: "memory_vault", label: "Memory Vault", icon: "lock-closed" },
+    { key: "memory_vault", label: "The Core", icon: "lock-closed" },
     { key: "family_tree", label: "Family Tree", icon: "git-branch" },
     { key: "profile", label: "My Profile", icon: "person" },
   ] as const;
@@ -149,8 +149,8 @@ export default function SourceImportScreen() {
       <Stack.Screen
         options={{
           title: `Import from ${sourceLabel}`,
-          headerStyle: { backgroundColor: "#2D1B4E" },
-          headerTintColor: "#fff",
+          headerStyle: { backgroundColor: "#FFFFFF" },
+          headerTintColor: "#4A2D7A",
         }}
       />
 

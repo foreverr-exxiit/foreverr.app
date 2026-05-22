@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ── Remove default browser focus outlines on inputs (web) ── */
+input:focus,
+textarea:focus,
+select:focus,
+[contenteditable]:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Remove blue highlight on tap for all interactive elements (mobile web) */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Pressable / touchable focus ring removal */
+[role="button"]:focus,
+button:focus,
+a:focus {
+  outline: none !important;
+}

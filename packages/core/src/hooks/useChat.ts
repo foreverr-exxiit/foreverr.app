@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { supabase } from "../supabase/client";
+import { awardEngagementPoints } from "../services/engagement";
 import type { Json } from "../supabase/types";
 import type { ChatRoom, Message, ChatMember } from "../types/models";
 
@@ -89,6 +90,10 @@ export function useSendMessage() {
     onSuccess: (_data, vars) => {
       queryClient.invalidateQueries({ queryKey: [MESSAGES_KEY, vars.roomId] });
       queryClient.invalidateQueries({ queryKey: [CHAT_ROOMS_KEY] });
+      // Award engagement points for sending a message
+      if (vars.senderId) {
+        awardEngagementPoints(vars.senderId, "send_message", { referenceId: vars.roomId });
+      }
     },
   });
 }

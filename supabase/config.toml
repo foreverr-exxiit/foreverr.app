@@ -16,8 +16,8 @@ major_version = 15
 port = 54323
 
 [auth]
-site_url = "foreverr://auth-callback"
-additional_redirect_urls = ["foreverr://auth-callback"]
+site_url = "eterrn://auth-callback"
+additional_redirect_urls = ["eterrn://auth-callback"]
 jwt_expiry = 3600
 enable_signup = true
 

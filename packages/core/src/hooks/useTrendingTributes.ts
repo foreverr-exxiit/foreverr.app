@@ -11,18 +11,20 @@ export function useTrendingTributes(limit = 20) {
         .select(`
           id,
           content,
-          tribute_type,
+          type,
+          media_url,
+          like_count,
+          comment_count,
           created_at,
-          reaction_count,
           memorial:memorials!tributes_memorial_id_fkey(
             id, first_name, last_name, date_of_birth, date_of_death,
-            profile_photo_url, slug
+            profile_photo_url, cover_photo_url, slug, lifecycle_stage
           ),
-          user:profiles!tributes_user_id_fkey(
+          user:profiles!tributes_author_id_fkey(
             id, display_name, username, avatar_url
           )
         `)
-        .order("reaction_count", { ascending: false })
+        .order("like_count", { ascending: false })
         .limit(limit);
 
       if (error) throw error;

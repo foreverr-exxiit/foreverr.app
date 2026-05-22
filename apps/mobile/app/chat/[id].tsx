@@ -1,12 +1,13 @@
 import { View, FlatList, TextInput, Pressable, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from "react-native";
 import { useState, useCallback } from "react";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useMessages, useSendMessage, useChatRealtime, useMarkChatRead, useAuth } from "@foreverr/core";
 import { Text, ChatBubble } from "@foreverr/ui";
 
 export default function ChatConversationScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const { user } = useAuth();
   const { data, isLoading, fetchNextPage, hasNextPage } = useMessages(id);
   const sendMessage = useSendMessage();
@@ -64,6 +65,7 @@ export default function ChatConversationScreen() {
             timestamp={item.created_at}
             isOwn={item.sender_id === user?.id}
             type={item.type}
+            onPressSender={() => item.sender_id && router.push(`/user/${item.sender_id}` as any)}
             onLongPress={() =>
               setReplyTo({
                 id: item.id,

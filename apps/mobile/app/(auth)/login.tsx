@@ -5,15 +5,51 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuth, loginSchema } from "@foreverr/core";
+import { useAuth, loginSchema, supabase } from "@foreverr/core";
 import type { z } from "zod";
 type LoginInput = z.infer<typeof loginSchema>;
-import { Text, Input, Button, GoogleIcon, FacebookIcon, XIcon, AppleIcon, ForeverrLogo } from "@foreverr/ui";
+import { Text, Input, Button, GoogleIcon, FacebookIcon, XIcon, AppleIcon, EternLogo } from "@foreverr/ui";
+
+// Cross-platform alert that works on web + native
+function showAlert(title: string, message: string) {
+  if (Platform.OS === "web") {
+    window.alert(`${title}\n\n${message}`);
+  } else {
+    Alert.alert(title, message);
+  }
+}
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { signInWithEmail, signInWithApple, isLoading } = useAuth();
+  const { signInWithEmail, signUpWithEmail, signInWithApple, isLoading } = useAuth();
   const [rememberMe, setRememberMe] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  const handleDemoLogin = async () => {
+    setDemoLoading(true);
+    setAuthError(null);
+    try {
+      // Use anonymous sign-in — no email, no confirmation, no domain validation
+      const { data, error } = await supabase.auth.signInAnonymously();
+      if (error) {
+        // If anonymous auth is disabled, fall back to info message
+        if (error.message.toLowerCase().includes("anonymous")) {
+          setAuthError("Enable anonymous sign-ins: Supabase Dashboard > Auth > Providers > Anonymous Sign-Ins > Enable.");
+        } else {
+          setAuthError(`Demo login failed: ${error.message}`);
+        }
+        return;
+      }
+      if (data?.session) {
+        router.replace("/(tabs)");
+      }
+    } catch (err: any) {
+      setAuthError(err?.message ?? "Something went wrong. Please try again.");
+    } finally {
+      setDemoLoading(false);
+    }
+  };
 
   const { control, handleSubmit, formState: { errors } } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -21,9 +57,13 @@ export default function LoginScreen() {
   });
 
   const onSubmit = async (data: LoginInput) => {
+    setAuthError(null);
     const { error } = await signInWithEmail(data.email, data.password);
     if (error) {
-      Alert.alert("Sign In Failed", error.message);
+      setAuthError(error.message);
+      showAlert("Sign In Failed", error.message);
+    } else {
+      router.replace("/(tabs)");
     }
   };
 
@@ -49,9 +89,11 @@ export default function LoginScreen() {
   return (
     <View className="flex-1 bg-gray-50 dark:bg-gray-900">
       {/* Branded header */}
-      <View className="bg-brand-900 px-4 pb-4 pt-14 items-center">
-        <Pressable onPress={() => router.push("/(tabs)")}>
-          <ForeverrLogo width={550} variant="full" />
+      <View className="bg-brand-900 px-4 pb-6 pt-14 items-center">
+        <Pressable onPress={() => router.push("/(tabs)")} className="items-center">
+          <View className="mt-2">
+            <EternLogo width={1200} variant="full" />
+          </View>
         </Pressable>
       </View>
     <ScrollView
@@ -63,6 +105,20 @@ export default function LoginScreen() {
         <Text className="text-2xl font-sans-bold text-center text-gray-900 dark:text-white mb-8">
           Welcome Back!
         </Text>
+
+        {/* Inline error banner — visible on web where Alert.alert may not show */}
+        {authError && (
+          <Pressable
+            className="mb-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 flex-row items-start"
+            onPress={() => setAuthError(null)}
+          >
+            <Ionicons name="alert-circle" size={18} color="#ef4444" style={{ marginTop: 1 }} />
+            <Text className="ml-2 flex-1 text-sm font-sans text-red-700 dark:text-red-300">
+              {authError}
+            </Text>
+            <Ionicons name="close" size={16} color="#ef4444" />
+          </Pressable>
+        )}
 
         <View className="gap-5">
           {/* Email */}
@@ -198,6 +254,20 @@ export default function LoginScreen() {
             </Pressable>
           )}
         </View>
+
+        {/* Demo Login */}
+        <Pressable
+          className="mt-6 rounded-full border-2 border-dashed border-brand-300 dark:border-brand-600 py-3.5 items-center"
+          onPress={handleDemoLogin}
+          disabled={demoLoading || isLoading}
+        >
+          <View className="flex-row items-center gap-2">
+            <Ionicons name="flask-outline" size={18} color="#4A2D7A" />
+            <Text className="text-sm font-sans-semibold text-brand-700 dark:text-brand-300">
+              {demoLoading ? "Signing in..." : "Try Demo Account"}
+            </Text>
+          </View>
+        </Pressable>
 
         {/* Sign up link */}
         <View className="mt-8 flex-row justify-center">

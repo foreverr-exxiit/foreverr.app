@@ -28,8 +28,8 @@ export default function BadgesScreen() {
 
   // Group by category
   const categorized: Record<string, Array<{
-    def: typeof allDefinitions extends (infer U)[] ? U : never;
-    earned: typeof earnedBadges extends (infer U)[] ? U : never | null;
+    def: any;
+    earned: any;
   }>> = {};
 
   (allDefinitions ?? []).forEach((def) => {
@@ -54,8 +54,8 @@ export default function BadgesScreen() {
       <Stack.Screen
         options={{
           title: "Badges",
-          headerStyle: { backgroundColor: "#2D1B4E" },
-          headerTintColor: "#fff",
+          headerStyle: { backgroundColor: "#FFFFFF" },
+          headerTintColor: "#4A2D7A",
         }}
       />
 

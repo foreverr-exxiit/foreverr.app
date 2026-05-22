@@ -18,7 +18,7 @@ export function ShareCardPreview({
   subtitle,
   imageUrl,
   templateLayout = "standard",
-  backgroundColor = "#2D1B4E",
+  backgroundColor = "#111111",
   textColor = "#FFFFFF",
   onShare,
 }: ShareCardPreviewProps) {
@@ -59,7 +59,7 @@ export function ShareCardPreview({
             className="ml-1.5 text-[10px] font-sans-medium opacity-60"
             style={{ color: textColor }}
           >
-            foreverr.app
+            eterrn.app
           </Text>
         </View>
       </View>
@@ -85,7 +85,7 @@ export function ShareCardPreview({
             {subtitle}
           </Text>
         )}
-        <Text className="text-[10px] font-sans text-white/50 mt-2">foreverr.app</Text>
+        <Text className="text-[10px] font-sans text-white/50 mt-2">eterrn.app</Text>
       </View>
     </View>
   );
@@ -115,7 +115,7 @@ export function ShareCardPreview({
         className="text-[10px] font-sans text-center mt-3 opacity-50"
         style={{ color: textColor }}
       >
-        foreverr.app
+        eterrn.app
       </Text>
     </View>
   );
@@ -161,7 +161,7 @@ export function ShareCardPreview({
           className="text-[10px] font-sans text-center mt-3 opacity-50"
           style={{ color: textColor }}
         >
-          foreverr.app
+          eterrn.app
         </Text>
       </View>
     </View>

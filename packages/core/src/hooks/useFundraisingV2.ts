@@ -123,33 +123,20 @@ export function useFundraiserDetails(id: string | undefined) {
 }
 
 // ─── useDonateToFundraiser ────────────────────────────────────
-/** Donate to a fundraiser — increments raised_cents and donor_count */
+/** Donate to a fundraiser — atomically increments raised_cents and donor_count via RPC */
 export function useDonateToFundraiser() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (input: DonateInput) => {
-      // Get current values
-      const { data: campaign, error: fetchErr } = await supabase
-        .from("fundraise_campaigns_v2")
-        .select("raised_cents, donor_count")
-        .eq("id", input.fundraiserId)
-        .single() as any;
-
-      if (fetchErr) throw fetchErr;
-
-      const newRaised = (campaign?.raised_cents ?? 0) + input.amountCents;
-      const newDonors = (campaign?.donor_count ?? 0) + 1;
-
-      const { data, error } = await (supabase as any)
-        .from("fundraise_campaigns_v2")
-        .update({
-          raised_cents: newRaised,
-          donor_count: newDonors,
-        })
-        .eq("id", input.fundraiserId)
-        .select()
-        .single();
+      // Use atomic RPC to avoid race conditions on concurrent donations
+      const { data, error } = await (supabase as any).rpc(
+        "increment_fundraiser_donation",
+        {
+          p_fundraiser_id: input.fundraiserId,
+          p_amount_cents: input.amountCents,
+        }
+      );
 
       if (error) throw error;
       return data as any;

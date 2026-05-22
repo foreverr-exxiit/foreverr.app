@@ -19,19 +19,38 @@ interface DirectoryCardProps {
 }
 
 const TYPE_LABELS: Record<string, string> = {
+  // Memorial & End-of-Life
   funeral_home: "Funeral Home",
   cemetery: "Cemetery",
   crematorium: "Crematorium",
-  florist: "Florist",
-  catering: "Catering",
   monument_maker: "Monuments",
   grief_counselor: "Grief Counselor",
   estate_planner: "Estate Planner",
   transport: "Transport",
-  cleaning_service: "Cleaning",
+  // Birth & Baby
+  maternity: "Maternity",
+  doula_midwife: "Doula / Midwife",
+  baby_store: "Baby Store",
+  pediatrician: "Pediatrician",
+  // Wedding & Engagement
+  wedding_venue: "Wedding Venue",
+  wedding_planner: "Wedding Planner",
+  bridal_shop: "Bridal Shop",
+  jeweler: "Jeweler",
+  // Celebrations & Events
+  event_venue: "Event Venue",
+  event_planner: "Event Planner",
+  party_supplies: "Party Supplies",
+  entertainer: "Entertainer",
+  // Shared / Cross-lifecycle
+  florist: "Florist",
+  catering: "Catering",
   photographer: "Photographer",
+  videographer: "Videographer",
   musician: "Musician",
   celebrant: "Celebrant",
+  bakery: "Bakery",
+  cleaning_service: "Cleaning",
   other: "Other",
 };
 

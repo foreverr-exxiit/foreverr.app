@@ -17,7 +17,7 @@ const QR_CODES_KEY = "qr-codes";
 const PAGE_SIZE = 20;
 
 // ============================================================
-// Memory Vault Items
+// The Core Items
 // ============================================================
 
 /** Fetch vault items for a memorial */
@@ -169,7 +169,7 @@ export function useCreateTimeCapsule() {
 }
 
 // ============================================================
-// Legacy Letters
+// Core Letters
 // ============================================================
 
 /** Fetch legacy letters written by a user */

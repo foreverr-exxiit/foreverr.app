@@ -173,9 +173,9 @@ export function parseNotificationRoute(
 export function getRouteUrl(route: NotificationRoute): string {
   switch (route.type) {
     case "memorial":
-      return `/memorial/${route.memorialId}`;
+      return `/lifecycle/${route.memorialId}`;
     case "tribute":
-      return `/memorial/${route.memorialId}/wall`;
+      return `/lifecycle/${route.memorialId}/wall`;
     case "chat":
       return `/chat/${route.chatId}`;
     case "event":

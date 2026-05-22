@@ -21,6 +21,12 @@ const CATEGORY_ICONS: Record<string, { name: keyof typeof Ionicons.glyphMap; col
   anniversary: { name: "calendar", color: "#d97706" },
   memorial_news: { name: "newspaper", color: "#3b82f6" },
   platform_update: { name: "megaphone", color: "#059669" },
+  celebration: { name: "heart", color: "#EC4899" },
+  wedding: { name: "heart", color: "#EC4899" },
+  birth: { name: "happy", color: "#EC4899" },
+  birthday: { name: "gift", color: "#7C3AED" },
+  retirement: { name: "sunny", color: "#059669" },
+  graduation: { name: "school", color: "#2563EB" },
   general: { name: "information-circle", color: "#6b7280" },
 };
 
@@ -58,7 +64,7 @@ export function NewsCard({ item, onPress }: NewsCardProps) {
         )}
         <View className="flex-row items-center mt-1.5">
           {item.source_name && (
-            <Text className="text-[10px] font-sans-medium text-brand-700 mr-2">
+            <Text className="text-[10px] font-sans-medium text-brand-700 dark:text-brand-300 mr-2">
               {item.source_name}
             </Text>
           )}
@@ -66,8 +72,8 @@ export function NewsCard({ item, onPress }: NewsCardProps) {
             {timeAgo(item.published_at)}
           </Text>
           {item.is_featured && (
-            <View className="ml-2 px-1.5 py-0.5 rounded bg-brand-100">
-              <Text className="text-[8px] font-sans-semibold text-brand-700">Featured</Text>
+            <View className="ml-2 px-2 py-0.5 rounded" style={{ backgroundColor: "#4A2D7A" }}>
+              <Text className="text-[10px] font-sans-bold" style={{ color: "#FFFFFF" }}>FEATURED</Text>
             </View>
           )}
         </View>

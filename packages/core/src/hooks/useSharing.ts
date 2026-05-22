@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Share, Platform } from "react-native";
 import { supabase } from "../supabase/client";
 import type { Database } from "../supabase/types";
+import { awardEngagementPoints } from "../services/engagement";
 
 type ShareCard = Database["public"]["Tables"]["share_cards"]["Row"];
 type ShareCardInsert = Database["public"]["Tables"]["share_cards"]["Insert"];
@@ -10,7 +11,7 @@ type LegacyLink = Database["public"]["Tables"]["legacy_links"]["Row"];
 const SHARING_KEY = "sharing";
 const LEGACY_LINK_KEY = "legacy-links";
 
-const APP_BASE_URL = "https://foreverr.app";
+const APP_BASE_URL = "https://eterrn.app";
 
 // ============================================================
 // Generate share card data for any target
@@ -31,7 +32,7 @@ export function useGenerateShareCard(
     queryKey: [SHARING_KEY, "card", targetType, targetId],
     queryFn: async (): Promise<ShareCardData> => {
       if (!targetType || !targetId) {
-        return { shareUrl: APP_BASE_URL, ogTitle: "Foreverr", ogDescription: "Honor. Remember. Forever.", ogImageUrl: null };
+        return { shareUrl: APP_BASE_URL, ogTitle: "ǝterrn", ogDescription: "Honor. Remember. Forever.", ogImageUrl: null };
       }
 
       // Build share data based on target type
@@ -45,11 +46,11 @@ export function useGenerateShareCard(
           if (!data) break;
           const slug = data.slug || data.id;
           return {
-            shareUrl: `${APP_BASE_URL}/memorial/${slug}`,
-            ogTitle: `${data.first_name} ${data.last_name} — Memorial on Foreverr`,
+            shareUrl: `${APP_BASE_URL}/lifecycle/${slug}`,
+            ogTitle: `${data.first_name} ${data.last_name} — Memorial on ǝterrn`,
             ogDescription: data.obituary
               ? `${(data.obituary as string).slice(0, 150)}...`
-              : `Remember and honor ${data.first_name} ${data.last_name} on Foreverr`,
+              : `Remember and honor ${data.first_name} ${data.last_name} on ǝterrn`,
             ogImageUrl: data.profile_photo_url,
           };
         }
@@ -63,11 +64,11 @@ export function useGenerateShareCard(
           const memorial = data.memorials as any;
           const slug = memorial?.slug || data.memorial_id;
           return {
-            shareUrl: `${APP_BASE_URL}/memorial/${slug}`,
-            ogTitle: `Tribute for ${memorial?.first_name ?? ""} ${memorial?.last_name ?? ""} — Foreverr`,
+            shareUrl: `${APP_BASE_URL}/lifecycle/${slug}`,
+            ogTitle: `Tribute for ${memorial?.first_name ?? ""} ${memorial?.last_name ?? ""} — ǝterrn`,
             ogDescription: data.content
               ? `"${(data.content as string).slice(0, 150)}..."`
-              : "A heartfelt tribute on Foreverr",
+              : "A heartfelt tribute on ǝterrn",
             ogImageUrl: null,
           };
         }
@@ -81,8 +82,8 @@ export function useGenerateShareCard(
           const slug = data.legacy_link_slug || data.username || data.id;
           return {
             shareUrl: `${APP_BASE_URL}/${slug}`,
-            ogTitle: `${data.display_name} — Foreverr`,
-            ogDescription: data.bio || `View ${data.display_name}'s legacy on Foreverr`,
+            ogTitle: `${data.display_name} — ǝterrn`,
+            ogDescription: data.bio || `View ${data.display_name}'s legacy on ǝterrn`,
             ogImageUrl: data.avatar_url,
           };
         }
@@ -95,15 +96,15 @@ export function useGenerateShareCard(
           if (!data) break;
           return {
             shareUrl: `${APP_BASE_URL}/events/${data.id}`,
-            ogTitle: `${data.title} — Foreverr`,
-            ogDescription: data.description || "An event on Foreverr",
+            ogTitle: `${data.title} — ǝterrn`,
+            ogDescription: data.description || "An event on ǝterrn",
             ogImageUrl: null,
           };
         }
         case "badge": {
           return {
             shareUrl: `${APP_BASE_URL}/badges`,
-            ogTitle: "I earned a badge on Foreverr!",
+            ogTitle: "I earned a badge on ǝterrn!",
             ogDescription: "Join me in honoring and remembering those who matter most.",
             ogImageUrl: null,
           };
@@ -114,7 +115,7 @@ export function useGenerateShareCard(
 
       return {
         shareUrl: APP_BASE_URL,
-        ogTitle: "Foreverr",
+        ogTitle: "ǝterrn",
         ogDescription: "Honor. Remember. Forever.",
         ogImageUrl: null,
       };
@@ -174,8 +175,11 @@ export function useShareContent() {
 
       return shareResult;
     },
-    onSuccess: () => {
+    onSuccess: (_data, vars) => {
       queryClient.invalidateQueries({ queryKey: [SHARING_KEY] });
+      if (vars.userId) {
+        awardEngagementPoints(vars.userId, "share_content");
+      }
     },
   });
 }
@@ -209,7 +213,7 @@ export function useShareToStory() {
 }
 
 // ============================================================
-// Legacy Link — query user's vanity URL
+// Core Link — query user's vanity URL
 // ============================================================
 
 export function useLegacyLink(userId: string | undefined) {
@@ -229,7 +233,7 @@ export function useLegacyLink(userId: string | undefined) {
 }
 
 // ============================================================
-// Legacy Link — claim a vanity URL slug
+// Core Link — claim a vanity URL slug
 // ============================================================
 
 export function useCreateLegacyLink() {

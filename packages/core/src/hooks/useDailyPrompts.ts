@@ -67,15 +67,15 @@ export function usePromptResponsesList(promptId: string | undefined) {
   return useInfiniteQuery({
     queryKey: [PROMPT_KEY, "responses", promptId],
     queryFn: async ({ pageParam = 0 }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("user_prompt_responses")
-        .select("*")
+        .select("*, author:profiles!user_prompt_responses_user_id_fkey(id, display_name, username, avatar_url)")
         .eq("prompt_id", promptId!)
         .eq("is_public", true)
         .order("created_at", { ascending: false })
         .range(pageParam, pageParam + PAGE_SIZE - 1);
       if (error) throw error;
-      return { data: (data ?? []) as PromptResponse[], nextPage: (data ?? []).length === PAGE_SIZE ? pageParam + PAGE_SIZE : undefined };
+      return { data: (data ?? []) as any[], nextPage: (data ?? []).length === PAGE_SIZE ? pageParam + PAGE_SIZE : undefined };
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextPage,
@@ -150,14 +150,14 @@ export function usePromptFeed() {
   return useInfiniteQuery({
     queryKey: [PROMPT_KEY, "feed"],
     queryFn: async ({ pageParam = 0 }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("user_prompt_responses")
-        .select("*")
+        .select("*, author:profiles!user_prompt_responses_user_id_fkey(id, display_name, username, avatar_url)")
         .eq("is_public", true)
         .order("created_at", { ascending: false })
         .range(pageParam, pageParam + PAGE_SIZE - 1);
       if (error) throw error;
-      return { data: (data ?? []) as PromptResponse[], nextPage: (data ?? []).length === PAGE_SIZE ? pageParam + PAGE_SIZE : undefined };
+      return { data: (data ?? []) as any[], nextPage: (data ?? []).length === PAGE_SIZE ? pageParam + PAGE_SIZE : undefined };
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextPage,

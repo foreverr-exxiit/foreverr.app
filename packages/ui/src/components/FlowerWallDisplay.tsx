@@ -23,7 +23,7 @@ function formatCompact(n: number): string {
   return n.toString();
 }
 
-function StatCircle({
+function StatPill({
   icon,
   iconColor,
   bgColor,
@@ -39,15 +39,15 @@ function StatCircle({
   return (
     <View className="items-center flex-1">
       <View
-        className="h-14 w-14 rounded-full items-center justify-center mb-1.5"
+        className="h-11 w-11 rounded-full items-center justify-center mb-1"
         style={{ backgroundColor: bgColor }}
       >
-        <Ionicons name={icon} size={24} color={iconColor} />
+        <Ionicons name={icon} size={20} color={iconColor} />
       </View>
-      <Text className="text-base font-sans-bold text-gray-900 dark:text-white">
+      <Text className="text-sm font-sans-bold text-gray-900 dark:text-white">
         {formatCompact(count)}
       </Text>
-      <Text className="text-xs font-sans text-gray-500 dark:text-gray-400">
+      <Text className="text-[10px] font-sans text-gray-400 dark:text-gray-500">
         {label}
       </Text>
     </View>
@@ -65,39 +65,39 @@ export function FlowerWallDisplay({
   const hasAmount = totalAmountCents > 0;
 
   return (
-    <View className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+    <View className="bg-white dark:bg-gray-800 rounded-3xl p-4 border border-gray-100 dark:border-gray-700">
       {/* Stat Circles Row */}
-      <View className="flex-row items-start justify-around mb-4">
-        <StatCircle
+      <View className="flex-row items-start justify-around mb-3">
+        <StatPill
           icon="flower"
           iconColor="#ec4899"
-          bgColor="rgba(236, 72, 153, 0.12)"
+          bgColor="rgba(236, 72, 153, 0.1)"
           count={totalFlowers}
           label="Flowers"
         />
-        <StatCircle
+        <StatPill
           icon="flame"
           iconColor="#d97706"
-          bgColor="rgba(217, 119, 6, 0.12)"
+          bgColor="rgba(217, 119, 6, 0.1)"
           count={totalCandles}
           label="Candles"
         />
-        <StatCircle
+        <StatPill
           icon="gift"
           iconColor="#7C3AED"
-          bgColor="rgba(124, 58, 237, 0.12)"
+          bgColor="rgba(124, 58, 237, 0.1)"
           count={totalGifts}
-          label="Total Gifts"
+          label="Gifts"
         />
       </View>
 
       {/* Total Amount */}
       {hasAmount && (
-        <View className="items-center mb-3">
-          <Text className="text-xs font-sans text-gray-400 dark:text-gray-500">
+        <View className="items-center mb-2.5 bg-gray-50 dark:bg-gray-700/50 rounded-full py-1.5 mx-6">
+          <Text className="text-[10px] font-sans text-gray-400 dark:text-gray-500">
             Total contributions
           </Text>
-          <Text className="text-lg font-sans-bold text-brand-700">
+          <Text className="text-sm font-sans-bold text-brand-700">
             ${(totalAmountCents / 100).toFixed(2)}
           </Text>
         </View>
@@ -105,29 +105,23 @@ export function FlowerWallDisplay({
 
       {/* Recent Gifts Horizontal List */}
       {recentGifts.length > 0 && (
-        <View className="border-t border-gray-100 dark:border-gray-700 pt-3 mt-1">
-          <Text className="text-xs font-sans-semibold text-gray-500 dark:text-gray-400 mb-2 px-1">
-            Recent Gifts
+        <View className="pt-2.5 mt-1">
+          <Text className="text-[10px] font-sans-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-1">
+            Recent
           </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {recentGifts.map((gift, idx) => (
               <View
                 key={idx}
-                className="items-center mr-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl px-3 py-2"
-                style={{ minWidth: 72 }}
+                className="items-center mr-2 bg-gray-50 dark:bg-gray-700/50 rounded-2xl px-2.5 py-1.5"
+                style={{ minWidth: 60 }}
               >
-                <Text style={{ fontSize: 22 }}>{gift.giftIcon}</Text>
+                <Text style={{ fontSize: 18 }}>{gift.giftIcon}</Text>
                 <Text
-                  className="text-[10px] font-sans-medium text-gray-700 dark:text-gray-300 mt-1"
+                  className="text-[9px] font-sans-medium text-gray-600 dark:text-gray-300 mt-0.5"
                   numberOfLines={1}
                 >
-                  {gift.isAnonymous ? "Anonymous" : gift.senderName}
-                </Text>
-                <Text
-                  className="text-[10px] font-sans text-gray-400"
-                  numberOfLines={1}
-                >
-                  {gift.giftName}
+                  {gift.isAnonymous ? "Anon" : gift.senderName}
                 </Text>
               </View>
             ))}
@@ -138,13 +132,13 @@ export function FlowerWallDisplay({
       {/* View All Button */}
       {onViewAll && (
         <Pressable
-          className="flex-row items-center justify-center gap-1 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700"
+          className="flex-row items-center justify-center gap-1 mt-3 pt-2.5 border-t border-gray-50 dark:border-gray-700"
           onPress={onViewAll}
         >
-          <Text className="text-sm font-sans-semibold text-brand-700">
-            View All Gifts
+          <Text className="text-xs font-sans-semibold text-brand-700">
+            View All
           </Text>
-          <Ionicons name="chevron-forward" size={16} color="#4A2D7A" />
+          <Ionicons name="chevron-forward" size={14} color="#4A2D7A" />
         </Pressable>
       )}
     </View>

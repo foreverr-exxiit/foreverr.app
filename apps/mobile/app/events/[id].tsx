@@ -1,7 +1,7 @@
-import { View, ScrollView, Pressable, Linking } from "react-native";
+import { View, ScrollView, Pressable, Linking, ActivityIndicator, Platform, Alert } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useEvent, useEventRsvps, useMyRsvp, useRsvp, useAuth } from "@foreverr/core";
+import { useEvent, useEventRsvps, useMyRsvp, useRsvp, useAuth, usePurchaseEventTicket, useEventTickets } from "@foreverr/core";
 import { Text, RsvpButton, DetailScreenSkeleton } from "@foreverr/ui";
 
 function formatDate(dateStr: string): string {
@@ -23,12 +23,43 @@ export default function EventDetailScreen() {
   const { data: rsvps } = useEventRsvps(id);
   const { data: myRsvp } = useMyRsvp(id, user?.id);
   const rsvpMutation = useRsvp();
+  const purchaseTicket = usePurchaseEventTicket();
+  const { data: tickets } = useEventTickets(id);
 
   if (isLoading || !event) {
     return <DetailScreenSkeleton />;
   }
 
   const goingCount = rsvps?.filter((r: any) => r.status === "going").length ?? 0;
+  const isTicketed = !!(event as any).is_ticketed;
+  const ticketPriceCents = (event as any).ticket_price_cents ?? 0;
+  const ticketLimit = (event as any).ticket_limit;
+  const ticketsSold = (event as any).tickets_sold ?? 0;
+  const userHasTicket = tickets?.some((t: any) => t.buyer_id === user?.id);
+  const ticketsSoldOut = ticketLimit && ticketsSold >= ticketLimit;
+
+  const handlePurchaseTicket = async () => {
+    if (!user?.id) {
+      const msg = "Please sign in to purchase tickets.";
+      Platform.OS === "web" ? window.alert(msg) : Alert.alert("Sign In Required", msg);
+      return;
+    }
+    try {
+      await purchaseTicket.mutateAsync({
+        event_id: event.id,
+        buyer_id: user.id,
+        amount_paid_cents: ticketPriceCents,
+        quantity: 1,
+      });
+      const msg = ticketPriceCents === 0
+        ? "You've reserved your free ticket!"
+        : `Ticket purchased for $${(ticketPriceCents / 100).toFixed(2)}!`;
+      Platform.OS === "web" ? window.alert(msg) : Alert.alert("Ticket Confirmed! 🎟️", msg);
+    } catch {
+      const msg = "Could not purchase ticket. Please try again.";
+      Platform.OS === "web" ? window.alert(msg) : Alert.alert("Error", msg);
+    }
+  };
 
   return (
     <ScrollView className="flex-1 bg-white dark:bg-gray-800" contentContainerStyle={{ paddingBottom: 40 }}>
@@ -92,6 +123,75 @@ export default function EventDetailScreen() {
         <View className="px-4 mt-6">
           <Text className="text-sm font-sans-semibold text-gray-900 dark:text-white mb-2">About</Text>
           <Text className="text-sm font-sans text-gray-600 dark:text-gray-400 leading-5">{event.description}</Text>
+        </View>
+      )}
+
+      {/* Ticket Purchase Section */}
+      {isTicketed && user && event.status !== "cancelled" && event.status !== "completed" && (
+        <View className="px-4 mt-6">
+          <View className="bg-brand-50 dark:bg-brand-900/20 rounded-2xl p-4">
+            <View className="flex-row items-center gap-2 mb-2">
+              <Ionicons name="ticket-outline" size={20} color="#4A2D7A" />
+              <Text className="text-sm font-sans-bold text-gray-900 dark:text-white">
+                Ticketed Event
+              </Text>
+            </View>
+
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-2xl font-sans-bold text-brand-700">
+                {ticketPriceCents === 0 ? "Free" : `$${(ticketPriceCents / 100).toFixed(2)}`}
+              </Text>
+              <Text className="text-xs font-sans text-gray-500">
+                {ticketsSold}{ticketLimit ? ` / ${ticketLimit}` : ""} tickets sold
+              </Text>
+            </View>
+
+            {/* Progress bar for ticket availability */}
+            {ticketLimit && ticketLimit > 0 && (
+              <View className="h-1.5 bg-gray-200 dark:bg-gray-600 rounded-full mb-3">
+                <View
+                  className="h-1.5 bg-brand-700 rounded-full"
+                  style={{ width: `${Math.min((ticketsSold / ticketLimit) * 100, 100)}%` }}
+                />
+              </View>
+            )}
+
+            {userHasTicket ? (
+              <View className="bg-green-100 dark:bg-green-900/30 rounded-xl py-3 items-center flex-row justify-center gap-2">
+                <Ionicons name="checkmark-circle" size={18} color="#059669" />
+                <Text className="text-sm font-sans-semibold text-green-700">You have a ticket!</Text>
+              </View>
+            ) : ticketsSoldOut ? (
+              <View className="bg-red-100 dark:bg-red-900/30 rounded-xl py-3 items-center flex-row justify-center gap-2">
+                <Ionicons name="close-circle" size={18} color="#dc2626" />
+                <Text className="text-sm font-sans-semibold text-red-700">Sold Out</Text>
+              </View>
+            ) : (
+              <Pressable
+                className={`rounded-xl py-3.5 items-center ${purchaseTicket.isPending ? "bg-brand-400" : "bg-brand-700"}`}
+                onPress={handlePurchaseTicket}
+                disabled={purchaseTicket.isPending}
+              >
+                {purchaseTicket.isPending ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <View className="flex-row items-center gap-2">
+                    <Ionicons name="ticket" size={18} color="#fff" />
+                    <Text className="text-sm font-sans-bold text-white">
+                      {ticketPriceCents === 0 ? "Reserve Free Ticket" : `Purchase Ticket — $${(ticketPriceCents / 100).toFixed(2)}`}
+                    </Text>
+                  </View>
+                )}
+              </Pressable>
+            )}
+
+            {/* 10% platform fee note */}
+            {ticketPriceCents > 0 && (
+              <Text className="text-[10px] font-sans text-gray-400 text-center mt-2">
+                10% platform fee supports memorial preservation
+              </Text>
+            )}
+          </View>
         </View>
       )}
 

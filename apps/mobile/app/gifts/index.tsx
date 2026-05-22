@@ -1,22 +1,28 @@
-import React, { useState } from "react";
-import { View, ScrollView, Pressable, ActivityIndicator, FlatList, Alert } from "react-native";
+import React, { useState, useCallback } from "react";
+import { View, ScrollView, Pressable, ActivityIndicator, FlatList } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuth, useGiftCatalogItems } from "@foreverr/core";
-import { Text } from "@foreverr/ui";
+import { useAuth, useGiftCatalogItems, getGiftEmoji, useMyPointBalance } from "@foreverr/core";
+import { Text, EternLogo } from "@foreverr/ui";
 
 const CATEGORIES = [
-  { key: null, label: "All", icon: "grid-outline" as const },
-  { key: "flowers", label: "Flowers", icon: "flower-outline" as const },
-  { key: "candles", label: "Candles", icon: "flame-outline" as const },
-  { key: "cards", label: "Cards", icon: "mail-outline" as const },
-  { key: "stuffed_animals", label: "Stuffed Animals", icon: "heart-outline" as const },
-  { key: "balloons", label: "Balloons", icon: "ellipse-outline" as const },
-  { key: "custom", label: "Custom", icon: "star-outline" as const },
+  { key: null,           label: "All",        emoji: "\u2728" },
+  { key: "celebrations", label: "Celebrate",  emoji: "\u{1F389}" },
+  { key: "baby",         label: "Baby",       emoji: "\u{1F476}" },
+  { key: "milestones",   label: "Turning Points", emoji: "\u{1F393}" },
+  { key: "flowers",      label: "Flowers",    emoji: "\u{1F339}" },
+  { key: "cards",        label: "Cards",      emoji: "\u{1F48C}" },
+  { key: "candles",      label: "Candles",    emoji: "\u{1F56F}\uFE0F" },
+  { key: "sympathy",     label: "Sympathy",   emoji: "\u{1F54A}\uFE0F" },
+  { key: "legacy",       label: "The Core",     emoji: "\u{1F331}" },
 ];
 
 export default function GiftCatalogScreen() {
   const router = useRouter();
+  const goBack = useCallback(() => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(tabs)" as any);
+  }, [router]);
   const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -28,78 +34,126 @@ export default function GiftCatalogScreen() {
     refetch,
   } = useGiftCatalogItems(selectedCategory ?? undefined);
 
+  const { data: pointBalance } = useMyPointBalance(user?.id);
+  const currentPoints = (pointBalance as any)?.current_balance ?? 0;
+
   const handleGiftPress = (item: any) => {
-    Alert.alert(
-      item.name,
-      `${item.description ?? "A beautiful gift to honor someone special."}\n\n${
-        item.price_cents > 0 ? `$${(item.price_cents / 100).toFixed(2)}` : "Free"
-      }`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Send This Gift",
-          onPress: () => {
-            // Navigate to a recipient picker or use the gift catalog sheet from the target's page
-            Alert.alert(
-              "Choose Recipient",
-              "To send this gift, visit a memorial, tribute, or user profile and tap 'Give Flowers'."
-            );
-          },
-        },
-      ]
-    );
+    router.push({
+      pathname: "/gifts/[targetType]/[targetId]",
+      params: { targetType: "memorial", targetId: "browse" },
+    } as any);
   };
 
-  const renderGiftItem = ({ item }: { item: any }) => (
-    <Pressable
-      className="flex-1 m-1.5 bg-white dark:bg-gray-800 rounded-2xl p-4 items-center border border-gray-100 dark:border-gray-700"
-      onPress={() => handleGiftPress(item)}
-    >
-      <View className="h-16 w-16 rounded-full bg-brand-50 dark:bg-brand-900/20 items-center justify-center mb-3">
-        <Ionicons
-          name={(item.icon ?? "gift") as any}
-          size={28}
-          color="#4A2D7A"
-        />
-      </View>
-      <Text
-        className="text-sm font-sans-semibold text-gray-900 dark:text-white text-center mb-1"
-        numberOfLines={2}
+  const renderGiftItem = ({ item }: { item: any }) => {
+    const emoji = getGiftEmoji(item.icon);
+    const pts = item.point_cost ?? 0;
+    const isFree = pts === 0;
+    const canAfford = currentPoints >= pts;
+
+    return (
+      <Pressable
+        className={`flex-1 m-1.5 rounded-2xl p-4 items-center border shadow-sm ${
+          item.is_premium
+            ? "bg-amber-50/50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-800/50"
+            : "bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700"
+        }`}
+        style={{
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 1 },
+          shadowOpacity: 0.05,
+          shadowRadius: 3,
+          elevation: 2,
+        }}
+        onPress={() => handleGiftPress(item)}
       >
-        {item.name}
-      </Text>
-      <View className="bg-brand-50 dark:bg-brand-900/30 rounded-full px-3 py-1 mt-1">
-        <Text className="text-xs font-sans-semibold text-brand-700 dark:text-brand-300">
-          {item.price_cents > 0 ? `$${(item.price_cents / 100).toFixed(2)}` : "Free"}
-        </Text>
-      </View>
-      {item.is_premium && (
-        <View className="absolute top-2 right-2 bg-amber-100 dark:bg-amber-900/30 rounded-full px-2 py-0.5">
-          <Text className="text-[8px] font-sans-bold text-amber-600">PREMIUM</Text>
+        {/* Large Emoji Icon */}
+        <View className="h-16 w-16 rounded-2xl bg-gray-50 dark:bg-gray-700 items-center justify-center mb-3">
+          <Text style={{ fontSize: 32 }}>{emoji}</Text>
         </View>
-      )}
-    </Pressable>
-  );
+
+        {/* Gift Name */}
+        <Text
+          className="text-sm font-sans-semibold text-gray-900 dark:text-white text-center mb-1"
+          numberOfLines={2}
+        >
+          {item.name}
+        </Text>
+
+        {/* Description */}
+        {item.description && (
+          <Text
+            className="text-[10px] font-sans text-gray-400 dark:text-gray-500 text-center mb-2"
+            numberOfLines={2}
+          >
+            {item.description}
+          </Text>
+        )}
+
+        {/* Point Cost Badge */}
+        <View
+          className={`flex-row items-center gap-1 rounded-full px-3 py-1 mt-auto ${
+            isFree
+              ? "bg-green-50 dark:bg-green-900/20"
+              : canAfford
+              ? "bg-amber-50 dark:bg-amber-900/20"
+              : "bg-red-50 dark:bg-red-900/20"
+          }`}
+        >
+          {!isFree && (
+            <Ionicons name="star" size={11} color={canAfford ? "#d97706" : "#ef4444"} />
+          )}
+          <Text
+            className={`text-xs font-sans-semibold ${
+              isFree
+                ? "text-green-600 dark:text-green-400"
+                : canAfford
+                ? "text-amber-700 dark:text-amber-400"
+                : "text-red-500"
+            }`}
+          >
+            {isFree ? "Free" : `${pts} pts`}
+          </Text>
+        </View>
+
+        {/* Premium Badge */}
+        {item.is_premium && (
+          <View className="absolute top-2 right-2 bg-amber-100 dark:bg-amber-900/30 rounded-full px-2 py-0.5">
+            <Text className="text-[8px] font-sans-bold text-amber-600">{"\u2728"} PREMIUM</Text>
+          </View>
+        )}
+      </Pressable>
+    );
+  };
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <View className="bg-white dark:bg-gray-800 px-4 pt-14 pb-4 border-b border-gray-100 dark:border-gray-700">
         <View className="flex-row items-center mb-4">
-          <Pressable onPress={() => router.back()} className="p-2 -ml-2">
+          <Pressable onPress={goBack} className="p-2 -ml-2">
             <Ionicons name="arrow-back" size={24} color="#4A2D7A" />
           </Pressable>
+          <View className="ml-2">
+            <EternLogo width={168} variant="icon" />
+          </View>
           <View className="flex-1 ml-2">
             <Text className="text-xl font-sans-bold text-gray-900 dark:text-white">
-              Give Them Their Flowers
+              Gift Shop
             </Text>
             <Text className="text-xs font-sans text-gray-500 mt-0.5">
-              Choose a meaningful gift to honor someone special
+              Celebrate life's moments — from birth to legacy
             </Text>
           </View>
-          <View className="h-10 w-10 rounded-full bg-brand-50 dark:bg-brand-900/20 items-center justify-center">
-            <Ionicons name="gift" size={20} color="#4A2D7A" />
-          </View>
+          {/* Points Balance */}
+          <Pressable
+            onPress={() => router.push("/points/buy" as any)}
+            className="flex-row items-center gap-1 bg-amber-50 dark:bg-amber-900/20 rounded-full px-3 py-2"
+          >
+            <Ionicons name="star" size={14} color="#d97706" />
+            <Text className="text-xs font-sans-bold text-amber-700 dark:text-amber-400">
+              {currentPoints}
+            </Text>
+          </Pressable>
         </View>
 
         {/* Category filter tabs */}
@@ -108,39 +162,51 @@ export default function GiftCatalogScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ gap: 8 }}
         >
-          {CATEGORIES.map((cat) => (
-            <Pressable
-              key={cat.key ?? "all"}
-              onPress={() => setSelectedCategory(cat.key)}
-              className={`flex-row items-center rounded-full px-4 py-2 ${
-                selectedCategory === cat.key
-                  ? "bg-brand-700"
-                  : "bg-gray-100 dark:bg-gray-700"
-              }`}
-            >
-              <Ionicons
-                name={cat.icon}
-                size={14}
-                color={selectedCategory === cat.key ? "#FFFFFF" : "#6B7280"}
-              />
-              <Text
-                className={`text-xs font-sans-medium ml-1.5 ${
-                  selectedCategory === cat.key
-                    ? "text-white"
-                    : "text-gray-600 dark:text-gray-300"
+          {CATEGORIES.map((cat) => {
+            const isActive = selectedCategory === cat.key;
+            return (
+              <Pressable
+                key={cat.key ?? "all"}
+                onPress={() => setSelectedCategory(cat.key)}
+                className={`flex-row items-center rounded-full px-4 py-2.5 ${
+                  isActive ? "bg-brand-700" : "bg-gray-100 dark:bg-gray-700"
                 }`}
               >
-                {cat.label}
-              </Text>
-            </Pressable>
-          ))}
+                <Text style={{ fontSize: 14 }}>{cat.emoji}</Text>
+                <Text
+                  className={`text-xs font-sans-semibold ml-1.5 ${
+                    isActive ? "text-white" : "text-gray-600 dark:text-gray-300"
+                  }`}
+                >
+                  {cat.label}
+                </Text>
+              </Pressable>
+            );
+          })}
         </ScrollView>
+      </View>
+
+      {/* How it works banner */}
+      <View className="mx-4 mt-3 mb-1 bg-brand-50 dark:bg-brand-900/20 rounded-2xl px-4 py-3 flex-row items-center gap-3">
+        <Ionicons name="star" size={20} color="#d97706" />
+        <View className="flex-1">
+          <Text className="text-xs font-sans-semibold text-brand-700 dark:text-brand-300">
+            Earn & spend points
+          </Text>
+          <Text className="text-[11px] font-sans text-brand-600/70 dark:text-brand-400/70 mt-0.5">
+            Free gifts cost nothing. Premium gifts use points earned through activity or purchased.
+          </Text>
+        </View>
+        <Pressable onPress={() => router.push("/points/buy" as any)}>
+          <Text className="text-xs font-sans-bold text-brand-700">Buy</Text>
+        </Pressable>
       </View>
 
       {/* Gift grid */}
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#4A2D7A" />
+          <Text className="text-sm font-sans text-gray-400 mt-3">Loading gifts...</Text>
         </View>
       ) : isError ? (
         <View className="flex-1 items-center justify-center px-8">
@@ -160,15 +226,13 @@ export default function GiftCatalogScreen() {
           data={(gifts as any[]) ?? []}
           numColumns={2}
           columnWrapperStyle={{ paddingHorizontal: 12 }}
-          contentContainerStyle={{ paddingTop: 12, paddingBottom: 100 }}
+          contentContainerStyle={{ paddingTop: 8, paddingBottom: 100 }}
           keyExtractor={(item: any) => item.id}
           renderItem={renderGiftItem}
           ListEmptyComponent={
             <View className="flex-1 items-center justify-center py-20 px-8">
-              <View className="h-16 w-16 rounded-full bg-gray-100 dark:bg-gray-800 items-center justify-center mb-4">
-                <Ionicons name="gift-outline" size={32} color="#D1D5DB" />
-              </View>
-              <Text className="text-lg font-sans-bold text-gray-400 mt-2">
+              <Text style={{ fontSize: 48 }}>{"\u{1F381}"}</Text>
+              <Text className="text-lg font-sans-bold text-gray-400 mt-4">
                 No gifts available
               </Text>
               <Text className="text-sm font-sans text-gray-400 text-center mt-1">
@@ -179,7 +243,7 @@ export default function GiftCatalogScreen() {
               {selectedCategory && (
                 <Pressable
                   onPress={() => setSelectedCategory(null)}
-                  className="mt-4 bg-gray-100 dark:bg-gray-800 rounded-xl px-5 py-2.5"
+                  className="mt-4 bg-gray-100 dark:bg-gray-800 rounded-full px-5 py-2.5"
                 >
                   <Text className="text-sm font-sans-medium text-gray-600 dark:text-gray-300">
                     Clear Filter

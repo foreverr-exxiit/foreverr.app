@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   View,
   ScrollView,
@@ -22,11 +22,15 @@ const STAGE_CTA: Record<string, string> = {
   preserve: "Start Preserving",
   support: "Send Support",
   remember: "Visit Memorials",
-  legacy: "Explore Legacies",
+  legacy: "Explore The Core",
 };
 
 export default function LifecycleScreen() {
   const router = useRouter();
+  const goBack = useCallback(() => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(tabs)" as any);
+  }, [router]);
   const { user } = useAuth();
   const { data: stages, isLoading } = useLifecycleStages();
 
@@ -37,7 +41,7 @@ export default function LifecycleScreen() {
       {/* Header */}
       <View className="flex-row items-center px-4 pt-3 pb-2">
         <TouchableOpacity
-          onPress={() => router.back()}
+          onPress={goBack}
           activeOpacity={0.7}
           className="w-10 h-10 rounded-full bg-neutral-200 dark:bg-neutral-800 items-center justify-center mr-3"
         >
@@ -46,7 +50,7 @@ export default function LifecycleScreen() {
           </Text>
         </TouchableOpacity>
         <Text className="text-xl font-bold text-neutral-900 dark:text-white">
-          Your Legacy Journey
+          Your ǝterrn Journey
         </Text>
       </View>
 
@@ -68,8 +72,8 @@ export default function LifecycleScreen() {
       >
         {/* Intro text */}
         <Text className="text-sm text-neutral-500 dark:text-neutral-400 mb-5 leading-5">
-          Life is a journey of connection. Foreverr helps you honor every stage
-          -- from celebrating life's milestones to preserving legacies that
+          Life is a journey of connection. ǝterrn helps you honor every stage
+          -- from celebrating life's turning points to preserving legacies that
           inspire future generations.
         </Text>
 

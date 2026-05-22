@@ -1,5 +1,5 @@
 import { View, ScrollView, Pressable, TextInput, Alert, ActivityIndicator } from "react-native";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
@@ -9,6 +9,10 @@ import { Text, LegacyProfileSection } from "@foreverr/ui";
 
 export default function EditLegacyScreen() {
   const router = useRouter();
+  const goBack = useCallback(() => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(tabs)/profile" as any);
+  }, [router]);
   const { user } = useAuth();
   const { data: profile, isLoading } = useLegacyProfile(user?.id);
   const { data: shareStats } = useUserShareStats(user?.id);
@@ -54,11 +58,11 @@ export default function EditLegacyScreen() {
     <ScrollView className="flex-1 bg-white dark:bg-gray-900">
       {/* Header */}
       <View className="flex-row items-center px-4 pt-14 pb-4">
-        <Pressable onPress={() => router.back()} className="mr-3">
+        <Pressable onPress={goBack} className="mr-3">
           <Ionicons name="arrow-back" size={24} color="#4A2D7A" />
         </Pressable>
         <Text className="text-xl font-sans-bold text-gray-900 dark:text-white flex-1">
-          Edit Legacy Profile
+          Edit Core Profile
         </Text>
       </View>
 
@@ -80,7 +84,7 @@ export default function EditLegacyScreen() {
         onShareProfile={async () => {
           if (slug) {
             await Share.share({
-              message: `Check out my legacy profile on Foreverr: https://foreverr.app/${slug}`,
+              message: `Check out my legacy profile on ǝterrn: https://eterrn.app/${slug}`,
             });
           }
         }}
@@ -109,17 +113,17 @@ export default function EditLegacyScreen() {
         </Text>
       </View>
 
-      {/* Legacy Link */}
+      {/* Core Link */}
       <View className="mx-4 mb-4">
         <Text className="text-sm font-sans-semibold text-gray-700 dark:text-gray-300 mb-2">
-          Legacy Link
+          Core Link
         </Text>
         <Text className="text-xs font-sans text-gray-400 mb-2">
           Claim a unique URL for your profile. Share it in your social media bios.
         </Text>
         <View className="flex-row items-center bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           <View className="bg-gray-100 dark:bg-gray-700 px-3 py-3">
-            <Text className="text-xs font-sans text-gray-500">foreverr.app/</Text>
+            <Text className="text-xs font-sans text-gray-500">eterrn.app/</Text>
           </View>
           <TextInput
             className="flex-1 px-3 py-3 text-sm font-sans text-gray-900 dark:text-white"
@@ -136,12 +140,12 @@ export default function EditLegacyScreen() {
           <Pressable
             className="mt-2"
             onPress={async () => {
-              await Clipboard.setStringAsync(`https://foreverr.app/${slug}`);
+              await Clipboard.setStringAsync(`https://eterrn.app/${slug}`);
               Alert.alert("Copied!", "Link copied to clipboard.");
             }}
           >
             <Text className="text-xs font-sans-medium text-brand-700">
-              Copy: foreverr.app/{slug}
+              Copy: eterrn.app/{slug}
             </Text>
           </Pressable>
         )}

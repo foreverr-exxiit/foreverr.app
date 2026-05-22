@@ -2,7 +2,7 @@ import { View, FlatList, Pressable, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth, useNotifications, useMarkRead, useMarkAllRead } from "@foreverr/core";
-import { Text, Button, ForeverrLogo } from "@foreverr/ui";
+import { Text, Button, EternLogo } from "@foreverr/ui";
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -38,6 +38,9 @@ const ICON_MAP: Record<string, { name: keyof typeof Ionicons.glyphMap; color: st
   import_complete: { name: "cloud-done", color: "#64748b" },
   fundraiser_donation: { name: "heart", color: "#ec4899" },
   celebrity_request_approved: { name: "star", color: "#D97706" },
+  living_tribute_message: { name: "gift", color: "#059669" },
+  appreciation_received: { name: "mail-open", color: "#8B5CF6" },
+  flowers_received: { name: "flower", color: "#EC4899" },
 };
 
 export default function NotificationsScreen() {
@@ -53,7 +56,9 @@ export default function NotificationsScreen() {
       <View className="flex-1 bg-white dark:bg-gray-900">
         <View className="bg-brand-900 px-4 pb-4 pt-14 items-center">
           <Pressable onPress={() => router.push("/(tabs)")}>
-            <ForeverrLogo width={550} variant="full" />
+            <View className="items-center">
+            <EternLogo width={960} variant="full" />
+          </View>
           </Pressable>
         </View>
         <View className="flex-1 items-center justify-center px-6">
@@ -64,7 +69,7 @@ export default function NotificationsScreen() {
             Stay in the Loop
           </Text>
           <Text className="text-sm font-sans text-gray-500 text-center mb-6 px-4">
-            Sign in to get notified when someone lights a candle, shares a tribute, or interacts with your memorials.
+            Sign in to get notified when someone sends flowers, shares a tribute, or interacts with your tributes.
           </Text>
           <Button
             title="Sign In"
@@ -81,10 +86,12 @@ export default function NotificationsScreen() {
     <View className="flex-1 bg-white dark:bg-gray-900">
       <View className="bg-brand-900 px-4 pb-3 pt-14">
         <Pressable onPress={() => router.push("/(tabs)")} className="items-center mb-2">
-          <ForeverrLogo width={550} variant="full" />
+          <View className="items-center">
+            <EternLogo width={960} variant="full" />
+          </View>
         </Pressable>
         <View className="flex-row items-center justify-between">
-          <Text className="text-lg font-sans-bold text-white">Notifications</Text>
+          <Text className="text-lg font-sans-bold text-white">Echoes</Text>
         {(notifications ?? []).some((n: any) => !n.is_read) && (
           <Pressable onPress={() => user?.id && markAllRead.mutate(user.id)}>
             <Text className="text-sm font-sans-medium text-white/80">Mark all read</Text>
@@ -127,7 +134,7 @@ export default function NotificationsScreen() {
             <View className="flex-1 items-center justify-center px-8">
               <Ionicons name="notifications-off-outline" size={48} color="#d1d5db" />
               <Text className="mt-3 text-center text-gray-500 text-sm font-sans">
-                No notifications yet. You'll be notified when{"\n"}someone interacts with your memorials.
+                No notifications yet. You'll be notified when{"\n"}someone interacts with your tributes and memorials.
               </Text>
             </View>
           }

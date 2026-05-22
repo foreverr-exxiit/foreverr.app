@@ -24,7 +24,7 @@ export function InviteContributorFlow({
   const [email, setEmail] = useState("");
   const [mode, setMode] = useState<"options" | "email">("options");
 
-  const shareUrl = inviteUrl ?? `https://foreverr.app/invite?type=${targetType}&id=${targetId}`;
+  const shareUrl = inviteUrl ?? `https://eterrn.app/invite?type=${targetType}&id=${targetId}`;
 
   const typeLabel =
     targetType === "memorial"
@@ -36,7 +36,7 @@ export function InviteContributorFlow({
   const handleShareLink = async () => {
     try {
       await Share.share({
-        message: `You're invited to contribute to ${targetName}'s ${typeLabel} on Foreverr! ${shareUrl}`,
+        message: `You're invited to contribute to ${targetName}'s ${typeLabel} on ǝterrn! ${shareUrl}`,
       });
     } catch {}
   };

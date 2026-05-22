@@ -94,6 +94,43 @@ export function useGenerateTribute() {
   });
 }
 
+/** AI Rewrite / Suggest — universal writing assistant for all compose screens */
+export function useAIRewrite() {
+  return useMutation({
+    mutationFn: async ({
+      content,
+      contextType,
+      tone = "warm",
+      mode = "suggest",
+      hint,
+      memorialId,
+      recipientName,
+    }: {
+      content?: string;
+      contextType: "tribute" | "appreciation_letter" | "legacy_letter" | "living_tribute" | "wall_message";
+      tone?: "warm" | "formal" | "celebratory" | "poetic";
+      mode?: "suggest" | "rewrite";
+      hint?: string;
+      memorialId?: string;
+      recipientName?: string;
+    }) => {
+      const { data, error } = await supabase.functions.invoke("ai-rewrite", {
+        body: {
+          content,
+          context_type: contextType,
+          tone,
+          mode,
+          hint,
+          memorial_id: memorialId,
+          recipient_name: recipientName,
+        },
+      });
+      if (error) throw error;
+      return data as { text: string; mode: string; context_type: string };
+    },
+  });
+}
+
 /** Run content moderation via Edge Function */
 export function useModerateContent() {
   return useMutation({

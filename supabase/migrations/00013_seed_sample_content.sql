@@ -8,8 +8,8 @@
 INSERT INTO auth.users (id, email, raw_user_meta_data, created_at, updated_at, instance_id, aud, role)
 VALUES (
   '00000000-0000-0000-0000-000000000001',
-  'system@foreverr.app',
-  '{"username": "foreverr_team", "display_name": "Foreverr Team"}',
+  'system@eterrn.app',
+  '{"username": "eterrn_team", "display_name": "ǝterrn Team"}',
   NOW(), NOW(),
   '00000000-0000-0000-0000-000000000000',
   'authenticated',
@@ -97,12 +97,12 @@ ON CONFLICT (id) DO NOTHING;
 -- Memorial Hosts
 -- ============================================================================
 
-INSERT INTO memorial_hosts (memorial_id, user_id, role) VALUES
-  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'owner'),
-  ('10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 'owner'),
-  ('10000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000001', 'owner'),
-  ('10000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000001', 'owner'),
-  ('10000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-000000000001', 'owner')
+INSERT INTO memorial_hosts (memorial_id, user_id, role, relationship) VALUES
+  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'owner', 'immediate_family'),
+  ('10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 'owner', 'immediate_family'),
+  ('10000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000001', 'owner', 'immediate_family'),
+  ('10000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000001', 'owner', 'immediate_family'),
+  ('10000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-000000000001', 'owner', 'immediate_family')
 ON CONFLICT DO NOTHING;
 
 
@@ -199,9 +199,9 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO reactions (id, user_id, target_type, target_id, reaction_type, created_at)
 SELECT
   gen_random_uuid(),
-  user_id,
+  user_id::uuid,
   'tribute',
-  tribute_id,
+  tribute_id::uuid,
   reaction_type,
   NOW() - (random() * INTERVAL '30 days')
 FROM (VALUES
@@ -292,7 +292,7 @@ INSERT INTO events (id, memorial_id, created_by, title, description, type, start
   '00000000-0000-0000-0000-000000000001',
   'Candle Lighting for Marcus',
   'Station 7 is hosting a community candle lighting ceremony in honor of Captain Marcus Rivera. We invite all who knew him to come share a memory and light a candle for our fallen hero.',
-  'candle_lighting',
+  'vigil',
   '2025-02-14 18:00:00+00',
   'Fire Station 7, 200 Main Street'
 )

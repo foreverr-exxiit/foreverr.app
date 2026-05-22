@@ -1,8 +1,9 @@
 import { View, ScrollView, Pressable } from "react-native";
+import { useCallback } from "react";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@foreverr/core";
-import { Text, Button, ForeverrLogo } from "@foreverr/ui";
+import { Text, Button, EternLogo } from "@foreverr/ui";
 
 const DONATION_OPTIONS = [
   {
@@ -41,6 +42,10 @@ const DONATION_OPTIONS = [
 
 export default function DonateScreen() {
   const router = useRouter();
+  const goBack = useCallback(() => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(tabs)" as any);
+  }, [router]);
   const { isAuthenticated } = useAuth();
 
   return (
@@ -48,7 +53,9 @@ export default function DonateScreen() {
       {/* Header */}
       <View className="bg-brand-900 px-4 pb-4 pt-14 items-center">
         <Pressable onPress={() => router.push("/(tabs)")}>
-          <ForeverrLogo width={550} variant="full" />
+          <View className="items-center">
+            <EternLogo width={960} variant="full" />
+          </View>
         </Pressable>
       </View>
 
@@ -71,7 +78,7 @@ export default function DonateScreen() {
           {DONATION_OPTIONS.map((option, index) => (
             <Pressable
               key={index}
-              className="flex-row items-center rounded-xl bg-gray-50 dark:bg-gray-800 p-4 mb-3"
+              className="flex-row items-center rounded-2xl bg-gray-50 dark:bg-gray-800 p-4 mb-3"
               onPress={() => {
                 if (!isAuthenticated) {
                   router.push("/(auth)/login");
@@ -127,7 +134,7 @@ export default function DonateScreen() {
           />
           <Pressable
             className="mt-3 items-center py-3"
-            onPress={() => router.back()}
+            onPress={goBack}
           >
             <Text className="text-sm font-sans-medium text-gray-500">Go Back</Text>
           </Pressable>

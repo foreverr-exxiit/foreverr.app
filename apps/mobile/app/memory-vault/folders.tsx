@@ -65,8 +65,8 @@ export default function VaultFoldersScreen() {
       <Stack.Screen
         options={{
           title: "Manage Folders",
-          headerStyle: { backgroundColor: "#2D1B4E" },
-          headerTintColor: "#fff",
+          headerStyle: { backgroundColor: "#FFFFFF" },
+          headerTintColor: "#4A2D7A",
         }}
       />
 

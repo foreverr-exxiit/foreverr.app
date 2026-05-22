@@ -5,7 +5,7 @@ import * as Clipboard from "expo-clipboard";
 import { useAuth, useLegacyLink, useCreateLegacyLink } from "@foreverr/core";
 import { Text } from "@foreverr/ui";
 
-const APP_BASE_URL = "https://foreverr.app";
+const APP_BASE_URL = "https://eterrn.app";
 
 export default function LegacyLinkScreen() {
   const { user } = useAuth();
@@ -28,7 +28,7 @@ export default function LegacyLinkScreen() {
     try {
       await createLink.mutateAsync({ userId: user.id, slug: cleanSlug });
       setEditing(false);
-      Alert.alert("Claimed!", `Your legacy link is now foreverr.app/${cleanSlug}`);
+      Alert.alert("Claimed!", `Your legacy link is now eterrn.app/${cleanSlug}`);
     } catch (err: any) {
       Alert.alert("Error", err.message || "Could not claim this link. Try another.");
     }
@@ -37,7 +37,7 @@ export default function LegacyLinkScreen() {
   const handleCopy = async () => {
     if (currentSlug) {
       await Clipboard.setStringAsync(`${APP_BASE_URL}/${currentSlug}`);
-      Alert.alert("Copied!", "Your Legacy Link has been copied to clipboard.");
+      Alert.alert("Copied!", "Your Core Link has been copied to clipboard.");
     }
   };
 
@@ -57,10 +57,10 @@ export default function LegacyLinkScreen() {
           <Ionicons name="link" size={36} color="#e9d5ff" />
         </View>
         <Text className="text-xl font-sans-bold text-white text-center">
-          Your Legacy Link
+          Your Core Link
         </Text>
         <Text className="text-sm font-sans text-white/60 mt-2 text-center">
-          One link for all your social media bios.{"\n"}Share your Foreverr profile everywhere.
+          One link for all your social media bios.{"\n"}Share your ǝterrn profile everywhere.
         </Text>
       </View>
 
@@ -69,9 +69,9 @@ export default function LegacyLinkScreen() {
         {currentSlug && !editing ? (
           <>
             <View className="rounded-2xl bg-brand-50 dark:bg-brand-900/20 p-5 items-center">
-              <Text className="text-xs font-sans-semibold text-brand-700 mb-2">YOUR LEGACY LINK</Text>
+              <Text className="text-xs font-sans-semibold text-brand-700 mb-2">YOUR CORE LINK</Text>
               <Text className="text-lg font-sans-bold text-brand-900 dark:text-brand-100">
-                foreverr.app/{currentSlug}
+                eterrn.app/{currentSlug}
               </Text>
 
               <View className="flex-row gap-3 mt-4">
@@ -133,7 +133,7 @@ export default function LegacyLinkScreen() {
 
             <View className="flex-row items-center rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
               <View className="bg-gray-50 dark:bg-gray-800 px-3 py-3.5">
-                <Text className="text-sm font-sans-medium text-gray-400">foreverr.app/</Text>
+                <Text className="text-sm font-sans-medium text-gray-400">eterrn.app/</Text>
               </View>
               <TextInput
                 className="flex-1 px-3 py-3.5 text-sm font-sans text-gray-900 dark:text-white"
@@ -151,7 +151,7 @@ export default function LegacyLinkScreen() {
               <View className="mt-3 rounded-xl bg-green-50 dark:bg-green-900/20 p-3 flex-row items-center">
                 <Ionicons name="checkmark-circle" size={18} color="#059669" />
                 <Text className="ml-2 text-xs font-sans-medium text-green-700 dark:text-green-400">
-                  Preview: foreverr.app/{slug}
+                  Preview: eterrn.app/{slug}
                 </Text>
               </View>
             )}

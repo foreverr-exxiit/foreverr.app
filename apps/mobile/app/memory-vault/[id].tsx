@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   View,
   ScrollView,
@@ -162,6 +162,10 @@ function TypeSpecificContent({
 
 export default function VaultItemDetailScreen() {
   const router = useRouter();
+  const goBack = useCallback(() => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(tabs)" as any);
+  }, [router]);
   const { id, type, memorialId } = useLocalSearchParams<{
     id: string;
     type?: string;
@@ -185,7 +189,7 @@ export default function VaultItemDetailScreen() {
   const handleShare = async (title: string) => {
     try {
       await Share.share({
-        message: `Check out "${title}" in the Memory Vault on Foreverr`,
+        message: `Check out "${title}" in The Core on ǝterrn`,
       });
     } catch (_e) {
       // user cancelled
@@ -198,8 +202,8 @@ export default function VaultItemDetailScreen() {
         <Stack.Screen
           options={{
             title: "Loading...",
-            headerStyle: { backgroundColor: "#2D1B4E" },
-            headerTintColor: "#fff",
+            headerStyle: { backgroundColor: "#FFFFFF" },
+            headerTintColor: "#4A2D7A",
           }}
         />
         <View className="flex-1 items-center justify-center">
@@ -225,8 +229,8 @@ export default function VaultItemDetailScreen() {
         <Stack.Screen
           options={{
             title: capsule.title,
-            headerStyle: { backgroundColor: "#2D1B4E" },
-            headerTintColor: "#fff",
+            headerStyle: { backgroundColor: "#FFFFFF" },
+            headerTintColor: "#4A2D7A",
             headerRight: () => (
               <TouchableOpacity onPress={() => handleShare(capsule.title)} className="mr-2">
                 <Ionicons name="share-outline" size={22} color="#fff" />
@@ -341,7 +345,7 @@ export default function VaultItemDetailScreen() {
           style: "destructive",
           onPress: async () => {
             await deleteItem.mutateAsync(vaultItem.id);
-            router.back();
+            goBack();
           },
         },
       ]);
@@ -352,8 +356,8 @@ export default function VaultItemDetailScreen() {
         <Stack.Screen
           options={{
             title: vaultItem.title,
-            headerStyle: { backgroundColor: "#2D1B4E" },
-            headerTintColor: "#fff",
+            headerStyle: { backgroundColor: "#FFFFFF" },
+            headerTintColor: "#4A2D7A",
             headerRight: () => (
               <TouchableOpacity onPress={() => handleShare(vaultItem.title)} className="mr-2">
                 <Ionicons name="share-outline" size={22} color="#fff" />
@@ -469,14 +473,14 @@ export default function VaultItemDetailScreen() {
       <Stack.Screen
         options={{
           title: "Not Found",
-          headerStyle: { backgroundColor: "#2D1B4E" },
-          headerTintColor: "#fff",
+          headerStyle: { backgroundColor: "#FFFFFF" },
+          headerTintColor: "#4A2D7A",
         }}
       />
       <View className="flex-1 items-center justify-center px-8">
         <Ionicons name="alert-circle-outline" size={48} color="#d1d5db" />
         <Text className="text-gray-400 font-sans mt-3">Item not found</Text>
-        <TouchableOpacity onPress={() => router.back()} className="mt-4">
+        <TouchableOpacity onPress={goBack} className="mt-4">
           <Text className="text-sm font-sans-medium text-brand-700">Go Back</Text>
         </TouchableOpacity>
       </View>

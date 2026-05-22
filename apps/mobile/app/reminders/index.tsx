@@ -2,7 +2,7 @@ import { View, ScrollView, Pressable, TextInput, Alert, ActivityIndicator } from
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth, useMyReminders, useUpcomingReminders, useCreateReminder, useToggleReminder, useDeleteReminder } from "@foreverr/core";
-import { Text, ReminderCard } from "@foreverr/ui";
+import { Text, ReminderCard, DatePickerField, SelectField } from "@foreverr/ui";
 
 export default function RemindersScreen() {
   const { user } = useAuth();
@@ -15,6 +15,7 @@ export default function RemindersScreen() {
   const [showCreate, setShowCreate] = useState(false);
   const [title, setTitle] = useState("");
   const [reminderDate, setReminderDate] = useState("");
+  const [reminderType, setReminderType] = useState("custom");
 
   const handleCreate = async () => {
     if (!user?.id || !title.trim() || !reminderDate.trim()) {
@@ -25,7 +26,7 @@ export default function RemindersScreen() {
       await createReminder.mutateAsync({
         user_id: user.id,
         title: title.trim(),
-        reminder_type: "custom",
+        reminder_type: reminderType,
         reminder_date: reminderDate.trim(),
       });
       setTitle("");
@@ -86,6 +87,22 @@ export default function RemindersScreen() {
         {/* Create form */}
         {showCreate && (
           <View className="mx-4 mb-4 rounded-xl bg-gray-50 dark:bg-gray-800 p-4">
+            {/* Reminder Type */}
+            <SelectField
+              label="Reminder Type"
+              value={reminderType}
+              onChange={setReminderType}
+              variant="chips"
+              optional
+              options={[
+                { label: "Birthday", value: "birthday", emoji: "🎂" },
+                { label: "Anniversary", value: "anniversary", emoji: "🕯️" },
+                { label: "Holiday", value: "holiday", emoji: "📅" },
+                { label: "Memorial", value: "memorial", emoji: "🌸" },
+                { label: "Custom", value: "custom", emoji: "✏️" },
+              ]}
+            />
+
             <TextInput
               className="bg-white dark:bg-gray-700 rounded-xl px-4 py-2.5 text-sm font-sans text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600 mb-3"
               placeholder="Reminder title"
@@ -93,13 +110,20 @@ export default function RemindersScreen() {
               value={title}
               onChangeText={setTitle}
             />
-            <TextInput
-              className="bg-white dark:bg-gray-700 rounded-xl px-4 py-2.5 text-sm font-sans text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600 mb-3"
-              placeholder="Date (YYYY-MM-DD)"
-              placeholderTextColor="#9ca3af"
+
+            <DatePickerField
+              label="Reminder Date"
               value={reminderDate}
-              onChangeText={setReminderDate}
+              onChange={setReminderDate}
+              placeholder="When should we remind you?"
+              minimumDate={new Date()}
+              quickOptions={[
+                { label: "Tomorrow", value: new Date(Date.now() + 86400000).toISOString().split("T")[0] },
+                { label: "Next Week", value: new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0] },
+                { label: "Next Month", value: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0] },
+              ]}
             />
+
             <View className="flex-row gap-2">
               <Pressable
                 className="flex-1 rounded-full bg-gray-200 dark:bg-gray-600 py-2.5 items-center"

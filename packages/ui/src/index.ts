@@ -6,7 +6,12 @@ export { Button } from "./primitives/Button";
 // Components
 export { ScreenWrapper } from "./layouts/ScreenWrapper";
 export { TributeComposer } from "./components/TributeComposer";
-export { ReactionBar } from "./components/ReactionBar";
+export { ReactionBar, MEMORIAL_REACTIONS, CELEBRATION_REACTIONS } from "./components/ReactionBar";
+export type { ReactionDef } from "./components/ReactionBar";
+export { AmbientReactions } from "./components/AmbientReactions";
+export { SocialProofToast } from "./components/SocialProofToast";
+export { ViewerCountBadge } from "./components/ViewerCountBadge";
+export { EngagementPrompt } from "./components/EngagementPrompt";
 export {
   Skeleton,
   MemorialCardSkeleton,
@@ -16,9 +21,10 @@ export {
   CardGridSkeleton,
   DetailScreenSkeleton,
 } from "./components/Skeleton";
-export { ErrorBoundary, QueryError } from "./components/ErrorBoundary";
+export { ErrorBoundary, SectionErrorBoundary, QueryError } from "./components/ErrorBoundary";
 
 // AI Components
+export { AIRewriteButton } from "./components/AIRewriteButton";
 export { AIStyleSelector } from "./components/AIStyleSelector";
 export type { AIStyleOption } from "./components/AIStyleSelector";
 export { AIOutputPreview } from "./components/AIOutputPreview";
@@ -50,7 +56,7 @@ export { NFTCard } from "./components/NFTCard";
 // Live Room Components
 export { LiveRoomCard } from "./components/LiveRoomCard";
 
-// Memory Vault Components
+// The Core Components
 export { MemoryVaultCard } from "./components/MemoryVaultCard";
 export { TimeCapsuleCard } from "./components/TimeCapsuleCard";
 export { QRCodeCard } from "./components/QRCodeCard";
@@ -77,7 +83,7 @@ export { StreakCard } from "./components/StreakCard";
 export { SeasonalDecorationCard } from "./components/SeasonalDecorationCard";
 
 // Brand Components
-export { ForeverrLogo } from "./components/ForeverrLogo";
+export { EternLogo } from "./components/EternLogo";
 
 // Social Icon Components
 export { GoogleIcon, FacebookIcon, XIcon, AppleIcon } from "./components/SocialIcons";
@@ -106,10 +112,27 @@ export { ScrapbookElementToolbar } from "./components/ScrapbookElementToolbar";
 
 // Animation Components
 export { CandleAnimation } from "./components/CandleAnimation";
+export { HeartAnimation } from "./components/HeartAnimation";
+export { DoveAnimation } from "./components/DoveAnimation";
+export { BalloonAnimation } from "./components/BalloonAnimation";
+export { CheersAnimation } from "./components/CheersAnimation";
+export { FlowerAnimation } from "./components/FlowerAnimation";
+
+// Host & Stories Components
+export { HostSection } from "./components/HostSection";
+export { StoriesCarousel } from "./components/StoriesCarousel";
+
+// Smart Display Components
+export { DraggableSheet } from "./components/DraggableSheet";
+export { CollapsibleSection } from "./components/CollapsibleSection";
+export { ExpandableText } from "./components/ExpandableText";
 
 // Sharing Components
 export { ShareSheet } from "./components/ShareSheet";
 export { LegacyLinkCard } from "./components/LegacyLinkCard";
+
+// Profile Components
+export { ProfileInfoSheet } from "./components/ProfileInfoSheet";
 
 // Living Tribute Components
 export { LivingTributeCard } from "./components/LivingTributeCard";
@@ -141,7 +164,7 @@ export { GiftTransactionCard } from "./components/GiftTransactionCard";
 export { SendFlowersButton } from "./components/SendFlowersButton";
 export { GiveFlowersHero } from "./components/GiveFlowersHero";
 
-// Legacy Points Components
+// Core Points Components
 export { LegacyPointsBadge } from "./components/LegacyPointsBadge";
 export { PointsEarnedToast } from "./components/PointsEarnedToast";
 export { LevelProgressCard } from "./components/LevelProgressCard";
@@ -179,3 +202,57 @@ export { LifecycleQuickPicker } from "./components/LifecycleQuickPicker";
 export { LifecycleStagePicker } from "./components/LifecycleStagePicker";
 export { CelebrityRequestCard } from "./components/CelebrityRequestCard";
 export { DirectoryRegionMap } from "./components/DirectoryRegionMap";
+
+// Premium & Billing Components
+export { PaywallModal } from "./components/PaywallModal";
+
+// Form Components
+export { DatePickerField } from "./components/DatePickerField";
+export { SelectField } from "./components/SelectField";
+
+// Image Picker Components
+export { ImagePickerButton } from "./components/ImagePickerButton";
+
+// FAB Component
+export { CreateFAB, CREATE_OPTIONS } from "./components/CreateFAB";
+
+// Nearby/Proximity Components
+export { NearbyCard } from "./components/NearbyCard";
+export type { NearbyCardProps } from "./components/NearbyCard";
+
+// Welcome Journey & Gamification Components
+export { WelcomeJourneyBanner } from "./components/WelcomeJourneyBanner";
+export { CelebrationOverlay } from "./components/CelebrationOverlay";
+export { QuestCard } from "./components/QuestCard";
+
+// Creator Economy Components
+export { TipCreatorSheet } from "./components/TipCreatorSheet";
+export { SubscribeSheet } from "./components/SubscribeSheet";
+
+// Feed Components
+export { FeedCard } from "./components/FeedCard";
+
+// Stewardship Components
+export { TransferCard } from "./components/TransferCard";
+export { ValuationBadge } from "./components/ValuationBadge";
+export { StewardshipScoreBadge } from "./components/StewardshipScoreBadge";
+export { TransferNegotiationSheet } from "./components/TransferNegotiationSheet";
+
+// Feature Gate Components
+export { FeatureGateModal } from "./components/FeatureGateModal";
+
+// Baby Journey ("Little Arcs") Components
+export { BabyMilestoneCard } from "./components/BabyMilestoneCard";
+export { BabyStageProgress } from "./components/BabyStageProgress";
+
+// Relationship Lifecycle Components
+export { RelationshipTimelineCard } from "./components/RelationshipTimelineCard";
+
+// Lifecycle Profile Config
+export { getLifecycleConfig } from "./config/lifecycleProfileConfig";
+export type {
+  LifecycleProfileConfig,
+  LifecycleQuickAction,
+  LifecycleSupportButton,
+  LifecycleTab,
+} from "./config/lifecycleProfileConfig";
