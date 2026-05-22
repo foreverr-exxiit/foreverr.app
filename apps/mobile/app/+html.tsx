@@ -11,6 +11,63 @@ export default function Root({ children }: PropsWithChildren) {
           name="viewport"
           content="width=device-width, initial-scale=1, shrink-to-fit=no"
         />
+
+        {/* SEO / page metadata */}
+        <title>ǝterrn — Lifecycle memorials and celebrations</title>
+        <meta
+          name="description"
+          content="Capture every chapter — birth, milestones, weddings, pets, and memorialization. ǝterrn is a lifecycle social platform that honors and celebrates the people you love."
+        />
+        <meta name="theme-color" content="#4A2D7A" />
+        <link rel="canonical" href="https://eterrn.app/" />
+
+        {/* Open Graph — link previews on Facebook, Messenger, LinkedIn, iMessage */}
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="ǝterrn" />
+        <meta
+          property="og:title"
+          content="ǝterrn — Lifecycle memorials and celebrations"
+        />
+        <meta
+          property="og:description"
+          content="Capture every chapter — birth, milestones, weddings, pets, and memorialization. A lifecycle social platform that honors and celebrates the people you love."
+        />
+        <meta property="og:url" content="https://eterrn.app/" />
+        <meta
+          property="og:image"
+          content="https://eterrn.app/assets/images/eterrn-logo.png"
+        />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:locale" content="en_US" />
+
+        {/* Twitter / X card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+          name="twitter:title"
+          content="ǝterrn — Lifecycle memorials and celebrations"
+        />
+        <meta
+          name="twitter:description"
+          content="Capture every chapter — birth, milestones, weddings, pets, and memorialization."
+        />
+        <meta
+          name="twitter:image"
+          content="https://eterrn.app/assets/images/eterrn-logo.png"
+        />
+
+        {/* Apple mobile web app */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="default"
+        />
+        <meta name="apple-mobile-web-app-title" content="ǝterrn" />
+        <link
+          rel="apple-touch-icon"
+          href="/assets/images/eterrn-favicon.png"
+        />
+
         {/* Load @expo/vector-icons fonts from CDN for web */}
         <style dangerouslySetInnerHTML={{ __html: iconFontStyles }} />
         <ScrollViewStyleReset />

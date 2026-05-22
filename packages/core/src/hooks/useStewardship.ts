@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
+import { captureException } from "../services/errorReporting";
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -177,6 +178,14 @@ export function useInitiateTransfer() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [MY_TRANSFERS_KEY] });
       qc.invalidateQueries({ queryKey: [PAGE_TRANSFERS_KEY] });
+    },
+    onError: (err, vars) => {
+      captureException(err, {
+        where: "useStewardship.useInitiateTransfer",
+        page_type: (vars as any)?.pageType,
+        page_id: (vars as any)?.pageId,
+        transfer_type: (vars as any)?.transferType,
+      });
     },
   });
 }
@@ -721,6 +730,13 @@ export function useUpgradeGuardian() {
     },
     onSuccess: (_: any, vars: any) => {
       qc.invalidateQueries({ queryKey: [GUARDIAN_SUBSCRIPTION_KEY, vars.userId] });
+    },
+    onError: (err, vars: any) => {
+      captureException(err, {
+        where: "useStewardship.useUpgradeGuardian",
+        tier: vars?.tier,
+        user_id: vars?.userId,
+      });
     },
   });
 }

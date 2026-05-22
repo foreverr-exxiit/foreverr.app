@@ -12,6 +12,7 @@ export {
   useFollowedMemorials,
   useMemorial,
   useHostedMemorials,
+  useSoleOwnedMemorialCount,
   useMemorialHosts,
   useIsFollowing,
   useCreateMemorial,

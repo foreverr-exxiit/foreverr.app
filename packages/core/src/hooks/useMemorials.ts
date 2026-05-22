@@ -355,6 +355,59 @@ export function useHostedMemorials(userId: string | undefined) {
   });
 }
 
+/**
+ * Count memorials where the user is the **only owner** — i.e. pages
+ * that would lose their last manager if the user deleted their account.
+ * Used by the delete-account screen to surface a transfer-stewardship
+ * suggestion before confirming deletion.
+ *
+ * Returns 0 if the user has no ownerships, or if every page they own
+ * has at least one other 'owner' co-host.
+ */
+export function useSoleOwnedMemorialCount(userId: string | undefined) {
+  return useQuery({
+    queryKey: [MEMORIALS_KEY, "sole-owned-count", userId],
+    queryFn: async () => {
+      if (!userId) return 0;
+
+      // 1. memorials where I'm an owner
+      const { data: myOwnerships, error: ownErr } = await supabase
+        .from("memorial_hosts")
+        .select("memorial_id")
+        .eq("user_id", userId)
+        .eq("role", "owner");
+
+      if (ownErr) throw ownErr;
+      const myMemorialIds = (myOwnerships ?? []).map((r: any) => r.memorial_id);
+      if (myMemorialIds.length === 0) return 0;
+
+      // 2. all owners on those memorials (RLS allows public read)
+      const { data: allOwners, error: allErr } = await supabase
+        .from("memorial_hosts")
+        .select("memorial_id, user_id")
+        .in("memorial_id", myMemorialIds)
+        .eq("role", "owner");
+
+      if (allErr) throw allErr;
+
+      // 3. count memorials where I'm the only owner
+      const ownerCountByMemorial = new Map<string, number>();
+      for (const row of allOwners ?? []) {
+        const key = (row as any).memorial_id as string;
+        ownerCountByMemorial.set(key, (ownerCountByMemorial.get(key) ?? 0) + 1);
+      }
+
+      let soleCount = 0;
+      for (const id of myMemorialIds) {
+        if ((ownerCountByMemorial.get(id) ?? 0) === 1) soleCount++;
+      }
+      return soleCount;
+    },
+    enabled: !!userId,
+    staleTime: 60 * 1000, // 60s; user data changes rarely on this screen
+  });
+}
+
 /** Check if user follows a memorial */
 export function useIsFollowing(memorialId: string | undefined, userId: string | undefined) {
   return useQuery({

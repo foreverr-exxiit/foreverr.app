@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /settings/delete-account
+Disallow: /(auth)/
+
+Sitemap: https://eterrn.app/sitemap.xml

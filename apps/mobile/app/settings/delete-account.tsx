@@ -2,13 +2,14 @@ import { View, ScrollView, Pressable, TextInput, Alert, ActivityIndicator, Linki
 import { useState, useCallback } from "react";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuth, useMySubscription } from "@foreverr/core";
+import { useAuth, useMySubscription, useSoleOwnedMemorialCount } from "@foreverr/core";
 import { Text } from "@foreverr/ui";
 
 export default function DeleteAccountScreen() {
   const router = useRouter();
-  const { profile, deleteAccount } = useAuth();
+  const { profile, user, deleteAccount } = useAuth();
   const { data: subscription } = useMySubscription();
+  const { data: soleOwnedCount = 0 } = useSoleOwnedMemorialCount(user?.id);
   const [confirmText, setConfirmText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -97,6 +98,35 @@ export default function DeleteAccountScreen() {
           </Text>
         </View>
       </View>
+
+      {/* Sole-steward warning — pages where you're the only owner will
+          have no manager after deletion. Encourage transfer first. */}
+      {soleOwnedCount > 0 ? (
+        <View className="px-4 mt-4">
+          <View className="rounded-2xl border border-orange-200 dark:border-orange-900/40 bg-orange-50 dark:bg-orange-900/10 p-4">
+            <View className="flex-row items-center mb-2">
+              <Ionicons name="people-outline" size={22} color="#EA580C" />
+              <Text className="ml-2 text-base font-sans-bold text-orange-800 dark:text-orange-200">
+                You're the sole steward of {soleOwnedCount} {soleOwnedCount === 1 ? "page" : "pages"}
+              </Text>
+            </View>
+            <Text className="text-sm font-sans text-orange-800/90 dark:text-orange-100/80 leading-5 mb-3">
+              {soleOwnedCount === 1
+                ? "This page will lose its only manager when you delete. Tributes and content stay visible, but no one can add co-hosts or update it. Transfer stewardship first to keep it actively maintained."
+                : `These ${soleOwnedCount} pages will lose their only manager when you delete. Tributes and content stay visible, but no one can add co-hosts or update them. Transfer stewardship first to keep them actively maintained.`}
+            </Text>
+            <Pressable
+              className="flex-row items-center justify-center py-3 rounded-xl bg-orange-600"
+              onPress={() => router.push("/stewardship" as any)}
+            >
+              <Ionicons name="swap-horizontal-outline" size={18} color="#ffffff" />
+              <Text className="ml-2 text-sm font-sans-bold text-white">
+                Transfer stewardship
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      ) : null}
 
       {/* Active subscription warning — Apple won't let us cancel IAP
           server-side; surface this clearly so the user knows to cancel

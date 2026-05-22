@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
+import { captureException } from "../services/errorReporting";
 import { supabase } from "../supabase/client";
 import type { Database } from "../supabase/types";
 
@@ -138,6 +139,12 @@ export function useRespondToPromptDaily() {
     onSuccess: (_data, vars) => {
       queryClient.invalidateQueries({ queryKey: [PROMPT_KEY] });
       queryClient.invalidateQueries({ queryKey: ["engagement-streak"] });
+    },
+    onError: (err, vars) => {
+      captureException(err, {
+        where: "useDailyPrompts.useRespondToPromptDaily",
+        prompt_id: vars.promptId,
+      });
     },
   });
 }
