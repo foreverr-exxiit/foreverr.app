@@ -147,6 +147,9 @@ export const ACTION_CATEGORIES: Record<string, EngagementCategory> = {
   add_relationship_event: "content",
   update_relationship_status: "social",
   link_wedding_chapters: "social",
+
+  // Revenue
+  purchase: "achievement",
 };
 
 export const CATEGORY_LABELS: Record<EngagementCategory, string> = {

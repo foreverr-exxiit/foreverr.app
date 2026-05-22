@@ -53,8 +53,11 @@ export default function ValuationScreen() {
     inactivity_discount: -5,
   };
 
-  const totalScore = valuation?.total_score ?? Object.values(breakdown).reduce((sum: number, v: number) => sum + v, 0);
-  const maxComponent = Math.max(...Object.values(breakdown).map((v: number) => Math.abs(v)));
+  const breakdownValues = Object.values(breakdown) as number[];
+  const totalScore =
+    valuation?.total_score ??
+    breakdownValues.reduce((sum, v) => sum + v, 0);
+  const maxComponent = Math.max(...breakdownValues.map((v) => Math.abs(v)));
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: isDark ? "#111827" : "#f9fafb" }]}>
