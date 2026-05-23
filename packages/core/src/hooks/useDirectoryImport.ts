@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
+import { captureException } from "../services/errorReporting";
 
 /* ------------------------------------------------------------------ */
 /*  useDirectoryImportBatches — fetch all import batches               */
@@ -49,6 +50,14 @@ export function useStartDirectoryImport() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["directory-import-batches"] });
+    },
+    onError: (err, input) => {
+      captureException(err, {
+        where: "useDirectoryImport.useStartDirectoryImport",
+        source: input.source,
+        category: input.category,
+        total_listings: input.total_listings,
+      });
     },
   });
 }

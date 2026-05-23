@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
+import { captureException } from "../services/errorReporting";
 
 // ============================================================
 // GEDCOM Types
@@ -268,6 +269,16 @@ export function useImportGedcomToTree() {
       queryClient.invalidateQueries({ queryKey: ["family-trees"] });
       queryClient.invalidateQueries({ queryKey: ["tree-members"] });
       queryClient.invalidateQueries({ queryKey: ["tree-connections"] });
+    },
+    onError: (err, params) => {
+      // Bulk GEDCOM import failing midway can leave a partial tree
+      // (some members inserted, some not). High-priority diagnostic.
+      captureException(err, {
+        where: "useGedcomImport.useImportGedcomToTree",
+        tree_id: params.treeId,
+        individual_count: params.parsed?.individuals?.length ?? 0,
+        family_count: params.parsed?.families?.length ?? 0,
+      });
     },
   });
 }

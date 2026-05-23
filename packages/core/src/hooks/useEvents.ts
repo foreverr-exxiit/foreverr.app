@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
 import { awardEngagementPoints } from "../services/engagement";
+import { captureException } from "../services/errorReporting";
 import type { Event, EventRsvp, ImportantDate } from "../types/models";
 
 const EVENTS_KEY = "events";
@@ -120,6 +121,12 @@ export function useCreateEvent() {
       if (variables.createdBy) {
         awardEngagementPoints(variables.createdBy, "create_event", { referenceId: (data as any)?.id });
       }
+    },
+    onError: (err, variables: any) => {
+      captureException(err, {
+        where: "useEvents.useCreateEvent",
+        memorial_id: variables?.memorialId,
+      });
     },
   });
 }

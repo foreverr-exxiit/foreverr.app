@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
+import { captureException } from "../services/errorReporting";
 
 const IMPORT_JOBS_KEY = "import-jobs";
 const IMPORT_ITEMS_KEY = "import-items";
@@ -93,6 +94,14 @@ export function useStartImport() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [IMPORT_JOBS_KEY] });
+    },
+    onError: (err, params) => {
+      captureException(err, {
+        where: "useContentImport.useStartImport",
+        source_type: params.sourceType,
+        target_type: params.targetType,
+        total_items: params.totalItems,
+      });
     },
   });
 }

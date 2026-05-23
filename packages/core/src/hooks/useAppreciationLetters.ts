@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
+import { captureException } from "../services/errorReporting";
 import type { Database } from "../supabase/types";
 
 type AppreciationLetter = Database["public"]["Tables"]["appreciation_letters"]["Row"];
@@ -66,6 +67,12 @@ export function useCreateAppreciationLetter() {
     },
     onSuccess: (_data, vars) => {
       queryClient.invalidateQueries({ queryKey: [LETTER_KEY, "sent", vars.author_id] });
+    },
+    onError: (err, vars) => {
+      captureException(err, {
+        where: "useAppreciationLetters.useCreateAppreciationLetter",
+        author_id: vars.author_id,
+      });
     },
   });
 }

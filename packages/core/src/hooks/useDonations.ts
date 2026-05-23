@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
+import { captureException } from "../services/errorReporting";
 import type { FundraisingCampaign, Donation } from "../types/models";
 
 const CAMPAIGNS_KEY = "campaigns";
@@ -55,6 +56,13 @@ export function useCreateCampaign() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CAMPAIGNS_KEY] });
     },
+    onError: (err, vars) => {
+      captureException(err, {
+        where: "useDonations.useCreateCampaign",
+        memorial_id: vars.memorialId,
+        goal_cents: vars.goalCents,
+      });
+    },
   });
 }
 
@@ -105,6 +113,16 @@ export function useCreateDonation() {
     onSuccess: (_d, vars) => {
       queryClient.invalidateQueries({ queryKey: [DONATIONS_KEY, vars.campaignId] });
       queryClient.invalidateQueries({ queryKey: [CAMPAIGNS_KEY] });
+    },
+    onError: (err, vars) => {
+      // Donation row creation failure — money may have moved via Stripe
+      // already; this is a high-priority data-loss signal.
+      captureException(err, {
+        where: "useDonations.useCreateDonation",
+        campaign_id: vars.campaignId,
+        amount_cents: vars.amountCents,
+        is_anonymous: vars.isAnonymous ?? false,
+      });
     },
   });
 }

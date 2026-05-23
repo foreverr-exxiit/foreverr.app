@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
 import { awardEngagementPoints } from "../services/engagement";
+import { captureException } from "../services/errorReporting";
 import type { Database } from "../supabase/types";
 
 type Tables = Database["public"]["Tables"];
@@ -81,6 +82,9 @@ export function useCreateFamilyTree() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [FAMILY_TREES_KEY] });
+    },
+    onError: (err) => {
+      captureException(err, { where: "useFamilyTree.useCreateFamilyTree" });
     },
   });
 }
@@ -186,6 +190,12 @@ export function useAddTreeMember() {
       if (data.profile_id) {
         awardEngagementPoints(data.profile_id, "add_family_member", { referenceId: data.id });
       }
+    },
+    onError: (err, vars) => {
+      captureException(err, {
+        where: "useFamilyTree.useAddTreeMember",
+        tree_id: vars.treeId,
+      });
     },
   });
 }

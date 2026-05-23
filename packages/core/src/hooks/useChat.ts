@@ -2,6 +2,7 @@ import { useQuery, useMutation, useInfiniteQuery, useQueryClient } from "@tansta
 import { useEffect } from "react";
 import { supabase } from "../supabase/client";
 import { awardEngagementPoints } from "../services/engagement";
+import { captureException } from "../services/errorReporting";
 import type { Json } from "../supabase/types";
 import type { ChatRoom, Message, ChatMember } from "../types/models";
 
@@ -95,6 +96,13 @@ export function useSendMessage() {
         awardEngagementPoints(vars.senderId, "send_message", { referenceId: vars.roomId });
       }
     },
+    onError: (err, vars) => {
+      // Dropped chat messages are very user-visible — surface immediately.
+      captureException(err, {
+        where: "useChat.useSendMessage",
+        room_id: vars.roomId,
+      });
+    },
   });
 }
 
@@ -150,6 +158,13 @@ export function useCreateDM() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CHAT_ROOMS_KEY] });
+    },
+    onError: (err, params) => {
+      captureException(err, {
+        where: "useChat.useCreateDM",
+        user_id: params.userId,
+        other_user_id: params.otherUserId,
+      });
     },
   });
 }

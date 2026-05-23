@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
+import { captureException } from "../services/errorReporting";
 
 const FUNDRAISER_V2_KEY = "fundraise-campaigns-v2";
 
@@ -81,6 +82,12 @@ export function useCreateFundraiser() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [FUNDRAISER_V2_KEY] });
     },
+    onError: (err, input) => {
+      captureException(err, {
+        where: "useFundraisingV2.useCreateFundraiser",
+        memorial_id: input.memorialId,
+      });
+    },
   });
 }
 
@@ -146,6 +153,15 @@ export function useDonateToFundraiser() {
       if (data?.id) {
         queryClient.invalidateQueries({ queryKey: [FUNDRAISER_V2_KEY, "detail", data.id] });
       }
+    },
+    onError: (err, input) => {
+      // RPC failure on a donation: money may have moved via Stripe but
+      // our atomic counter didn't increment. Critical signal.
+      captureException(err, {
+        where: "useFundraisingV2.useDonateToFundraiser",
+        fundraiser_id: input.fundraiserId,
+        amount_cents: input.amountCents,
+      });
     },
   });
 }

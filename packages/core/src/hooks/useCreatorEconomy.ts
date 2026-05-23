@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
+import { captureException } from "../services/errorReporting";
 
 // ── Types ────────────────────────────────────────────────────
 export type CreatorTier = "rising" | "bronze" | "silver" | "gold" | "platinum" | "legend";
@@ -349,6 +350,14 @@ export function useCreateServiceOrder() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["service-orders"] });
     },
+    onError: (err, data) => {
+      captureException(err, {
+        where: "useCreatorEconomy.useCreateServiceOrder",
+        service_id: data.service_id,
+        creator_id: data.creator_id,
+        amount_cents: data.amount_cents,
+      });
+    },
   });
 }
 
@@ -470,6 +479,15 @@ export function useRequestPayout() {
       qc.invalidateQueries({ queryKey: ["creator-payouts"] });
       qc.invalidateQueries({ queryKey: ["creator-profile"] });
     },
+    onError: (err, data) => {
+      // Payout request failing means the creator can't get paid —
+      // they'll absolutely contact support, surface it pre-emptively.
+      captureException(err, {
+        where: "useCreatorEconomy.useRequestPayout",
+        creator_id: data.creator_id,
+        amount_cents: data.amount_cents,
+      });
+    },
   });
 }
 
@@ -551,6 +569,14 @@ export function useCreateHonorFundraiser() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["honor-fundraisers"] });
+    },
+    onError: (err, data) => {
+      captureException(err, {
+        where: "useCreatorEconomy.useCreateHonorFundraiser",
+        organizer_id: data.organizer_id,
+        memorial_id: data.memorial_id,
+        goal_cents: data.goal_cents,
+      });
     },
   });
 }
