@@ -643,6 +643,7 @@ export {
   setUser as setErrorReportingUser,
   captureException,
   captureMessage,
+  isErrorReportingActive,
 } from "./services/errorReporting";
 
 // Services — Deep Links

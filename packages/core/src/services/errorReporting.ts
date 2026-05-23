@@ -57,15 +57,25 @@ export function initErrorReporting(opts: InitOptions = {}): void {
     // package isn't installed yet. The wrapper degrades gracefully.
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     _sentry = require("@sentry/react-native");
+    const environment =
+      opts.environment ?? (__DEV__ ? "development" : "production");
     _sentry.init({
       dsn: opts.dsn,
-      environment: opts.environment ?? (__DEV__ ? "development" : "production"),
+      environment,
       release: opts.release,
       tracesSampleRate: opts.tracesSampleRate ?? 0.1,
       attachStacktrace: true,
       // Sensible defaults for a memorial app — don't send PII automatically.
       sendDefaultPii: false,
     });
+    if (__DEV__) {
+      // Mask all but the project ID so the DSN isn't echoed in logs.
+      // Format: https://<key>@<org>.ingest.sentry.io/<project-id>
+      const projectId = opts.dsn.split("/").pop() ?? "?";
+      console.log(
+        `[errorReporting] Sentry active — environment=${environment} project=${projectId}`,
+      );
+    }
   } catch (err) {
     _sentry = null;
     if (__DEV__) {
@@ -74,6 +84,14 @@ export function initErrorReporting(opts: InitOptions = {}): void {
       );
     }
   }
+}
+
+/**
+ * Diagnostic helper — true if Sentry is initialized and accepting events.
+ * Useful in startup logs or settings screens to verify configuration.
+ */
+export function isErrorReportingActive(): boolean {
+  return !!_sentry;
 }
 
 /**
@@ -130,4 +148,5 @@ export const errorReporting = {
   setUser,
   captureException,
   captureMessage,
+  isActive: isErrorReportingActive,
 };

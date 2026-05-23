@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
+import { captureException } from "../services/errorReporting";
 
 // ============================================================
 // Convert a living tribute into a memorial
@@ -67,6 +68,16 @@ export function useConvertLivingTributeToMemorial() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["living-tributes"] });
       qc.invalidateQueries({ queryKey: ["memorials"] });
+    },
+    onError: (err, input) => {
+      // Multi-step conversion — failure midway can leave a tribute
+      // partly-converted (memorial created but tribute not updated,
+      // or messages not copied). High-priority diagnostic.
+      captureException(err, {
+        where: "useConvertTribute.useConvertLivingTributeToMemorial",
+        tribute_id: input.tributeId,
+        user_id: input.userId,
+      });
     },
   });
 }

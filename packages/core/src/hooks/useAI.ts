@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
+import { captureException } from "../services/errorReporting";
 import type { AIGeneration } from "../types/models";
 
 const AI_KEY = "ai_generations";
@@ -46,6 +47,16 @@ export function useGenerateObituary() {
       queryClient.invalidateQueries({ queryKey: [AI_KEY, "list", vars.memorialId] });
       queryClient.invalidateQueries({ queryKey: ["memorials", "detail", vars.memorialId] });
     },
+    onError: (err, vars) => {
+      // AI generation failures: edge function timeout, OpenAI rate-limit,
+      // or content-moderation reject. All worth visibility — we may be
+      // billed for the call even if it fails.
+      captureException(err, {
+        where: "useAI.useGenerateObituary",
+        memorial_id: vars.memorialId,
+        style: vars.style,
+      });
+    },
   });
 }
 
@@ -67,6 +78,13 @@ export function useGenerateBiography() {
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: [AI_KEY, "list", vars.memorialId] });
       queryClient.invalidateQueries({ queryKey: ["memorials", "detail", vars.memorialId] });
+    },
+    onError: (err, vars) => {
+      captureException(err, {
+        where: "useAI.useGenerateBiography",
+        memorial_id: vars.memorialId,
+        style: vars.style,
+      });
     },
   });
 }
@@ -90,6 +108,12 @@ export function useGenerateTribute() {
     },
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: [AI_KEY, "list", vars.memorialId] });
+    },
+    onError: (err, vars) => {
+      captureException(err, {
+        where: "useAI.useGenerateTribute",
+        memorial_id: vars.memorialId,
+      });
     },
   });
 }

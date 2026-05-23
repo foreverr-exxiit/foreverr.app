@@ -7,6 +7,7 @@ import {
 import { useMemo } from "react";
 import { supabase } from "../supabase/client";
 import { awardEngagementPoints } from "../services/engagement";
+import { captureException } from "../services/errorReporting";
 
 const BABY_KEY = "baby-journey";
 const PAGE_SIZE = 20;
@@ -296,6 +297,16 @@ export function useCreateBabyPage() {
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: [BABY_KEY, "my-pages", variables.created_by] });
+    },
+    onError: (err, variables) => {
+      // Baby Journey involves minor data — extra-important to surface
+      // any insert failure so we can audit what made it through.
+      captureException(err, {
+        where: "useBabyJourney.useCreateBabyPage",
+        created_by: variables.created_by,
+        privacy: variables.privacy,
+        has_dob: !!variables.date_of_birth,
+      });
     },
   });
 }

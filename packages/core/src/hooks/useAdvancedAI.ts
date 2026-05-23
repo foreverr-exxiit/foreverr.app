@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../supabase/client";
+import { captureException } from "../services/errorReporting";
 
 /** Generate AI voice from text using ElevenLabs */
 export function useGenerateVoice() {
@@ -18,6 +19,16 @@ export function useGenerateVoice() {
       });
       if (error) throw error;
       return data as { audio_url: string; duration_seconds: number };
+    },
+    onError: (err, params) => {
+      // ElevenLabs is paid per character; failures still cost us. Capture
+      // text length so we can correlate cost vs error rate over time.
+      captureException(err, {
+        where: "useAdvancedAI.useGenerateVoice",
+        memorial_id: params.memorialId,
+        text_length: params.text?.length ?? 0,
+        custom_voice: !!params.voiceSampleUrl,
+      });
     },
   });
 }
@@ -39,6 +50,13 @@ export function usePhotoRestore() {
       });
       if (error) throw error;
       return data as { restored_url: string; before_url: string };
+    },
+    onError: (err, params) => {
+      captureException(err, {
+        where: "useAdvancedAI.usePhotoRestore",
+        memorial_id: params.memorialId,
+        restore_type: params.restoreType,
+      });
     },
   });
 }
@@ -62,6 +80,16 @@ export function useGenerateMemorialVideo() {
       });
       if (error) throw error;
       return data as { video_url: string; duration_seconds: number; thumbnail_url: string };
+    },
+    onError: (err, params) => {
+      // Video generation is the most expensive AI call; failures here
+      // are the worst per-event cost in the AI suite.
+      captureException(err, {
+        where: "useAdvancedAI.useGenerateMemorialVideo",
+        memorial_id: params.memorialId,
+        photo_count: params.photoUrls?.length ?? 0,
+        has_music: !!params.musicUrl,
+      });
     },
   });
 }
