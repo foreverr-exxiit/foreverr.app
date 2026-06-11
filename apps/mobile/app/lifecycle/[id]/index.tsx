@@ -159,7 +159,7 @@ export default function MemorialFeedScreen() {
                 counts={item.reaction_counts ?? {}}
                 userReactions={item.user_reactions ?? []}
                 memorialName={memorial ? `${memorial.first_name} ${memorial.last_name}` : ""}
-                onGiftPress={() => router.push(`/gifts/lifecycle/${id}` as any)}
+                onGiftPress={() => router.push(`/gifts/memorial/${id}` as any)}
               />
             </View>
           )}

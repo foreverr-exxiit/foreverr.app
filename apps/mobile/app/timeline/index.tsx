@@ -1,5 +1,6 @@
 import React from "react";
-import { View, ScrollView, Pressable, ActivityIndicator, Image } from "react-native";
+import { View, ScrollView, Pressable, ActivityIndicator } from "react-native";
+import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth, useLifeTimeline, useTimelineStats, useMemorial } from "@foreverr/core";

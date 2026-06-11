@@ -4,9 +4,9 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-  Image,
   Share,
 } from "react-native";
+import { Image } from "expo-image";
 import { useRouter, useLocalSearchParams, Stack } from "expo-router";
 import { Text, ScreenWrapper, Button } from "@foreverr/ui";
 import {

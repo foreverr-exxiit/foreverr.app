@@ -2,6 +2,8 @@ import { useQuery, useMutation, useInfiniteQuery, useQueryClient } from "@tansta
 import { supabase } from "../supabase/client";
 import { captureException } from "../services/errorReporting";
 
+declare const __DEV__: boolean;
+
 // ── Types ────────────────────────────────────────────────────
 
 export type TransferType =
@@ -796,7 +798,7 @@ export function useCreateStewardshipListing() {
       //   .single();
       // if (error) throw error;
       // return data as any;
-      console.warn("[useStewardship] stewardship_listings table not yet created");
+      if (__DEV__) console.warn("[useStewardship] stewardship_listings table not yet created");
       return params as any;
     },
     onSuccess: () => {
@@ -824,7 +826,7 @@ export function useApplyForStewardship() {
       //   .single();
       // if (error) throw error;
       // return data as any;
-      console.warn("[useStewardship] stewardship_applications table not yet created");
+      if (__DEV__) console.warn("[useStewardship] stewardship_applications table not yet created");
       return params as any;
     },
     onSuccess: () => {

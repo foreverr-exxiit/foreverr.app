@@ -82,7 +82,7 @@ function MemorialDetailContent() {
         requireAuth(() => router.push("/donate"));
         break;
       case "gifts":
-        requireAuth(() => router.push(`/gifts/lifecycle/${id}` as any));
+        requireAuth(() => router.push(`/gifts/memorial/${id}` as any));
         break;
       case "share":
         setShareVisible(true);
@@ -454,7 +454,7 @@ function MemorialDetailContent() {
               onReact={handleProfileReaction}
               counts={reactionData?.counts ?? {}}
               userReactions={reactionData?.userReactions ?? []}
-              onGiftPress={() => router.push(`/gifts/lifecycle/${id}` as any)}
+              onGiftPress={() => router.push(`/gifts/memorial/${id}` as any)}
             />
           </View>
 

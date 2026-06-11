@@ -1351,7 +1351,7 @@ function StoryCard({ story, isActive }: { story: StoryData; isActive: boolean })
     markInteracted();
     if (reaction.type === "gift" && story.memorialId) {
       mediumTap();
-      router.push(`/gifts/lifecycle/${story.memorialId}` as any);
+      router.push(`/gifts/memorial/${story.memorialId}` as any);
       return;
     }
 

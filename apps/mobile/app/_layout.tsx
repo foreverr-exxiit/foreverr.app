@@ -56,8 +56,10 @@ function RootLayoutInner() {
     }
   }, [isInitialized]);
 
-  // Push notification registration
+  // Push notification registration — native only.
+  // expo-notifications calls into native modules that throw on web.
   useEffect(() => {
+    if (Platform.OS === "web") return;
     if (!isAuthenticated || !user?.id) return;
 
     (async () => {
@@ -69,8 +71,9 @@ function RootLayoutInner() {
     })();
   }, [isAuthenticated, user?.id]);
 
-  // Push notification tap listener
+  // Push notification tap listener — native only (same reason).
   useEffect(() => {
+    if (Platform.OS === "web") return undefined;
     const cleanup = setupNotificationListeners((url) => {
       router.push(url as any);
     });

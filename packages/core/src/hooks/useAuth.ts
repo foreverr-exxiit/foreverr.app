@@ -6,6 +6,8 @@ import { getPendingAction, clearPendingAction } from "./useRequireAuth";
 import { analytics } from "../services/analytics";
 import { setUser as setErrorReportingUser, captureException } from "../services/errorReporting";
 
+declare const __DEV__: boolean;
+
 /* ------------------------------------------------------------------ */
 /*  Module-level singleton — auth listeners registered ONCE globally.  */
 /*  Prevents N components × N listeners = N² store mutations that      */
@@ -29,7 +31,8 @@ function fetchProfile(userId: string) {
     .then(({ data, error }) => {
       _profileFetchingForUser = null;
       if (error) {
-        console.warn("[useAuth] profile fetch failed:", error.message);
+        if (__DEV__) console.warn("[useAuth] profile fetch failed:", error.message);
+        captureException(error, { where: "useAuth.fetchProfile", userId });
         return;
       }
       if (data) {

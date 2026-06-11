@@ -3,6 +3,8 @@ import { Platform } from "react-native";
 import { supabase } from "../supabase/client";
 import { captureException } from "./errorReporting";
 
+declare const __DEV__: boolean;
+
 // ============================================================
 // Configuration (skip on web — push notifications are native-only)
 // ============================================================
@@ -35,7 +37,7 @@ export async function registerForPushNotifications(): Promise<string | null> {
     }
 
     if (finalStatus !== "granted") {
-      console.log("Push notification permission not granted");
+      if (__DEV__) console.log("Push notification permission not granted");
       return null;
     }
 
