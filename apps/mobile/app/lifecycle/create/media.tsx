@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuth, supabase, useWizardStore, analytics, captureException } from "@foreverr/core";
+import { useAuth, supabase, useWizardStore, analytics, captureException, useAutoSetupReminders } from "@foreverr/core";
 import type { Memorial } from "@foreverr/core";
 import { Text, EternLogo } from "@foreverr/ui";
 
@@ -22,6 +22,7 @@ export default function MediaScreen() {
   }, [router]);
   const { user } = useAuth();
   const { data, updateData, reset } = useWizardStore();
+  const autoSetupReminders = useAutoSetupReminders();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Inline feedback
@@ -112,6 +113,26 @@ export default function MediaScreen() {
         has_date_of_death: !!data.dateOfDeath,
         relationship: data.relationship || "unknown",
       });
+
+      // Auto-create birthday / anniversary reminders from the dates the
+      // user just entered. Non-blocking: a reminder failure must never
+      // break memorial creation — the memorial already exists.
+      if (data.dateOfBirth || data.dateOfDeath) {
+        autoSetupReminders
+          .mutateAsync({
+            user_id: user!.id,
+            memorial_id: memorial.id,
+            memorial_name: `${data.firstName} ${data.lastName || ""}`.trim(),
+            date_of_birth: data.dateOfBirth || undefined,
+            date_of_death: data.dateOfDeath || undefined,
+          })
+          .catch((remErr) =>
+            captureException(remErr, {
+              where: "lifecycle.create.media.autoSetupReminders",
+              memorial_id: memorial.id,
+            }),
+          );
+      }
 
       setResultId(memorial.id);
       setResultName(`${data.firstName} ${data.lastName || ""}`.trim());

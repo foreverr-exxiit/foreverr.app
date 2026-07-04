@@ -25,6 +25,7 @@ import {
   useWelcomeJourney,
   useClaimWelcomeReward,
   useIsNewUser,
+  useUpcomingAutoReminders,
 } from "@foreverr/core";
 import { Text, EternLogo, CelebrityCard, NewsCard, TodayInHistorySection, SuggestedUsersSection, CampaignBanner, DailyPromptCard, EngagementStreakBanner, Phase5HomeBanner, WarmGreetingHeader, NearbyCard, CollapsibleSection, WelcomeJourneyBanner, SectionErrorBoundary } from "@foreverr/ui";
 import { features } from "@foreverr/config";
@@ -82,6 +83,9 @@ export default function HomeScreen() {
   const { data: welcomeData } = useWelcomeJourney(user?.id);
   const { data: isNewUser } = useIsNewUser(user?.id);
   const claimWelcomeReward = useClaimWelcomeReward();
+
+  // Upcoming remembrances — birthdays / anniversaries in the next 30 days
+  const { data: upcomingReminders } = useUpcomingAutoReminders(user?.id, 30);
 
   // Proximity/location hooks
   const { location: userLocation, isLoading: locationLoading, requestLocation } = useUserLocation();
@@ -291,6 +295,81 @@ export default function HomeScreen() {
           </View>
         </ScrollView>
       </View>
+
+      {/* Upcoming Remembrances — birthdays & anniversaries ahead.
+          Deliberately gentle framing (no streaks/counters) per the
+          memorial context. */}
+      {isAuthenticated && (upcomingReminders?.length ?? 0) > 0 && (
+        <SectionErrorBoundary>
+          <View className="pt-5">
+            <View className="flex-row items-center px-4 mb-2">
+              <Ionicons name="calendar-outline" size={18} color="#7C3AED" />
+              <Text className="ml-2 text-base font-sans-bold text-gray-900 dark:text-white">
+                Upcoming Remembrances
+              </Text>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}
+            >
+              {(upcomingReminders ?? []).map((rem) => {
+                const eventDate = new Date(rem.next_trigger_date ?? Date.now());
+                eventDate.setDate(eventDate.getDate() + (rem.days_before ?? 0));
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                eventDate.setHours(0, 0, 0, 0);
+                const daysUntil = Math.max(
+                  0,
+                  Math.round((eventDate.getTime() - today.getTime()) / 86400000),
+                );
+                const when =
+                  daysUntil === 0 ? "Today" : daysUntil === 1 ? "Tomorrow" : `In ${daysUntil} days`;
+                const isRemembrance = rem.rule_type === "death_anniversary";
+                const icon = isRemembrance
+                  ? "flame-outline"
+                  : rem.rule_type === "wedding_anniversary"
+                    ? "heart-outline"
+                    : "gift-outline";
+                const tint = isRemembrance ? "#7C3AED" : "#D97706";
+                return (
+                  <Pressable
+                    key={rem.id}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${rem.title_template}, ${when.toLowerCase()}`}
+                    className="w-56 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 p-4"
+                    onPress={() => {
+                      if (rem.memorial_id) router.push(`/lifecycle/${rem.memorial_id}` as any);
+                      else router.push("/reminders" as any);
+                    }}
+                  >
+                    <View className="flex-row items-center justify-between mb-2">
+                      <View
+                        className="h-9 w-9 rounded-full items-center justify-center"
+                        style={{ backgroundColor: `${tint}1A` }}
+                      >
+                        <Ionicons name={icon as any} size={18} color={tint} />
+                      </View>
+                      <Text
+                        className="text-xs font-sans-bold"
+                        style={{ color: tint }}
+                      >
+                        {when}
+                      </Text>
+                    </View>
+                    <Text
+                      className="text-sm font-sans-semibold text-gray-900 dark:text-white"
+                      numberOfLines={2}
+                    >
+                      {rem.title_template}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          </View>
+        </SectionErrorBoundary>
+      )}
 
       {/* Happening Near You — Proximity-based content */}
       {features.proximityFeedEnabled && (
