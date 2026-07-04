@@ -147,7 +147,7 @@ function MemorialDetailContent() {
 
   // ── 3-dots menu actions ─────────────────────────────────────────
   const handleCopyLink = useCallback(async () => {
-    await Clipboard.setStringAsync(`https://eterrn.app/lifecycle/${id}`);
+    await Clipboard.setStringAsync(`https://foreverr-app.vercel.app/s/${id}`);
     setMenuVisible(false);
     Alert.alert("Copied!", "Memorial link copied to clipboard.");
   }, [id]);
@@ -655,12 +655,12 @@ function MemorialDetailContent() {
             targetId: id,
             title: shareCard?.ogTitle ?? fullName,
             message: shareCard?.ogDescription ?? `${config.shareMessage} ${fullName} on ǝterrn`,
-            url: shareCard?.shareUrl ?? `https://eterrn.app/lifecycle/${id}`,
+            url: shareCard?.shareUrl ?? `https://foreverr-app.vercel.app/s/${id}`,
             platform,
           });
         }}
         onCopyLink={async () => {
-          const url = shareCard?.shareUrl ?? `https://eterrn.app/lifecycle/${id}`;
+          const url = shareCard?.shareUrl ?? `https://foreverr-app.vercel.app/s/${id}`;
           await Clipboard.setStringAsync(url);
         }}
       />

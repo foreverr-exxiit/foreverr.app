@@ -83,21 +83,23 @@ describe("handleDeepLink — URL parsing", () => {
 });
 
 describe("generateDeepLink — share URL construction", () => {
-  it("constructs memorial URLs against the lifecycle route", () => {
+  // Links are generated against the live Vercel domain (eterrn.app DNS
+  // isn't pointed yet). Memorials use the /s/:id Open Graph preview route.
+  it("constructs memorial URLs against the /s Open Graph route", () => {
     expect(generateDeepLink("memorial", "abc-123")).toBe(
-      "https://eterrn.app/lifecycle/abc-123",
+      "https://foreverr-app.vercel.app/s/abc-123",
     );
   });
 
   it("constructs user profile URLs", () => {
     expect(generateDeepLink("user", "u-1")).toBe(
-      "https://eterrn.app/user/u-1",
+      "https://foreverr-app.vercel.app/user/u-1",
     );
   });
 
   it("constructs invite URLs", () => {
     expect(generateDeepLink("invite", "INV-99")).toBe(
-      "https://eterrn.app/invite/INV-99",
+      "https://foreverr-app.vercel.app/invite/INV-99",
     );
   });
 });

@@ -981,8 +981,8 @@ function SaveOptionsSheet({
 
   const handleCopyLink = useCallback(async () => {
     const url = story.memorialId
-      ? `https://eterrn.app/lifecycle/${story.memorialId}`
-      : `https://eterrn.app/stories/${story.id}`;
+      ? `https://foreverr-app.vercel.app/s/${story.memorialId}`
+      : `https://foreverr-app.vercel.app/stories/${story.id}`;
     try {
       if (Platform.OS === "web" && typeof navigator !== "undefined" && navigator.clipboard) {
         await navigator.clipboard.writeText(url);

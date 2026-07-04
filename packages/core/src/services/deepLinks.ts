@@ -133,11 +133,15 @@ export function handleDeepLink(url: string): string | null {
  * Generate a shareable deep link URL for a given app route.
  */
 export function generateDeepLink(type: string, id: string): string {
-  const BASE_URL = "https://eterrn.app";
+  // eterrn.app is not yet pointed at the deployment, so generated links
+  // use the live Vercel domain. parseDeepLink() still accepts eterrn.app
+  // for native universal links once DNS + associatedDomains go live.
+  const BASE_URL = "https://foreverr-app.vercel.app";
 
   switch (type) {
     case "memorial":
-      return `${BASE_URL}/lifecycle/${id}`;
+      // /s/:id serves rich Open Graph previews then redirects into the app.
+      return `${BASE_URL}/s/${id}`;
     case "user":
       return `${BASE_URL}/user/${id}`;
     case "invite":

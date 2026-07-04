@@ -11,7 +11,12 @@ type LegacyLink = Database["public"]["Tables"]["legacy_links"]["Row"];
 const SHARING_KEY = "sharing";
 const LEGACY_LINK_KEY = "legacy-links";
 
-const APP_BASE_URL = "https://eterrn.app";
+// NOTE: eterrn.app is not yet pointed at the deployment (DNS unresolved),
+// so shared links must use the live Vercel domain or they 404. Memorial /
+// tribute shares use the /s/:id route, which serves rich per-memorial
+// Open Graph tags (photo + name + years) for link previews and then
+// redirects into the app. See apps/mobile/api/s/[id].ts.
+const APP_BASE_URL = "https://foreverr-app.vercel.app";
 
 // ============================================================
 // Generate share card data for any target
@@ -46,7 +51,7 @@ export function useGenerateShareCard(
           if (!data) break;
           const slug = data.slug || data.id;
           return {
-            shareUrl: `${APP_BASE_URL}/lifecycle/${slug}`,
+            shareUrl: `${APP_BASE_URL}/s/${slug}`,
             ogTitle: `${data.first_name} ${data.last_name} — Memorial on ǝterrn`,
             ogDescription: data.obituary
               ? `${(data.obituary as string).slice(0, 150)}...`
@@ -64,7 +69,7 @@ export function useGenerateShareCard(
           const memorial = data.memorials as any;
           const slug = memorial?.slug || data.memorial_id;
           return {
-            shareUrl: `${APP_BASE_URL}/lifecycle/${slug}`,
+            shareUrl: `${APP_BASE_URL}/s/${slug}`,
             ogTitle: `Tribute for ${memorial?.first_name ?? ""} ${memorial?.last_name ?? ""} — ǝterrn`,
             ogDescription: data.content
               ? `"${(data.content as string).slice(0, 150)}..."`

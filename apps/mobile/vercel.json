@@ -62,6 +62,8 @@
     { "source": "/settings/language", "destination": "/settings/language.html" },
     { "source": "/settings", "destination": "/settings/index.html" },
 
+    { "source": "/s/:id", "destination": "/api/s/:id" },
+
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
