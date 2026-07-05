@@ -246,6 +246,8 @@ export function CreateFAB({ onOptionPress }: CreateFABProps) {
             </Text>
             <Pressable
               onPress={close}
+              accessibilityRole="button"
+              accessibilityLabel="Close create menu"
               style={({ pressed }) => [
                 styles.closeBtn,
                 { backgroundColor: isDark ? "#374151" : "#f3f4f6" },
@@ -267,6 +269,8 @@ export function CreateFAB({ onOptionPress }: CreateFABProps) {
                 {row.map((opt) => (
                   <Pressable
                     key={opt.key}
+                    accessibilityRole="button"
+                    accessibilityLabel={opt.title.replace(/\n/g, " ")}
                     onPress={() => {
                       close();
                       setTimeout(() => onOptionPress(opt.route), 220);
@@ -311,6 +315,9 @@ export function CreateFAB({ onOptionPress }: CreateFABProps) {
       {/* FAB button */}
       <Pressable
         onPress={toggle}
+        accessibilityRole="button"
+        accessibilityLabel={isExpanded ? "Close create menu" : "Create"}
+        accessibilityState={{ expanded: isExpanded }}
         style={({ pressed }) => [
           styles.fab,
           { bottom: FAB_BOTTOM },

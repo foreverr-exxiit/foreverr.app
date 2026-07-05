@@ -133,6 +133,28 @@ export const CELEBRATION_REACTIONS: ReactionDef[] = [
   },
 ];
 
+// ── Accessibility helpers ───────────────────────────────────────────
+// Icon-only reaction buttons need spoken labels so screen-reader users
+// (and this app spans every generation) know what each action does.
+
+function reactionA11yLabel(
+  reaction: ReactionDef,
+  count: number,
+  isActive: boolean,
+): string {
+  const base = reaction.label;
+  const state = isActive ? ", selected" : "";
+  const tally =
+    count > 0 ? `, ${count} ${count === 1 ? "reaction" : "reactions"}` : "";
+  return `${base}${state}${tally}`;
+}
+
+function reactionA11yHint(reaction: ReactionDef): string {
+  if (reaction.type === "gift") return "Opens gifts";
+  if (reaction.type === "candle") return "Light a candle in remembrance";
+  return `React with ${reaction.label.toLowerCase()}`;
+}
+
 // ── Component ───────────────────────────────────────────────────────
 
 interface ReactionBarProps {
@@ -256,6 +278,10 @@ export function ReactionBar({
             return (
               <Pressable
                 key={reaction.type}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isActive }}
+                accessibilityLabel={reactionA11yLabel(reaction, count, isActive)}
+                accessibilityHint={reactionA11yHint(reaction)}
                 className={`flex-row items-center gap-1 rounded-full px-2 py-1 ${
                   isActive ? "bg-gray-100 dark:bg-gray-800" : ""
                 }`}
@@ -293,6 +319,10 @@ export function ReactionBar({
           return (
             <Pressable
               key={reaction.type}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isActive }}
+              accessibilityLabel={reactionA11yLabel(reaction, count, isActive)}
+              accessibilityHint={reactionA11yHint(reaction)}
               className={`items-center py-1.5 px-3 rounded-full ${isActive ? "bg-gray-50 dark:bg-gray-800" : ""}`}
               onPress={() => handleReact(reaction)}
             >
