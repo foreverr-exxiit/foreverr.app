@@ -1,0 +1,6 @@
+{
+  "name": "eterrn-og-share",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Isolated Open Graph share-preview microservice for eterrn. No dependencies on purpose — keeps Vercel's npm install a trivial no-op, sidestepping the pnpm workspace:* protocol that breaks function builds in the main app project."
+}

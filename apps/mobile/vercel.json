@@ -62,7 +62,7 @@
     { "source": "/settings/language", "destination": "/settings/language.html" },
     { "source": "/settings", "destination": "/settings/index.html" },
 
-    { "source": "/s/:id", "destination": "/api/s/:id" },
+    { "source": "/s/:id", "destination": "https://og-share.vercel.app/s/:id" },
 
     { "source": "/(.*)", "destination": "/index.html" }
   ]
