@@ -1,13 +1,20 @@
 import { Tabs, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Platform, View, useColorScheme } from "react-native";
-import { lightTap } from "@foreverr/core";
+import { lightTap, useAuth, useMyPointBalance } from "@foreverr/core";
 import { CreateFAB } from "@foreverr/ui";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const router = useRouter();
+  const { user } = useAuth();
+  const { data: pointBalance } = useMyPointBalance(user?.id);
+  // Only gate once the real balance has loaded — undefined (guests, or
+  // while loading) makes CreateFAB show every option, so an established
+  // user never sees their unlocked options flash as "locked".
+  const currentLevel = pointBalance ? (pointBalance as any).level ?? 1 : undefined;
+  const currentPoints = (pointBalance as any)?.current_balance ?? 0;
 
   return (
     <View style={{ flex: 1 }}>
@@ -85,6 +92,9 @@ export default function TabLayout() {
       {/* Floating Action Button — replaces the old Create tab */}
       <CreateFAB
         onOptionPress={(route) => router.push(route as any)}
+        currentLevel={currentLevel}
+        currentPoints={currentPoints}
+        onViewProgress={() => router.push("/points" as any)}
       />
     </View>
   );

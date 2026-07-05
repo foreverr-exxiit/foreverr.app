@@ -13,6 +13,7 @@ import {
 const USE_NATIVE_DRIVER = Platform.OS !== "web";
 import { Ionicons } from "@expo/vector-icons";
 import { Text } from "../primitives/Text";
+import { FeatureGateModal } from "./FeatureGateModal";
 
 // ── The 9 create options ─────────────────────────────────────────────
 export const CREATE_OPTIONS = [
@@ -108,9 +109,39 @@ export const CREATE_OPTIONS = [
   },
 ] as const;
 
+// ── Progressive unlocking ───────────────────────────────────────────
+// Level each create option is gated behind (migration 00044). Level 1 =
+// the core creative acts a brand-new user reaches for; secondary/creator
+// options reveal as they engage. Creating a memorial stays Level 1.
+const OPTION_LEVELS: Record<string, number> = {
+  "living-tribute": 1,
+  memorial: 1,
+  announce: 1,
+  appreciation: 1,
+  vault: 1,
+  scrapbook: 2,
+  flowers: 2,
+  event: 2,
+  import: 2,
+  celebrity: 3,
+};
+
+// Level → minimum total Core Points, mirrors LEVEL_TIERS in
+// @foreverr/core's useFeatureAccess. Used for "N points to go".
+const LEVEL_MIN_POINTS: Record<number, number> = {
+  1: 0, 2: 100, 3: 500, 4: 2000, 5: 5000, 6: 15000, 7: 50000,
+};
+
 // ── Component ──────────────────────────────────────────────────────
 interface CreateFABProps {
   onOptionPress: (route: string) => void;
+  /** Current progressive-unlocking level. Omit (or undefined) to show
+      every option unlocked — used for guests / while level loads. */
+  currentLevel?: number;
+  /** Current total Core Points, for the unlock modal's "points to go". */
+  currentPoints?: number;
+  /** Routes to the points/progress screen from the unlock modal. */
+  onViewProgress?: () => void;
 }
 
 const FAB_BOTTOM = Platform.OS === "ios" ? 100 : 76;
@@ -124,10 +155,30 @@ const TILE_SIZE = Math.min(
   105
 );
 
-export function CreateFAB({ onOptionPress }: CreateFABProps) {
+export function CreateFAB({
+  onOptionPress,
+  currentLevel,
+  currentPoints = 0,
+  onViewProgress,
+}: CreateFABProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [gatedOption, setGatedOption] = useState<
+    (typeof CREATE_OPTIONS)[number] | null
+  >(null);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+
+  // A brand-new user (level 1) sees the core creative acts; higher-level
+  // options appear as they engage. If currentLevel is undefined (guest /
+  // still loading) nothing is gated — better to over-show than block.
+  const isLocked = useCallback(
+    (optKey: string): number | null => {
+      if (currentLevel == null) return null;
+      const req = OPTION_LEVELS[optKey] ?? 1;
+      return req > currentLevel ? req : null;
+    },
+    [currentLevel],
+  );
 
   const overlayOpacity = useRef(new Animated.Value(0)).current;
   const sheetTranslateY = useRef(new Animated.Value(500)).current;
@@ -266,12 +317,24 @@ export function CreateFAB({ onOptionPress }: CreateFABProps) {
           <View style={styles.grid}>
             {rows.map((row, rowIdx) => (
               <View key={rowIdx} style={styles.gridRow}>
-                {row.map((opt) => (
+                {row.map((opt) => {
+                  const lockedAt = isLocked(opt.key);
+                  const locked = lockedAt != null;
+                  return (
                   <Pressable
                     key={opt.key}
                     accessibilityRole="button"
-                    accessibilityLabel={opt.title.replace(/\n/g, " ")}
+                    accessibilityState={{ disabled: locked }}
+                    accessibilityLabel={
+                      locked
+                        ? `${opt.title.replace(/\n/g, " ")}, locked, unlocks at level ${lockedAt}`
+                        : opt.title.replace(/\n/g, " ")
+                    }
                     onPress={() => {
+                      if (locked) {
+                        setGatedOption(opt);
+                        return;
+                      }
                       close();
                       setTimeout(() => onOptionPress(opt.route), 220);
                     }}
@@ -284,6 +347,7 @@ export function CreateFAB({ onOptionPress }: CreateFABProps) {
                           ? "rgba(255,255,255,0.06)"
                           : "rgba(0,0,0,0.04)",
                       },
+                      locked && { opacity: 0.5 },
                       pressed && { transform: [{ scale: 0.94 }], opacity: 0.85 },
                     ]}
                   >
@@ -304,8 +368,15 @@ export function CreateFAB({ onOptionPress }: CreateFABProps) {
                     >
                       {opt.title}
                     </Text>
+                    {locked && (
+                      <View style={styles.lockBadge}>
+                        <Ionicons name="lock-closed" size={9} color="#ffffff" />
+                        <Text style={styles.lockBadgeText}>Lv {lockedAt}</Text>
+                      </View>
+                    )}
                   </Pressable>
-                ))}
+                  );
+                })}
               </View>
             ))}
           </View>
@@ -330,6 +401,26 @@ export function CreateFAB({ onOptionPress }: CreateFABProps) {
           <Ionicons name="add" size={28} color="#ffffff" />
         </Animated.View>
       </Pressable>
+
+      {/* Locked-option explainer */}
+      <FeatureGateModal
+        visible={gatedOption !== null}
+        onClose={() => setGatedOption(null)}
+        featureLabel={gatedOption ? gatedOption.title.replace(/\n/g, " ") : ""}
+        featureIcon={null}
+        requiredLevel={gatedOption ? OPTION_LEVELS[gatedOption.key] ?? 1 : 1}
+        currentLevel={currentLevel ?? 1}
+        pointsNeeded={
+          gatedOption
+            ? Math.max(
+                0,
+                (LEVEL_MIN_POINTS[OPTION_LEVELS[gatedOption.key] ?? 1] ?? 0) -
+                  currentPoints,
+              )
+            : 0
+        }
+        onViewProgress={onViewProgress}
+      />
     </>
   );
 }
@@ -428,5 +519,22 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_600SemiBold",
     textAlign: "center",
     lineHeight: 14,
+  },
+  lockBadge: {
+    position: "absolute",
+    top: 6,
+    right: 6,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+    backgroundColor: "rgba(17,24,39,0.8)",
+    borderRadius: 8,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+  },
+  lockBadgeText: {
+    color: "#ffffff",
+    fontSize: 8,
+    fontFamily: "Inter_700Bold",
   },
 });
