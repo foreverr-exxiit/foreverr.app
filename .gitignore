@@ -22,3 +22,6 @@ android/
 # Local agent / tooling state
 .claude/
 supabase/.temp/
+
+# Project reference material (planning PDFs, brand source, legacy code) — kept with the project, not committed
+project-docs/
