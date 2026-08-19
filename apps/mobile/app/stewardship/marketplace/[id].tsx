@@ -13,30 +13,56 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useStewardshipListings } from "@foreverr/core";
+import { useStewardshipListings, useApplyForStewardship, useAuth } from "@foreverr/core";
 
 export default function ListingDetailScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { user } = useAuth();
 
   const { data: listings, isLoading } = useStewardshipListings();
-  const listing = (listings as unknown as any[])?.find((l: any) => l.id === id) ?? null;
+  const items = (listings as any)?.pages?.flatMap((p: any) => p.data) ?? [];
+  const listing = items.find((l: any) => l.id === id) ?? null;
+  const isOwnListing = !!listing && listing.listed_by === user?.id;
+
+  const applyForStewardship = useApplyForStewardship();
 
   const handleApply = () => {
+    if (!user?.id || !listing) {
+      Alert.alert("Sign in", "Please sign in to apply.");
+      return;
+    }
+    if (isOwnListing) {
+      Alert.alert("Your listing", "You can't apply to a page you listed yourself.");
+      return;
+    }
     Alert.alert(
-      "Apply for Stewardship",
-      "Are you sure you want to apply for this stewardship role?",
+      "Apply for stewardship",
+      "Send an application to the page owner? They'll review and reach out.",
       [
         { text: "Cancel", style: "cancel" },
         {
           text: "Apply",
-          onPress: () => {
-            Alert.alert("Application Submitted", "The page owner will review your application.");
+          onPress: async () => {
+            try {
+              await applyForStewardship.mutateAsync({
+                listingId: listing.id,
+                applicantId: user.id,
+                message: `I'd like to help steward ${listing.title}.`,
+              });
+              Alert.alert("Application sent", "The page owner will review your application.");
+            } catch (e: any) {
+              const dup = /duplicate|unique/i.test(e?.message ?? "");
+              Alert.alert(
+                dup ? "Already applied" : "Couldn't apply",
+                dup ? "You've already applied to this listing." : e?.message ?? "Please try again.",
+              );
+            }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -85,9 +111,13 @@ export default function ListingDetailScreen() {
               <View style={styles.detailRow}>
                 <Ionicons name="time-outline" size={18} color="#7C3AED" />
                 <View style={styles.detailInfo}>
-                  <Text style={[styles.detailLabel, { color: isDark ? "#9ca3af" : "#6b7280" }]}>Duration</Text>
+                  <Text style={[styles.detailLabel, { color: isDark ? "#9ca3af" : "#6b7280" }]}>Type</Text>
                   <Text style={[styles.detailValue, { color: isDark ? "#f9fafb" : "#111827" }]}>
-                    {listing.duration ?? "Ongoing"}
+                    {listing.listing_type === "purchase"
+                      ? "Ownership transfer"
+                      : listing.listing_type === "both"
+                        ? "Stewardship or purchase"
+                        : "Stewardship"}
                   </Text>
                 </View>
               </View>
@@ -95,10 +125,13 @@ export default function ListingDetailScreen() {
               <View style={styles.detailRow}>
                 <Ionicons name="cash-outline" size={18} color="#7C3AED" />
                 <View style={styles.detailInfo}>
-                  <Text style={[styles.detailLabel, { color: isDark ? "#9ca3af" : "#6b7280" }]}>Compensation</Text>
+                  <Text style={[styles.detailLabel, { color: isDark ? "#9ca3af" : "#6b7280" }]}>
+                    {listing.listing_type === "stewardship" ? "Role" : "Asking price"}
+                  </Text>
                   <Text style={[styles.detailValue, { color: isDark ? "#f9fafb" : "#111827" }]}>
-                    {listing.compensation_type ?? "Volunteer"}
-                    {listing.compensation_amount ? ` - $${(listing.compensation_amount / 100).toFixed(2)}` : ""}
+                    {listing.listing_type === "stewardship" || !(listing.asking_price_cents > 0)
+                      ? "Open / volunteer"
+                      : `$${(listing.asking_price_cents / 100).toLocaleString()}`}
                   </Text>
                 </View>
               </View>
@@ -108,7 +141,7 @@ export default function ListingDetailScreen() {
                 <View style={styles.detailInfo}>
                   <Text style={[styles.detailLabel, { color: isDark ? "#9ca3af" : "#6b7280" }]}>Applicants</Text>
                   <Text style={[styles.detailValue, { color: isDark ? "#f9fafb" : "#111827" }]}>
-                    {listing.applicants_count ?? 0}
+                    {listing.application_count ?? 0}
                   </Text>
                 </View>
               </View>
@@ -116,9 +149,9 @@ export default function ListingDetailScreen() {
 
             {/* Requirements */}
             <View style={[styles.card, { backgroundColor: isDark ? "#1f2937" : "#ffffff" }]}>
-              <Text style={[styles.cardTitle, { color: isDark ? "#f9fafb" : "#111827" }]}>Requirements</Text>
+              <Text style={[styles.cardTitle, { color: isDark ? "#f9fafb" : "#111827" }]}>About this listing</Text>
               <Text style={[styles.requirementsText, { color: isDark ? "#d1d5db" : "#374151" }]}>
-                {listing.requirements ?? "No specific requirements listed. The page owner is looking for a caring and responsible steward to maintain this memorial page."}
+                {listing.description ?? "The page owner is looking for a caring, responsible steward to help maintain this page."}
               </Text>
             </View>
 
@@ -150,8 +183,18 @@ export default function ListingDetailScreen() {
 
           {/* Apply Button */}
           <View style={[styles.bottomBar, { backgroundColor: isDark ? "#1f2937" : "#ffffff", borderTopColor: isDark ? "#374151" : "#e5e7eb" }]}>
-            <TouchableOpacity style={styles.applyBtn} onPress={handleApply}>
-              <Text style={styles.applyBtnText}>Apply for Stewardship</Text>
+            <TouchableOpacity
+              style={[styles.applyBtn, (isOwnListing || applyForStewardship.isPending) && { opacity: 0.5 }]}
+              onPress={handleApply}
+              disabled={isOwnListing || applyForStewardship.isPending}
+            >
+              <Text style={styles.applyBtnText}>
+                {isOwnListing
+                  ? "This is your listing"
+                  : applyForStewardship.isPending
+                    ? "Sending…"
+                    : "Apply for Stewardship"}
+              </Text>
             </TouchableOpacity>
           </View>
         </>

@@ -747,28 +747,39 @@ export function useUpgradeGuardian() {
 // Marketplace Hooks (Phase 3 stubs)
 // ══════════════════════════════════════════════════════════════
 
-/** Browse stewardship listings — stub until stewardship_listings table exists */
+/** Browse active stewardship listings (paginated). */
 export function useStewardshipListings(filters?: {
   pageType?: string;
   search?: string;
   sortBy?: "newest" | "popular" | "urgency";
 }) {
   const { pageType, search, sortBy = "newest" } = filters ?? {};
+  const PAGE = 20;
   return useInfiniteQuery({
     queryKey: [STEWARDSHIP_LISTINGS_KEY, pageType, search, sortBy],
     queryFn: async ({ pageParam = 0 }: { pageParam?: number }) => {
-      // Stub: table doesn't exist yet, return empty results
-      // When stewardship_listings table is created, replace with real query:
-      // let query = (supabase as any)
-      //   .from("stewardship_listings")
-      //   .select("*, page_host:page_host_id(*), user:listed_by(id, display_name, avatar_url)")
-      //   .eq("status", "active")
-      //   .range(pageParam, pageParam + 19);
-      // if (pageType) query = query.eq("page_type", pageType);
-      // if (search) query = query.ilike("title", `%${search}%`);
-      // const { data, error } = await query;
-      // if (error) throw error;
-      return { data: [] as any[], nextCursor: undefined };
+      let query = (supabase as any)
+        .from("stewardship_listings")
+        .select(
+          "*, lister:profiles!stewardship_listings_listed_by_fkey(id, display_name, avatar_url)",
+        )
+        .eq("status", "active");
+
+      if (pageType) query = query.eq("page_type", pageType);
+      if (search) query = query.ilike("title", `%${search}%`);
+
+      // newest → created_at; popular → most applications; urgency → oldest active
+      if (sortBy === "popular") query = query.order("application_count", { ascending: false });
+      else if (sortBy === "urgency") query = query.order("created_at", { ascending: true });
+      else query = query.order("created_at", { ascending: false });
+
+      const { data, error } = await query.range(pageParam, pageParam + PAGE - 1);
+      if (error) throw error;
+      const rows = (data ?? []) as any[];
+      return {
+        data: rows,
+        nextCursor: rows.length === PAGE ? pageParam + PAGE : undefined,
+      };
     },
     getNextPageParam: (lastPage: any) => lastPage.nextCursor,
     initialPageParam: 0,
@@ -789,20 +800,29 @@ export function useCreateStewardshipListing() {
       askingPriceCents?: number;
       stewardshipTerms?: StewardshipTerms;
     }) => {
-      // Stub: table doesn't exist yet
-      // When created, insert into stewardship_listings
-      // const { data, error } = await (supabase as any)
-      //   .from("stewardship_listings")
-      //   .insert({ ...params, status: "active" })
-      //   .select()
-      //   .single();
-      // if (error) throw error;
-      // return data as any;
-      if (__DEV__) console.warn("[useStewardship] stewardship_listings table not yet created");
-      return params as any;
+      const { data, error } = await (supabase as any)
+        .from("stewardship_listings")
+        .insert({
+          page_type: params.pageType,
+          page_id: params.pageId,
+          listed_by: params.listedBy,
+          title: params.title,
+          description: params.description ?? null,
+          listing_type: params.listingType,
+          asking_price_cents: params.askingPriceCents ?? 0,
+          stewardship_terms: params.stewardshipTerms ?? {},
+          status: "active",
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return data as any;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [STEWARDSHIP_LISTINGS_KEY] });
+    },
+    onError: (err) => {
+      captureException(err, { where: "useStewardship.useCreateStewardshipListing" });
     },
   });
 }
@@ -817,20 +837,29 @@ export function useApplyForStewardship() {
       message: string;
       proposedTerms?: StewardshipTerms;
     }) => {
-      // Stub: table doesn't exist yet
-      // When created, insert into stewardship_applications
-      // const { data, error } = await (supabase as any)
-      //   .from("stewardship_applications")
-      //   .insert({ ...params, status: "pending" })
-      //   .select()
-      //   .single();
-      // if (error) throw error;
-      // return data as any;
-      if (__DEV__) console.warn("[useStewardship] stewardship_applications table not yet created");
-      return params as any;
+      const { data, error } = await (supabase as any)
+        .from("stewardship_applications")
+        .insert({
+          listing_id: params.listingId,
+          applicant_id: params.applicantId,
+          message: params.message,
+          proposed_terms: params.proposedTerms ?? {},
+          status: "pending",
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return data as any;
     },
-    onSuccess: () => {
+    onSuccess: (_d, vars) => {
       qc.invalidateQueries({ queryKey: [STEWARDSHIP_LISTINGS_KEY] });
+      qc.invalidateQueries({ queryKey: ["stewardship-applications", vars.listingId] });
+    },
+    onError: (err, vars) => {
+      captureException(err, {
+        where: "useStewardship.useApplyForStewardship",
+        listing_id: vars.listingId,
+      });
     },
   });
 }

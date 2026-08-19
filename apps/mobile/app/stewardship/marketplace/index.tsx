@@ -20,7 +20,14 @@ export default function StewardshipMarketplace() {
   const router = useRouter();
 
   const { data: listings, isLoading } = useStewardshipListings();
-  const items = (listings as unknown as any[]) ?? [];
+  const items =
+    (listings as any)?.pages?.flatMap((p: any) => p.data) ?? [];
+
+  const priceLabel = (item: any) => {
+    if (item.listing_type === "stewardship") return "Stewardship";
+    const cents = item.asking_price_cents ?? 0;
+    return cents > 0 ? `$${(cents / 100).toLocaleString()}` : "Open offer";
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: isDark ? "#111827" : "#f9fafb" }]}>
@@ -48,7 +55,7 @@ export default function StewardshipMarketplace() {
             Stewardship Marketplace
           </Text>
           <Text style={[styles.comingSoonText, { color: isDark ? "#6b7280" : "#9ca3af" }]}>
-            Find trusted stewards for memorial pages, or offer your services as a caretaker. This feature is coming soon.
+            No listings yet. Find a trusted steward for a page you care for, or offer to caretake one — be the first to post.
           </Text>
           <TouchableOpacity
             style={styles.createBtn}
@@ -75,18 +82,18 @@ export default function StewardshipMarketplace() {
                     {item.title ?? "Stewardship Opportunity"}
                   </Text>
                   <Text style={[styles.listingSubtitle, { color: isDark ? "#6b7280" : "#9ca3af" }]}>
-                    {item.duration ?? "Ongoing"} | {item.compensation_type ?? "Volunteer"}
+                    {(item.page_type ?? "page")} · {priceLabel(item)}
                   </Text>
                 </View>
                 <Ionicons name="chevron-forward" size={18} color={isDark ? "#6b7280" : "#9ca3af"} />
               </View>
 
-              {item.requirements && (
+              {item.description && (
                 <Text
                   style={[styles.listingDesc, { color: isDark ? "#9ca3af" : "#6b7280" }]}
                   numberOfLines={2}
                 >
-                  {item.requirements}
+                  {item.description}
                 </Text>
               )}
 

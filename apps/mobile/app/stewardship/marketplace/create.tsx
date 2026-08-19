@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useCreateStewardshipListing } from "@foreverr/core";
+import { useCreateStewardshipListing, useAuth } from "@foreverr/core";
 
 const DURATION_OPTIONS = [
   { value: "30_days", label: "30 Days" },
@@ -36,6 +36,7 @@ export default function CreateListingScreen() {
   const isDark = colorScheme === "dark";
   const router = useRouter();
   const { mutate: createListing, isPending } = useCreateStewardshipListing();
+  const { user } = useAuth();
 
   const [pageId, setPageId] = useState("");
   const [title, setTitle] = useState("");
@@ -54,15 +55,22 @@ export default function CreateListingScreen() {
       return;
     }
 
+    if (!user?.id) {
+      Alert.alert("Sign in", "Please sign in to create a listing.");
+      return;
+    }
+    const priceCents = compensationAmount ? Math.round(parseFloat(compensationAmount) * 100) : 0;
     createListing(
       {
+        pageType: "memorial",
         pageId: pageId.trim(),
+        listedBy: user.id,
         title: title.trim(),
-        duration,
-        compensationType,
-        compensationAmount: compensationAmount ? parseInt(compensationAmount, 10) : 0,
-        requirements: requirements.trim(),
-      } as any,
+        description: requirements.trim() || undefined,
+        // A price makes it a purchase/both listing; otherwise pure stewardship.
+        listingType: priceCents > 0 ? "both" : "stewardship",
+        askingPriceCents: priceCents,
+      },
       {
         onSuccess: () => {
           Alert.alert("Listing Created", "Your stewardship listing is now live.", [
