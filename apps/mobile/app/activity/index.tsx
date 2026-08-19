@@ -1,5 +1,5 @@
 import React from "react";
-import { View, FlatList, TouchableOpacity, ScrollView, RefreshControl } from "react-native";
+import { View, FlatList, TouchableOpacity, ScrollView, RefreshControl, ActivityIndicator } from "react-native";
 import { useRouter, Stack } from "expo-router";
 import { Text, ScreenWrapper, ActivityFeedItem } from "@foreverr/ui";
 import {
@@ -101,6 +101,14 @@ export default function ActivityFeedScreen() {
           <RefreshControl refreshing={feed.isRefetching} onRefresh={feed.refetch} tintColor="#7C3AED" colors={["#7C3AED"]} />
         }
         onEndReached={() => feed.hasNextPage && feed.fetchNextPage()}
+        onEndReachedThreshold={0.4}
+        ListFooterComponent={
+          feed.isFetchingNextPage ? (
+            <View className="py-4 items-center">
+              <ActivityIndicator size="small" color="#7C3AED" />
+            </View>
+          ) : null
+        }
         renderItem={({ item }) => (
           <ActivityFeedItem
             activityType={item.activity_type}
