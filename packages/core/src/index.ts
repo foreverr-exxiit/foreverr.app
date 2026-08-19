@@ -925,5 +925,18 @@ export type {
   WeddingPageChapter,
 } from "./hooks/useRelationshipLifecycle";
 
+// Hooks — Wedding social (message wall + RSVP)
+export {
+  useWeddingMessages,
+  useCreateWeddingMessage,
+  useMyWeddingRsvp,
+  useSubmitWeddingRsvp,
+} from "./hooks/useWeddingSocial";
+export type {
+  WeddingMessage,
+  WeddingRsvp,
+  WeddingRsvpStatus,
+} from "./hooks/useWeddingSocial";
+
 // Types
 export type * from "./types/models";
