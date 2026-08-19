@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { View, ScrollView, Pressable, ActivityIndicator, FlatList } from "react-native";
+import { View, ScrollView, Pressable, ActivityIndicator, FlatList, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth, useGiftCatalogItems, getGiftEmoji, useMyPointBalance } from "@foreverr/core";
@@ -32,6 +32,7 @@ export default function GiftCatalogScreen() {
     isError,
     error,
     refetch,
+    isRefetching,
   } = useGiftCatalogItems(selectedCategory ?? undefined);
 
   const { data: pointBalance } = useMyPointBalance(user?.id);
@@ -227,6 +228,9 @@ export default function GiftCatalogScreen() {
           numColumns={2}
           columnWrapperStyle={{ paddingHorizontal: 12 }}
           contentContainerStyle={{ paddingTop: 8, paddingBottom: 100 }}
+          refreshControl={
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#7C3AED" colors={["#7C3AED"]} />
+          }
           keyExtractor={(item: any) => item.id}
           renderItem={renderGiftItem}
           ListEmptyComponent={

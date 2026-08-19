@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { View, FlatList, TextInput, ScrollView, Pressable, ActivityIndicator } from "react-native";
+import { View, FlatList, TextInput, ScrollView, Pressable, ActivityIndicator, RefreshControl } from "react-native";
 import { useRouter, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useDirectoryListings } from "@foreverr/core";
@@ -93,6 +93,7 @@ export default function DirectoryScreen() {
     isError,
     error,
     refetch,
+    isRefetching,
   } = useDirectoryListings({
     search: search || undefined,
     city: city || undefined,
@@ -287,6 +288,9 @@ export default function DirectoryScreen() {
           data={allListings}
           contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
           keyExtractor={(item) => item.id}
+          refreshControl={
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#7C3AED" colors={["#7C3AED"]} />
+          }
           renderItem={({ item }) => (
             <DirectoryCard
               businessName={item.business_name}

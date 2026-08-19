@@ -1,4 +1,4 @@
-import { View, TextInput, Pressable, FlatList, ActivityIndicator, ScrollView } from "react-native";
+import { View, TextInput, Pressable, FlatList, ActivityIndicator, ScrollView, RefreshControl } from "react-native";
 import { useState } from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Image } from "expo-image";
@@ -32,7 +32,7 @@ export default function SearchScreen() {
   const [searchTerm, setSearchTerm] = useState(params.q ?? "");
   const [lifecycleFilter, setLifecycleFilter] = useState<LifecycleFilter>("all");
 
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useMemorials({
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage, refetch, isRefetching } = useMemorials({
     search: searchTerm || undefined,
   });
 
@@ -119,6 +119,9 @@ export default function SearchScreen() {
           numColumns={2}
           columnWrapperStyle={{ paddingHorizontal: 16, gap: 12 }}
           contentContainerStyle={{ paddingTop: 16, paddingBottom: 24, gap: 12 }}
+          refreshControl={
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#7C3AED" colors={["#7C3AED"]} />
+          }
           renderItem={({ item }: { item: any }) => {
             const stage = (item as any).lifecycle_stage ?? "remember";
             const badge = STAGE_BADGE[stage];
