@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, FlatList, TouchableOpacity, ScrollView, useWindowDimensions } from "react-native";
+import React, { useState, useCallback } from "react";
+import { View, FlatList, TouchableOpacity, ScrollView, useWindowDimensions, RefreshControl } from "react-native";
 import { useRouter, useLocalSearchParams, Stack } from "expo-router";
 import {
   Text,
@@ -52,6 +52,21 @@ export default function MemoryVaultScreen() {
     viewMode === "category" ? activeCategory : undefined
   );
   const searchResults = useSearchVaultItems(memorialId, searchQuery);
+
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        vaultItems.refetch(),
+        stats.refetch(),
+        folders.refetch(),
+        capsules.refetch(),
+      ]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [vaultItems, stats, folders, capsules]);
 
   const vaultData = vaultItems.data?.pages?.flatMap((p) => p.data) ?? [];
   const typeCounts = stats.data?.typeCounts ?? {};
@@ -106,7 +121,12 @@ export default function MemoryVaultScreen() {
 
       {/* DASHBOARD VIEW */}
       {viewMode === "dashboard" && (
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#7C3AED" colors={["#7C3AED"]} />
+          }
+        >
           {/* Stats Header */}
           <VaultDashboardStats
             totalItems={stats.data?.totalItems ?? 0}

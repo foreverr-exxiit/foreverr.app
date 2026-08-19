@@ -1,4 +1,4 @@
-import { View, FlatList } from "react-native";
+import { View, FlatList, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useMyUpcomingEvents, useAuth } from "@foreverr/core";
@@ -7,7 +7,7 @@ import { Text, EventCard, ListSkeleton } from "@foreverr/ui";
 export default function EventsListScreen() {
   const router = useRouter();
   const { user } = useAuth();
-  const { data: events, isLoading } = useMyUpcomingEvents(user?.id);
+  const { data: events, isLoading, refetch, isRefetching } = useMyUpcomingEvents(user?.id);
 
   if (isLoading) {
     return <ListSkeleton />;
@@ -18,6 +18,9 @@ export default function EventsListScreen() {
       <FlatList
         data={events}
         keyExtractor={(item) => item.id}
+        refreshControl={
+          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#7C3AED" colors={["#7C3AED"]} />
+        }
         renderItem={({ item }) => (
           <EventCard
             title={item.title}

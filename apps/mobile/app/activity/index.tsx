@@ -1,5 +1,5 @@
 import React from "react";
-import { View, FlatList, TouchableOpacity, ScrollView } from "react-native";
+import { View, FlatList, TouchableOpacity, ScrollView, RefreshControl } from "react-native";
 import { useRouter, Stack } from "expo-router";
 import { Text, ScreenWrapper, ActivityFeedItem } from "@foreverr/ui";
 import {
@@ -97,6 +97,9 @@ export default function ActivityFeedScreen() {
         data={activities}
         keyExtractor={(item) => item.id}
         contentContainerClassName="px-4 py-2"
+        refreshControl={
+          <RefreshControl refreshing={feed.isRefetching} onRefresh={feed.refetch} tintColor="#7C3AED" colors={["#7C3AED"]} />
+        }
         onEndReached={() => feed.hasNextPage && feed.fetchNextPage()}
         renderItem={({ item }) => (
           <ActivityFeedItem

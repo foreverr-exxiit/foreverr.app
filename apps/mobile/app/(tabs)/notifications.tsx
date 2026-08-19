@@ -1,4 +1,4 @@
-import { View, FlatList, Pressable, ActivityIndicator } from "react-native";
+import { View, FlatList, Pressable, ActivityIndicator, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth, useNotifications, useMarkRead, useMarkAllRead } from "@foreverr/core";
@@ -46,7 +46,7 @@ const ICON_MAP: Record<string, { name: keyof typeof Ionicons.glyphMap; color: st
 export default function NotificationsScreen() {
   const router = useRouter();
   const { user, isAuthenticated } = useAuth();
-  const { data: notifications, isLoading } = useNotifications(user?.id);
+  const { data: notifications, isLoading, refetch, isRefetching } = useNotifications(user?.id);
   const markRead = useMarkRead();
   const markAllRead = useMarkAllRead();
 
@@ -108,6 +108,14 @@ export default function NotificationsScreen() {
         <FlatList
           data={notifications ?? []}
           keyExtractor={(item: any) => item.id}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={refetch}
+              tintColor="#7C3AED"
+              colors={["#7C3AED"]}
+            />
+          }
           renderItem={({ item }: { item: any }) => {
             const iconInfo = ICON_MAP[item.type] ?? { name: "notifications" as const, color: "#6b7280" };
             return (
