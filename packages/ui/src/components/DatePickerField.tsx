@@ -125,6 +125,9 @@ export function DatePickerField({
 
       {/* Trigger Button */}
       <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${label || (mode === "time" ? "Time" : "Date")}: ${displayValue || "not set"}`}
+        accessibilityHint={mode === "time" ? "Opens the time picker" : "Opens the date picker"}
         className="flex-row items-center rounded-xl bg-gray-50 dark:bg-gray-800 px-4 py-3 border border-gray-200 dark:border-gray-700"
         onPress={() => {
           // Reset selections to current value or defaults

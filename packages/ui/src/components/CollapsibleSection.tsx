@@ -49,6 +49,10 @@ export function CollapsibleSection({
       {/* Header */}
       <Pressable
         onPress={toggle}
+        accessibilityRole="button"
+        accessibilityState={{ expanded: isExpanded }}
+        accessibilityLabel={`${title}, ${isExpanded ? "expanded" : "collapsed"}`}
+        accessibilityHint={isExpanded ? "Collapses this section" : "Expands this section"}
         className="flex-row items-center justify-between py-2.5 px-1"
         style={{ minHeight: 40 }}
       >
