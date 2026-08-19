@@ -1,4 +1,5 @@
 import { View, Pressable } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { Text } from "../primitives/Text";
 
@@ -9,6 +10,7 @@ interface ChatBubbleProps {
   timestamp: string;
   isOwn: boolean;
   type?: string;
+  mediaUrl?: string | null;
   replyPreview?: string | null;
   onLongPress?: () => void;
   onReplyPress?: () => void;
@@ -26,6 +28,7 @@ export function ChatBubble({
   timestamp,
   isOwn,
   type = "text",
+  mediaUrl,
   replyPreview,
   onLongPress,
   onPressSender,
@@ -58,12 +61,28 @@ export function ChatBubble({
             </Text>
           </View>
         ) : type === "image" ? (
-          <View className="flex-row items-center gap-2">
-            <Ionicons name="image" size={16} color={isOwn ? "#ffffff" : "#4A2D7A"} />
-            <Text className={`text-sm font-sans ${isOwn ? "text-white" : "text-gray-900 dark:text-white"}`}>
-              Photo
-            </Text>
-          </View>
+          mediaUrl ? (
+            <View>
+              <Image
+                source={{ uri: mediaUrl }}
+                style={{ width: 200, height: 200, borderRadius: 12 }}
+                contentFit="cover"
+                transition={150}
+              />
+              {!!content && (
+                <Text className={`text-sm font-sans leading-5 mt-1.5 ${isOwn ? "text-white" : "text-gray-900 dark:text-white"}`}>
+                  {content}
+                </Text>
+              )}
+            </View>
+          ) : (
+            <View className="flex-row items-center gap-2">
+              <Ionicons name="image" size={16} color={isOwn ? "#ffffff" : "#4A2D7A"} />
+              <Text className={`text-sm font-sans ${isOwn ? "text-white" : "text-gray-900 dark:text-white"}`}>
+                Photo
+              </Text>
+            </View>
+          )
         ) : (
           <Text className={`text-sm font-sans leading-5 ${isOwn ? "text-white" : "text-gray-900 dark:text-white"}`}>
             {content}

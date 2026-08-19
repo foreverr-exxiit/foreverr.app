@@ -2,7 +2,7 @@ import { View, FlatList, TextInput, Pressable, KeyboardAvoidingView, Platform, A
 import { useState, useCallback } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useMessages, useSendMessage, useChatRealtime, useMarkChatRead, useAuth } from "@foreverr/core";
+import { useMessages, useSendMessage, useChatRealtime, useMarkChatRead, useAuth, useImageUpload } from "@foreverr/core";
 import { Text, ChatBubble } from "@foreverr/ui";
 
 export default function ChatConversationScreen() {
@@ -12,8 +12,27 @@ export default function ChatConversationScreen() {
   const { data, isLoading, fetchNextPage, hasNextPage } = useMessages(id);
   const sendMessage = useSendMessage();
   const markRead = useMarkChatRead();
+  const { pickImage, uploadImage } = useImageUpload("memorial-photos");
   const [text, setText] = useState("");
   const [replyTo, setReplyTo] = useState<{ id: string; content: string | null; senderName: string } | null>(null);
+
+  const handleSendPhoto = useCallback(async () => {
+    if (!user?.id || !id) return;
+    const picked = await pickImage();
+    if (!picked) return;
+    const uploaded = await uploadImage(picked.uri, `chat/${id}`);
+    if (!uploaded?.url) {
+      Alert.alert("Upload failed", "Couldn't send the photo. Please try again.");
+      return;
+    }
+    sendMessage.mutate({
+      roomId: id,
+      senderId: user.id,
+      mediaUrl: uploaded.url,
+      type: "image",
+      content: "",
+    } as any);
+  }, [user?.id, id, pickImage, uploadImage, sendMessage]);
 
   // Subscribe to realtime messages
   useChatRealtime(id);
@@ -65,6 +84,7 @@ export default function ChatConversationScreen() {
             timestamp={item.created_at}
             isOwn={item.sender_id === user?.id}
             type={item.type}
+            mediaUrl={(item as any).media_url}
             onPressSender={() => item.sender_id && router.push(`/user/${item.sender_id}` as any)}
             onLongPress={() =>
               setReplyTo({
@@ -111,7 +131,7 @@ export default function ChatConversationScreen() {
           onPress={() =>
             Alert.alert("Attach", "Choose what to send", [
               { text: "Cancel", style: "cancel" },
-              { text: "Photo", onPress: () => Alert.alert("Coming Soon", "Photo sharing will be available soon!") },
+              { text: "Photo", onPress: handleSendPhoto },
               { text: "Candle 🕯️", onPress: () => {
                 if (user?.id && id) {
                   sendMessage.mutate({ roomId: id, senderId: user.id, content: "🕯️", type: "candle" } as any);
