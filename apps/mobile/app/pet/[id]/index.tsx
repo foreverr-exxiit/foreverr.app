@@ -5,10 +5,17 @@ import {
   Pressable,
   ActivityIndicator,
   Alert,
+  Modal,
+  TextInput,
 } from "react-native";
 import { useRouter, useLocalSearchParams, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuth, supabase } from "@foreverr/core";
+import {
+  useAuth,
+  supabase,
+  usePetTributes,
+  useCreatePetTribute,
+} from "@foreverr/core";
 import { Text } from "@foreverr/ui";
 
 interface PetPage {
@@ -83,6 +90,32 @@ export default function PetPageDetailScreen() {
 
   const [pet, setPet] = useState<PetPage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Tribute wall (backend: pet_tributes, migration 00036)
+  const { data: tributes = [] } = usePetTributes(id);
+  const createTribute = useCreatePetTribute();
+  const [composeOpen, setComposeOpen] = useState(false);
+  const [tributeText, setTributeText] = useState("");
+
+  const openCompose = useCallback(() => {
+    if (!user?.id) Alert.alert("Sign in", "Please sign in to leave a tribute.");
+    else setComposeOpen(true);
+  }, [user?.id]);
+
+  const handlePostTribute = useCallback(async () => {
+    if (!id || !user?.id || !tributeText.trim()) return;
+    try {
+      await createTribute.mutateAsync({
+        petId: id,
+        authorId: user.id,
+        content: tributeText.trim(),
+      });
+      setTributeText("");
+      setComposeOpen(false);
+    } catch (e: any) {
+      Alert.alert("Couldn't post", e?.message ?? "Please try again.");
+    }
+  }, [id, user?.id, tributeText, createTribute]);
 
   useEffect(() => {
     if (!id) return;
@@ -395,8 +428,9 @@ export default function PetPageDetailScreen() {
               }`}
               onPress={() =>
                 Alert.alert(
-                  "Coming Soon",
-                  "Gift sending for pet pages will be available soon!"
+                  isMemorial ? "Honor them" : "Celebrate them",
+                  `Leave a tribute for ${pet?.pet_name ?? "them"} — the most meaningful gift on a pet page.`,
+                  [{ text: "Not now", style: "cancel" }, { text: "Write tribute", onPress: openCompose }],
                 )
               }
             >
@@ -412,12 +446,7 @@ export default function PetPageDetailScreen() {
                   ? "bg-purple-50 dark:bg-purple-900/20"
                   : "bg-amber-50 dark:bg-amber-900/20"
               }`}
-              onPress={() =>
-                Alert.alert(
-                  "Coming Soon",
-                  "Tribute writing for pet pages will be available soon!"
-                )
-              }
+              onPress={openCompose}
             >
               <Ionicons
                 name={isMemorial ? "flower" : "create"}
@@ -431,64 +460,128 @@ export default function PetPageDetailScreen() {
           </View>
         </View>
 
-        {/* Tributes Empty State */}
-        <View className="mx-4 mt-6">
-          <View className="flex-row items-center gap-2 mb-3">
-            <Ionicons
-              name={isMemorial ? "flower-outline" : "chatbubbles-outline"}
-              size={20}
-              color="#6b7280"
-            />
-            <Text className="text-lg font-sans-bold text-gray-900 dark:text-white">
-              {isMemorial ? "Tributes" : "Messages"}
-            </Text>
-          </View>
-          <View
-            className={`rounded-xl border items-center py-12 px-6 ${
-              isMemorial
-                ? "bg-purple-50/50 dark:bg-purple-900/10 border-purple-100 dark:border-purple-900/30"
-                : "bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700"
-            }`}
-          >
-            <View
-              className={`h-16 w-16 rounded-full items-center justify-center mb-4 ${
-                isMemorial
-                  ? "bg-purple-100 dark:bg-purple-900/30"
-                  : "bg-amber-100 dark:bg-amber-900/30"
-              }`}
-            >
+        {/* Tributes / messages */}
+        <View className="mx-4 mt-6 mb-8">
+          <View className="flex-row items-center justify-between mb-3">
+            <View className="flex-row items-center gap-2">
               <Ionicons
-                name={isMemorial ? "flower" : "paw"}
-                size={32}
-                color={themeAccent}
+                name={isMemorial ? "flower-outline" : "chatbubbles-outline"}
+                size={20}
+                color="#6b7280"
               />
+              <Text className="text-lg font-sans-bold text-gray-900 dark:text-white">
+                {isMemorial ? "Tributes" : "Messages"}
+              </Text>
+              {tributes.length > 0 && (
+                <Text className="text-sm font-sans text-gray-400">{tributes.length}</Text>
+              )}
             </View>
-            <Text className="text-base font-sans-semibold text-gray-600 dark:text-gray-300 text-center">
-              No tributes yet
-            </Text>
-            <Text className="text-sm font-sans text-gray-400 text-center mt-1">
-              {isMemorial
-                ? `Share a memory or tribute to ${pet.pet_name}.`
-                : `Be the first to celebrate ${pet.pet_name}!`}
-            </Text>
             <Pressable
-              className="mt-4 bg-brand-700 rounded-full px-6 py-3 flex-row items-center gap-2"
-              onPress={() =>
-                Alert.alert("Coming Soon", "Tributes coming soon!")
-              }
+              className="rounded-full px-4 py-2 flex-row items-center gap-1.5"
+              style={{ backgroundColor: themeAccent }}
+              onPress={openCompose}
             >
-              <Ionicons
-                name={isMemorial ? "flower" : "create-outline"}
-                size={16}
-                color="#FFFFFF"
-              />
-              <Text className="text-sm font-sans-bold text-white">
-                {isMemorial ? "Leave a Tribute" : "Write Something"}
+              <Ionicons name={isMemorial ? "flower" : "create-outline"} size={14} color="#FFFFFF" />
+              <Text className="text-xs font-sans-bold text-white">
+                {isMemorial ? "Tribute" : "Write"}
               </Text>
             </Pressable>
           </View>
+
+          {tributes.length === 0 ? (
+            <View
+              className={`rounded-xl border items-center py-12 px-6 ${
+                isMemorial
+                  ? "bg-purple-50/50 dark:bg-purple-900/10 border-purple-100 dark:border-purple-900/30"
+                  : "bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700"
+              }`}
+            >
+              <View
+                className={`h-16 w-16 rounded-full items-center justify-center mb-4 ${
+                  isMemorial
+                    ? "bg-purple-100 dark:bg-purple-900/30"
+                    : "bg-amber-100 dark:bg-amber-900/30"
+                }`}
+              >
+                <Ionicons name={isMemorial ? "flower" : "paw"} size={32} color={themeAccent} />
+              </View>
+              <Text className="text-base font-sans-semibold text-gray-600 dark:text-gray-300 text-center">
+                No tributes yet
+              </Text>
+              <Text className="text-sm font-sans text-gray-400 text-center mt-1">
+                {isMemorial
+                  ? `Share a memory or tribute to ${pet.pet_name}.`
+                  : `Be the first to celebrate ${pet.pet_name}!`}
+              </Text>
+            </View>
+          ) : (
+            <View className="gap-2.5">
+              {tributes.map((t) => (
+                <View
+                  key={t.id}
+                  className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4"
+                >
+                  <View className="flex-row items-center gap-2 mb-1.5">
+                    <View
+                      className="h-7 w-7 rounded-full items-center justify-center"
+                      style={{ backgroundColor: `${themeAccent}22` }}
+                    >
+                      <Ionicons name="person" size={14} color={themeAccent} />
+                    </View>
+                    <Text className="text-sm font-sans-semibold text-gray-900 dark:text-white">
+                      {t.author?.display_name || "Guest"}
+                    </Text>
+                  </View>
+                  {!!t.content && (
+                    <Text className="text-sm font-sans text-gray-700 dark:text-gray-300 leading-5">
+                      {t.content}
+                    </Text>
+                  )}
+                </View>
+              ))}
+            </View>
+          )}
         </View>
       </ScrollView>
+
+      {/* Compose tribute modal */}
+      <Modal visible={composeOpen} transparent animationType="slide" onRequestClose={() => setComposeOpen(false)}>
+        <Pressable className="flex-1 bg-black/50 justify-end" onPress={() => setComposeOpen(false)}>
+          <Pressable className="bg-white dark:bg-gray-900 rounded-t-3xl p-5" onPress={() => {}}>
+            <View className="items-center mb-3">
+              <View className="h-1 w-10 rounded-full bg-gray-300 dark:bg-gray-700" />
+            </View>
+            <Text className="text-lg font-sans-bold text-gray-900 dark:text-white mb-3">
+              {isMemorial ? `A tribute to ${pet?.pet_name ?? ""}` : `Celebrate ${pet?.pet_name ?? ""}`}
+            </Text>
+            <TextInput
+              value={tributeText}
+              onChangeText={setTributeText}
+              placeholder={isMemorial ? "Share a favorite memory…" : "Say something sweet…"}
+              placeholderTextColor="#9ca3af"
+              multiline
+              className="min-h-[96px] rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-3 text-sm font-sans text-gray-900 dark:text-white"
+              style={{ textAlignVertical: "top" }}
+            />
+            <Pressable
+              disabled={!tributeText.trim() || createTribute.isPending}
+              onPress={handlePostTribute}
+              className="mt-4 rounded-xl py-3.5 items-center"
+              style={{
+                backgroundColor: tributeText.trim() && !createTribute.isPending ? themeAccent : "#e5e7eb",
+              }}
+            >
+              {createTribute.isPending ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text className={`text-sm font-sans-bold ${tributeText.trim() ? "text-white" : "text-gray-400"}`}>
+                  Post
+                </Text>
+              )}
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
