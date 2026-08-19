@@ -1,5 +1,5 @@
 import { View, ScrollView, RefreshControl, Pressable, TextInput, ActivityIndicator } from "react-native";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "expo-router";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
@@ -61,6 +61,8 @@ export default function HomeScreen() {
   const router = useRouter();
   const { profile, user, isAuthenticated } = useAuth();
   const [activeChip, setActiveChip] = useState<string>("Orbit");
+  const scrollRef = useRef<ScrollView>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: topMemorials, isLoading: topLoading, refetch: refetchTop } = useTopMemorials(10);
@@ -1336,7 +1338,13 @@ export default function HomeScreen() {
       </View>
 
       <ScrollView
+        ref={scrollRef}
         className="flex-1"
+        scrollEventThrottle={16}
+        onScroll={(e) => {
+          const y = e.nativeEvent.contentOffset.y;
+          setShowScrollTop((prev) => (prev !== y > 1200 ? y > 1200 : prev));
+        }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4A2D7A" />}
       >
         {activeChip === "Orbit" && renderHomeContent()}
@@ -1345,6 +1353,25 @@ export default function HomeScreen() {
         {activeChip === "News" && renderNewsContent()}
         {activeChip === "Highlights" && renderHighlightsContent()}
       </ScrollView>
+
+      {/* Back to top — appears once you've scrolled a few screens down */}
+      {showScrollTop && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Scroll to top"
+          onPress={() => scrollRef.current?.scrollTo({ y: 0, animated: true })}
+          className="absolute right-4 bottom-6 h-11 w-11 rounded-full bg-brand-700 items-center justify-center"
+          style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 4,
+            elevation: 6,
+          }}
+        >
+          <Ionicons name="arrow-up" size={22} color="#ffffff" />
+        </Pressable>
+      )}
     </View>
   );
 }
