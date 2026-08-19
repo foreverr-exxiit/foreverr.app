@@ -15,6 +15,9 @@ import {
   supabase,
   usePetTributes,
   useCreatePetTribute,
+  usePetMilestones,
+  useAddPetMilestone,
+  type PetMilestoneType,
 } from "@foreverr/core";
 import { Text } from "@foreverr/ui";
 
@@ -46,6 +49,28 @@ const SPECIES_EMOJI: Record<string, string> = {
   reptile: "\uD83E\uDD8E",
   other: "\uD83D\uDC3E",
 };
+
+const MILESTONE_ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
+  birthday: "balloon",
+  adoption_day: "home",
+  training: "school",
+  health: "medkit",
+  travel: "airplane",
+  achievement: "trophy",
+  funny_moment: "happy",
+  other: "star",
+};
+
+const MILESTONE_TYPES: { key: string; label: string }[] = [
+  { key: "achievement", label: "Achievement" },
+  { key: "birthday", label: "Birthday" },
+  { key: "adoption_day", label: "Adoption" },
+  { key: "training", label: "Training" },
+  { key: "health", label: "Health" },
+  { key: "travel", label: "Travel" },
+  { key: "funny_moment", label: "Funny" },
+  { key: "other", label: "Other" },
+];
 
 function computeAge(dateOfBirthStr: string): string {
   const dob = new Date(dateOfBirthStr + "T00:00:00");
@@ -96,6 +121,29 @@ export default function PetPageDetailScreen() {
   const createTribute = useCreatePetTribute();
   const [composeOpen, setComposeOpen] = useState(false);
   const [tributeText, setTributeText] = useState("");
+
+  // Milestones / journey (backend: pet_milestones, migration 00036)
+  const { data: milestones = [] } = usePetMilestones(id);
+  const addMilestone = useAddPetMilestone();
+  const [milestoneOpen, setMilestoneOpen] = useState(false);
+  const [msTitle, setMsTitle] = useState("");
+  const [msType, setMsType] = useState<PetMilestoneType>("achievement");
+
+  const handleAddMilestone = useCallback(async () => {
+    if (!id || !msTitle.trim()) return;
+    try {
+      await addMilestone.mutateAsync({
+        petId: id,
+        title: msTitle.trim(),
+        milestoneType: msType,
+      });
+      setMsTitle("");
+      setMsType("achievement");
+      setMilestoneOpen(false);
+    } catch (e: any) {
+      Alert.alert("Couldn't add", e?.message ?? "Please try again.");
+    }
+  }, [id, msTitle, msType, addMilestone]);
 
   const openCompose = useCallback(() => {
     if (!user?.id) Alert.alert("Sign in", "Please sign in to leave a tribute.");
@@ -148,6 +196,7 @@ export default function PetPageDetailScreen() {
   }, [id]);
 
   const isMemorial = pet?.status === "memorial";
+  const isOwner = !!pet && pet.created_by === user?.id;
   const speciesEmoji = SPECIES_EMOJI[pet?.species ?? "other"] ?? "\uD83D\uDC3E";
 
   const ageDisplay = useMemo(() => {
@@ -460,6 +509,79 @@ export default function PetPageDetailScreen() {
           </View>
         </View>
 
+        {/* Milestones / journey — living pets track growth; memorials
+            keep a life timeline. Owner/host can add. */}
+        {(milestones.length > 0 || isOwner) && (
+          <View className="mx-4 mt-6">
+            <View className="flex-row items-center justify-between mb-3">
+              <View className="flex-row items-center gap-2">
+                <Ionicons name="ribbon-outline" size={20} color="#6b7280" />
+                <Text className="text-lg font-sans-bold text-gray-900 dark:text-white">
+                  {isMemorial ? "Life Journey" : "Milestones"}
+                </Text>
+                {milestones.length > 0 && (
+                  <Text className="text-sm font-sans text-gray-400">{milestones.length}</Text>
+                )}
+              </View>
+              {isOwner && (
+                <Pressable
+                  className="rounded-full px-4 py-2 flex-row items-center gap-1.5"
+                  style={{ backgroundColor: themeAccent }}
+                  onPress={() => setMilestoneOpen(true)}
+                >
+                  <Ionicons name="add" size={14} color="#FFFFFF" />
+                  <Text className="text-xs font-sans-bold text-white">Add</Text>
+                </Pressable>
+              )}
+            </View>
+
+            {milestones.length === 0 ? (
+              <View className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 items-center py-8 px-6">
+                <Text className="text-sm font-sans text-gray-400 text-center">
+                  {isMemorial
+                    ? `Add moments from ${pet.pet_name}'s life.`
+                    : `Track ${pet.pet_name}'s adventures and firsts.`}
+                </Text>
+              </View>
+            ) : (
+              <View className="gap-2">
+                {milestones.map((ms) => (
+                  <View
+                    key={ms.id}
+                    className="flex-row items-start gap-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-3.5"
+                  >
+                    <View
+                      className="h-9 w-9 rounded-full items-center justify-center mt-0.5"
+                      style={{ backgroundColor: `${themeAccent}22` }}
+                    >
+                      <Ionicons name={MILESTONE_ICON[ms.milestone_type] ?? "star"} size={16} color={themeAccent} />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-sm font-sans-semibold text-gray-900 dark:text-white">
+                        {ms.title}
+                      </Text>
+                      {!!ms.milestone_date && (
+                        <Text className="text-xs font-sans text-gray-400 mt-0.5">
+                          {new Date(ms.milestone_date).toLocaleDateString(undefined, {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </Text>
+                      )}
+                      {!!ms.description && (
+                        <Text className="text-sm font-sans text-gray-600 dark:text-gray-300 mt-1 leading-5">
+                          {ms.description}
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+        )}
+
         {/* Tributes / messages */}
         <View className="mx-4 mt-6 mb-8">
           <View className="flex-row items-center justify-between mb-3">
@@ -576,6 +698,67 @@ export default function PetPageDetailScreen() {
               ) : (
                 <Text className={`text-sm font-sans-bold ${tributeText.trim() ? "text-white" : "text-gray-400"}`}>
                   Post
+                </Text>
+              )}
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Add milestone modal (owner only) */}
+      <Modal visible={milestoneOpen} transparent animationType="slide" onRequestClose={() => setMilestoneOpen(false)}>
+        <Pressable className="flex-1 bg-black/50 justify-end" onPress={() => setMilestoneOpen(false)}>
+          <Pressable className="bg-white dark:bg-gray-900 rounded-t-3xl p-5" onPress={() => {}}>
+            <View className="items-center mb-3">
+              <View className="h-1 w-10 rounded-full bg-gray-300 dark:bg-gray-700" />
+            </View>
+            <Text className="text-lg font-sans-bold text-gray-900 dark:text-white mb-3">
+              Add a milestone
+            </Text>
+            <TextInput
+              value={msTitle}
+              onChangeText={setMsTitle}
+              placeholder={isMemorial ? "e.g. First trip to the beach" : "e.g. Learned to sit!"}
+              placeholderTextColor="#9ca3af"
+              className="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-3 text-sm font-sans text-gray-900 dark:text-white"
+            />
+            <Text className="text-xs font-sans-semibold text-gray-500 uppercase tracking-wider mb-2 mt-4">
+              Type
+            </Text>
+            <View className="flex-row flex-wrap gap-2">
+              {MILESTONE_TYPES.map((t) => {
+                const active = msType === t.key;
+                return (
+                  <Pressable
+                    key={t.key}
+                    onPress={() => setMsType(t.key as PetMilestoneType)}
+                    className="rounded-full px-3 py-1.5 border"
+                    style={{
+                      borderColor: active ? themeAccent : "#d1d5db",
+                      backgroundColor: active ? `${themeAccent}18` : "transparent",
+                    }}
+                  >
+                    <Text
+                      className="text-xs font-sans-semibold"
+                      style={{ color: active ? themeAccent : "#6b7280" }}
+                    >
+                      {t.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            <Pressable
+              disabled={!msTitle.trim() || addMilestone.isPending}
+              onPress={handleAddMilestone}
+              className="mt-5 rounded-xl py-3.5 items-center"
+              style={{ backgroundColor: msTitle.trim() && !addMilestone.isPending ? themeAccent : "#e5e7eb" }}
+            >
+              {addMilestone.isPending ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text className={`text-sm font-sans-bold ${msTitle.trim() ? "text-white" : "text-gray-400"}`}>
+                  Add milestone
                 </Text>
               )}
             </Pressable>

@@ -39,6 +39,84 @@ export function usePetTributes(petId: string | undefined) {
   });
 }
 
+/* ── Pet milestones (growth / journey timeline) ───────────────────── */
+
+export type PetMilestoneType =
+  | "birthday"
+  | "adoption_day"
+  | "training"
+  | "health"
+  | "travel"
+  | "achievement"
+  | "funny_moment"
+  | "other";
+
+export interface PetMilestone {
+  id: string;
+  pet_id: string;
+  title: string;
+  description: string | null;
+  milestone_date: string | null;
+  photo_url: string | null;
+  milestone_type: PetMilestoneType;
+  created_at: string;
+}
+
+export function usePetMilestones(petId: string | undefined) {
+  return useQuery({
+    queryKey: ["pet-milestones", petId],
+    enabled: !!petId,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("pet_milestones")
+        .select("*")
+        .eq("pet_id", petId!)
+        .order("milestone_date", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as PetMilestone[];
+    },
+  });
+}
+
+export function useAddPetMilestone() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      petId: string;
+      title: string;
+      milestoneType: PetMilestoneType;
+      description?: string;
+      milestoneDate?: string;
+      photoUrl?: string;
+    }) => {
+      const { data, error } = await (supabase as any)
+        .from("pet_milestones")
+        .insert({
+          pet_id: input.petId,
+          title: input.title,
+          milestone_type: input.milestoneType,
+          description: input.description ?? null,
+          milestone_date: input.milestoneDate ?? new Date().toISOString().split("T")[0],
+          photo_url: input.photoUrl ?? null,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return data as PetMilestone;
+    },
+    onSuccess: (_d, vars) => {
+      qc.invalidateQueries({ queryKey: ["pet-milestones", vars.petId] });
+    },
+    onError: (err, vars) => {
+      captureException(err, {
+        where: "usePetTributes.useAddPetMilestone",
+        pet_id: vars.petId,
+      });
+    },
+  });
+}
+
 export function useCreatePetTribute() {
   const qc = useQueryClient();
   return useMutation({

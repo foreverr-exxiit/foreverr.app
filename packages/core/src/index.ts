@@ -938,9 +938,14 @@ export type {
   WeddingRsvpStatus,
 } from "./hooks/useWeddingSocial";
 
-// Hooks — Pet tributes
-export { usePetTributes, useCreatePetTribute } from "./hooks/usePetTributes";
-export type { PetTribute } from "./hooks/usePetTributes";
+// Hooks — Pet tributes + milestones
+export {
+  usePetTributes,
+  useCreatePetTribute,
+  usePetMilestones,
+  useAddPetMilestone,
+} from "./hooks/usePetTributes";
+export type { PetTribute, PetMilestone, PetMilestoneType } from "./hooks/usePetTributes";
 
 // Types
 export type * from "./types/models";
